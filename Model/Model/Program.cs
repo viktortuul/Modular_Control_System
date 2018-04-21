@@ -19,12 +19,17 @@ namespace Model_watertank
             double dt = 0.01;
             Watertank plant = new Watertank(dt);
 
+            string ip_controller_send = args[0];
+            string ip_plant_recieve = args[1];
+            int port_controller_send = Convert.ToInt16(args[2]);
+            int port_plant_recieve = Convert.ToInt16(args[3]);
+
             // create a thread for listening on the controller
-            Thread thread_listen_controller = new Thread(() => listen_controller("127.0.0.1", 8887, plant));
+            Thread thread_listen_controller = new Thread(() => listen_controller(ip_plant_recieve, port_plant_recieve, plant));
             thread_listen_controller.Start();
 
             // create a thread for communication with the controller
-            Thread thread_send_controller = new Thread(() => send_controller("127.0.0.1", 8888, plant));
+            Thread thread_send_controller = new Thread(() => send_controller(ip_controller_send, port_controller_send, plant));
             thread_send_controller.Start();
 
             // create a thread for the watertank simulation

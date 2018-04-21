@@ -21,30 +21,39 @@ namespace Controller
         static bool connected_to_plant = false; // marker if a plant is connected to the plant (otherwise don't run cuntroller)
 
         static void Main(string[] args)
-        {
+        {   
             // initialize a dicationary
             dict.Add("u", "0");
             dict.Add("y1", "0");
             dict.Add("y2", "0");
 
+            string ip_gui_send = args[0];
+            string ip_gui_recieve = args[1];
+            int port_gui_send = Convert.ToInt16(args[2]);
+            int port_gui_recieve = Convert.ToInt16(args[3]);
+
+            string ip_plant_send = args[4];
+            string ip_plant_recieve = args[5];
+            int port_plant_send = Convert.ToInt16(args[6]);
+            int port_plant_recieve = Convert.ToInt16(args[7]);
 
             // initialize the controller
-            PID controller_pid = new PID(1, 40, 3);
+            PID controller_pid = new PID(2, 70, 3);
 
-            // create a thruead for sending to  the GUI
-            Thread thread_send_GUI = new Thread(() => send_GUI("127.0.0.1", 8885, controller_pid));
+            // create a thruead for sending to the GUI
+            Thread thread_send_GUI = new Thread(() => send_GUI(ip_gui_send, port_gui_send, controller_pid));
             thread_send_GUI.Start();
 
             // create a thread for listening on the GUI
-            Thread thread_listen_GUI = new Thread(() => listen_GUI("127.0.0.1", 8886, controller_pid));
+            Thread thread_listen_GUI = new Thread(() => listen_GUI(ip_gui_recieve, port_gui_recieve, controller_pid));
             thread_listen_GUI.Start();
 
             // create a thruead for sending to  the plant
-            Thread thread_send_plant = new Thread(() => send_plant("127.0.0.1", 8887, controller_pid));
+            Thread thread_send_plant = new Thread(() => send_plant(ip_plant_send, port_plant_send, controller_pid));
             thread_send_plant.Start();
 
             // create a thread for listening on the plant
-            Thread thread_listen_plant = new Thread(() => listen_plant("127.0.0.1", 8888, controller_pid));
+            Thread thread_listen_plant = new Thread(() => listen_plant(ip_plant_recieve, port_plant_recieve, controller_pid));
             thread_listen_plant.Start();
 
         }
@@ -155,6 +164,18 @@ namespace Controller
                     }
                 dict[key] = value;
             }
+        }
+    }
+
+    public struct PIDparameters
+    {
+        public double Kp, Ki, Kd;
+
+        public PIDparameters(double Kp_, double Ki_, double Kd_)
+        {
+            Kp = Kp_;
+            Ki = Ki_;
+            Kd = Kd_;
         }
     }
 
