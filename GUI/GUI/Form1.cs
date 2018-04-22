@@ -16,9 +16,13 @@ namespace GUI
 {
     public partial class Form1 : Form
     {
+        // chart settings
+        static int n_steps = 500;
+
+
         // controller container
-        List<Controller> controllers = new List<Controller>();
-        Controller controller_current;
+        List<ControllerConnection> connections = new List<ControllerConnection>();
+        ControllerConnection connection_current;
 
         // time format
         const string FMT = "yyyy-MM-dd HH:mm:ss.fffffff";
@@ -30,50 +34,97 @@ namespace GUI
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            AddChartSeries("reference");
         }
  
-        private void timer1_Tick(object sender, EventArgs e)
+        private void timerChart_Tick(object sender, EventArgs e)
         {
-
-            foreach (Controller controller in controllers)
+            int index = -1;
+            foreach (ControllerConnection controller in connections)
             {
-                // push each element in the arrays one step back
-                var keys = controller.dict_last.Keys.ToList();
+                index++;
 
-                // don't consider the time key
+                // update listbox
+                if (controller.connection_recieving == true)
+                {
+                    listBoxControllers.Items[index] = "PID (recieving)";
+                }
+                
+
+                // push each element in the arrays one step back (don't consider the time key)
+                var keys = controller.dict_last.Keys.ToList();
                 keys.Remove("time");
 
                 foreach (string key in keys)
                 {
                     if (controller.dict_temporal.ContainsKey(key) == false)
                     {
-                        controller.dict_temporal.Add(key, new double[500]);
+                        controller.dict_temporal.Add(key, new double[n_steps]);
                     }
-                    controller.dict_temporal[key][controller.dict_temporal[key].Length - 1] = Convert.ToDouble(controller.dict_last[key]);
+                    
                     Array.Copy(controller.dict_temporal[key], 1, controller.dict_temporal[key], 0, controller.dict_temporal[key].Length - 1);
+                    controller.dict_temporal[key][controller.dict_temporal[key].Length - 1] = Convert.ToDouble(controller.dict_last[key]);
                 }
 
                 // reference
-                controller.r_array[controller.r_array.Length - 1] = controller.r;
                 Array.Copy(controller.r_array, 1, controller.r_array, 0, controller.r_array.Length - 1);
+                controller.r_array[controller.r_array.Length - 1] = controller.r;
 
             }
 
-            if (listBox_controllers.Items.Count > 0)
+            if (connections.Count > 0)
             {
-                update_chart(controller_current);
+                UpdateChart(connection_current);       
             }
         }
 
-        public void addChartKey(string key)
+        public void AddChartSeries(string key)
         {
-            dataChart.Series.Add(key);
-            dataChart.Series[key].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            dataChart.Series[key].BorderWidth = 2;
+            // add a new time series
+            log("<" + key + ">");
+
+            this.Invoke((MethodInvoker)delegate ()
+            {
+                if (dataChart.Series.IndexOf(key) == -1)
+                {
+                    dataChart.Series.Add(key);
+                    dataChart.Series[key].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+                    dataChart.Series[key].BorderWidth = 2;
+
+                    switch (key)
+                    {
+                        case "reference":
+                            dataChart.Series[key].Color = Color.Red;
+                            dataChart.Series[key].BorderWidth = 1;
+                            break;
+                        case "u":
+                            dataChart.Series[key].Color = Color.Orange;
+                            dataChart.Series[key].BorderWidth = 1;
+                            break;
+                        case "y1":
+                            dataChart.Series[key].Color = Color.Blue;
+                            break;
+                        case "y2":
+                            dataChart.Series[key].Color = Color.Green;
+                            break;
+                        default:
+                            break;
+                    }        
+                 }
+            });
         }
 
-        private void update_chart(Controller controller)
+        public void EditListBox(int index, string message)
+        {
+            listBoxControllers.Items[index] = message;
+        }
+
+        public void log(string text)
+        {
+            this.Invoke((MethodInvoker)delegate () { tbDebugLog.AppendText(text + Environment.NewLine); });
+        }
+
+        private void UpdateChart(ControllerConnection controller)
         {
             var keys = controller.dict_temporal.Keys.ToArray();
 
@@ -83,9 +134,8 @@ namespace GUI
                 dataChart.Series[key].Points.Clear();
                 for (int i = 0; i < controller.dict_temporal[key].Length; i++)
                 {
-                    dataChart.Series[key].Points.AddY(controller.dict_temporal[key][i]);
-                    //log(Convert.ToString(controller.dict_temporal[key][i]));
-                }
+                    dataChart.Series[key].Points.AddY(controller.dict_temporal[key][i]);              
+                }      
             }
 
             // clear and update the graphs (for the reference)
@@ -94,6 +144,19 @@ namespace GUI
             {
                 dataChart.Series["reference"].Points.AddY(controller.r_array[i]);
             }
+
+
+            // Tank charts
+            try
+            {
+                chartTankTop.Series["tank_top"].Points.Clear();
+                chartTankBottom.Series["tank_bottom"].Points.Clear();
+                chartTankTop.Series["tank_top"].Points.AddY(Convert.ToDouble(controller.dict_last["y1"]));
+                chartTankBottom.Series["tank_bottom"].Points.AddY(Convert.ToDouble(controller.dict_last["y2"]));
+            }
+            catch { }
+
+
 
             // display timers
             try
@@ -109,14 +172,22 @@ namespace GUI
         }
 
 
-        public class Controller
+        public class ControllerConnection
         {
+            // identity string
+            public string identity = "";
+
+
+            // connection parameters
+            public bool connection_recieving = false;
+            public bool connection_sending = false;
+
             // time
             public DateTime last_recieved_time;
 
             // display variables
             public double r = 0; // reference value
-            public double[] r_array = new double[500]; // reference value (array) 
+            public double[] r_array = new double[n_steps]; // reference value (array) 
 
             public Dictionary<string, string> dict_last = new Dictionary<string, string>(); // recieved values (last)
             public Dictionary<string, double[]> dict_temporal = new Dictionary<string, double[]>(); // recieved values (array)
@@ -126,7 +197,7 @@ namespace GUI
             // main form access
             Form1 Main_form;
 
-            public Controller(Form1 f1, PIDparameters parameters, string ip_recieve, string ip_send, int port_recieve, int port_send)
+            public ControllerConnection(Form1 f1, PIDparameters parameters, string ip_recieve, string ip_send, int port_recieve, int port_send)
             {
                 // create a new thread for the listener
                 Thread thread_listener = new Thread(() => Listener(ip_send, port_recieve));
@@ -160,10 +231,12 @@ namespace GUI
 
                         // parse the message which contains time, u, y1, y2
                         parse_message(server.last_recieved);
+
+                        connection_recieving = true;
                     }
                     catch (Exception ex)
                     {
-                        //log(Convert.ToString(ex));
+                        Main_form.log(Convert.ToString(ex));
                     }
                 }
             }
@@ -180,6 +253,8 @@ namespace GUI
                     // send r, kp, ki, kd
                     string message = Convert.ToString("r_" + r + "#Kp_" + PID.Kp + "#Ki_" + PID.Ki + "#Kd_" + PID.Kd);
                     client.send(message);
+
+                    connection_sending = true;
                 }
             }
 
@@ -189,7 +264,6 @@ namespace GUI
                 // split the message with the delimiter '#'
                 string[] container = text.Split('#');
 
-                // log(message);
 
                 foreach (string item in container)
                 {
@@ -202,17 +276,19 @@ namespace GUI
 
                     if (dict_last.ContainsKey(key) == false)
                     {
-                        dict_last.Add(key, value);
-
+                        
                         // add new chart
                         if (key != "time")
                         {
-                            //add_Chart_Key = key;
-                            Main_form.addChartKey(key);
+                            Main_form.AddChartSeries(key);             
                         }
-
+                        dict_last.Add(key, value);
                     }
-                    dict_last[key] = value;
+                    else
+                    {
+                        dict_last[key] = value;
+                    }
+  
                 }
             }
         }
@@ -229,62 +305,42 @@ namespace GUI
             }
         }
 
-
-
-        private void trackBarReference_Scroll(object sender, EventArgs e)
+        private void tbReference_Scroll(object sender, EventArgs e)
         {
             // set the reference signal value according to the track bar
-            controller_current.r = trackBarReference.Value;
-            labelReference.Text = controller_current.r.ToString();
+            connection_current.r = tbReference.Value;
+            labelReference.Text = connection_current.r.ToString();
         }
 
-        private void maskedTextBox1_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
+        private void numUpDownKp_ValueChanged(object sender, EventArgs e)
         {
-
+            connection_current.PID.Kp = Convert.ToDouble(numUpDownKp.Value);
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void numUpDownKi_ValueChanged(object sender, EventArgs e)
         {
-
+            connection_current.PID.Ki = Convert.ToDouble(nUD_Ki.Value);
         }
 
-        private void numericUpDown_Kp_ValueChanged(object sender, EventArgs e)
+        private void numUpDownKd_ValueChanged(object sender, EventArgs e)
         {
-            controller_current.PID.Kp = Convert.ToDouble(numericUpDown_Kp.Value);
+            connection_current.PID.Kd = Convert.ToDouble(nUD_Kd.Value);
         }
 
-        private void numericUpDown_Ki_ValueChanged(object sender, EventArgs e)
+
+        private void listBoxControllers_SelectedIndexChanged(object sender, EventArgs e)
         {
-            controller_current.PID.Ki = Convert.ToDouble(numericUpDown_Ki.Value);
-        }
-
-        private void numericUpDown_Kd_ValueChanged(object sender, EventArgs e)
-        {
-            controller_current.PID.Kd = Convert.ToDouble(numericUpDown_Kd.Value);
-        }
-
-        private void groupBox2_Enter(object sender, EventArgs e)
-        {
+            connection_current = connections[listBoxControllers.SelectedIndex];
+            tbReference.Value = Convert.ToInt16(connection_current.r);
+            numUpDownKp.Value = Convert.ToDecimal(connection_current.PID.Kp);
+            nUD_Ki.Value = Convert.ToDecimal(connection_current.PID.Ki);
+            nUD_Kd.Value = Convert.ToDecimal(connection_current.PID.Kd);
+            labelReference.Text = connection_current.r.ToString();
 
         }
 
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            controller_current = controllers[listBox_controllers.SelectedIndex];
-            trackBarReference.Value = Convert.ToInt16(controller_current.r);
-            numericUpDown_Kp.Value = Convert.ToDecimal(controller_current.PID.Kp);
-            numericUpDown_Ki.Value = Convert.ToDecimal(controller_current.PID.Ki);
-            numericUpDown_Kd.Value = Convert.ToDecimal(controller_current.PID.Kd);
-            labelReference.Text = controller_current.r.ToString();
 
-        }
-
-        private void groupBox1_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button1_Click_1(object sender, EventArgs e)
+        private void btnAllowConnection_Click_1(object sender, EventArgs e)
         {
             string ip_send = textBox_ip_send.Text;
             string ip_recieve = textBox_ip_recieve.Text;
@@ -293,17 +349,12 @@ namespace GUI
 
             // create and add controller
             PIDparameters parameters = new PIDparameters(2, 100, 0.2);
-            Controller PID_1 = new Controller(this, parameters, ip_recieve, ip_send, port_recieve, port_send);
-            controllers.Add(PID_1);
-            controller_current = PID_1;
-            listBox_controllers.Items.Add("PID");
-        }
+            ControllerConnection PID_1 = new ControllerConnection(this, parameters, ip_recieve, ip_send, port_recieve, port_send);
+            connections.Add(PID_1);
+            connection_current = PID_1;
+            listBoxControllers.Items.Add("PID (waiting)");
 
-        
-        public void log(string text)
-        {
-            this.Invoke((MethodInvoker)delegate () { tbDebugLog.AppendText(text + Environment.NewLine); });
-        }
-        
+            timerChart.Start();
+        }  
     }
 }
