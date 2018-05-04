@@ -17,25 +17,25 @@ namespace Controller
 
         // other
         static double reference; // reference from GUI
-        static Dictionary<string, string> dict = new Dictionary<string, string>(); // contains recieved values
+        static Dictionary<string, string> package_last = new Dictionary<string, string>(); // contains control and measurement values
         static bool connected_to_plant = false; // marker if a plant is connected to the plant (otherwise don't run cuntroller)
 
         static void Main(string[] args)
-        {   
-            // initialize a dicationary
-            dict.Add("u", "0");
-            dict.Add("y1", "0");
-            dict.Add("y2", "0");
-
+        {
+            // parse the command line arguments
             string ip_gui_send = args[0];
             string ip_gui_recieve = args[1];
             int port_gui_send = Convert.ToInt16(args[2]);
             int port_gui_recieve = Convert.ToInt16(args[3]);
-
             string ip_plant_send = args[4];
             string ip_plant_recieve = args[5];
             int port_plant_send = Convert.ToInt16(args[6]);
             int port_plant_recieve = Convert.ToInt16(args[7]);
+
+            // initialize the dicationary
+            package_last.Add("u", "0");
+            package_last.Add("y1", "0");
+            package_last.Add("y2", "0");
 
             // initialize the controller
             PID controller_pid = new PID(2, 70, 3);
@@ -67,7 +67,9 @@ namespace Controller
             {
                 Thread.Sleep(100);
                 // send time, u, and y
-                string message = Convert.ToString("time_" + DateTime.UtcNow.ToString(FMT) + "#u_" + controller_pid.get_u() + "#y1_" + dict["y1"] + "#y2_" + dict["y2"]);
+
+                string message = ConstructMessage(controller_pid);
+                
 
                 client.send(message);
             }
@@ -88,9 +90,9 @@ namespace Controller
                     parse_message(server.last_recieved);
 
                     // compute the new control signal (with updated r)
-                    reference = Convert.ToDouble(dict["r"]);
-                    double measurement = Convert.ToDouble(dict["y2"]);
-                    controller_pid.update_parameters(Convert.ToDouble(dict["Kp"]), Convert.ToDouble(dict["Ki"]), Convert.ToDouble(dict["Kd"]));
+                    reference = Convert.ToDouble(package_last["r"]);
+                    double measurement = Convert.ToDouble(package_last["y2"]);
+                    controller_pid.update_parameters(Convert.ToDouble(package_last["Kp"]), Convert.ToDouble(package_last["Ki"]), Convert.ToDouble(package_last["Kd"]));
                     if (connected_to_plant) controller_pid.compute_control_signal(reference, measurement);
                 }
                 catch (Exception ex)
@@ -127,10 +129,9 @@ namespace Controller
                 {
                     server.listen();
                     parse_message(server.last_recieved);
-                    //Console.WriteLine("recieved y: " + Math.Round(y,2));
 
                     // compute the new control signal (with updated y2)    
-                    double measurement = Convert.ToDouble(dict["y2"]);
+                    double measurement = Convert.ToDouble(package_last["y2"]);
                     controller_pid.compute_control_signal(reference, measurement);
 
                     connected_to_plant = true;
@@ -141,6 +142,29 @@ namespace Controller
                 }
 
             }
+        }
+
+        public static string ConstructMessage(PID controller_pid)
+        {
+            string message = "";
+            message += Convert.ToString("time_" + DateTime.UtcNow.ToString(FMT));
+
+
+            for (int i = 0; i < package_last.Keys.Count(); i++)
+            {
+                var item = package_last.ElementAt(i);
+                string key = item.Key;
+
+                if (key.Contains("u"))
+                {
+                    message += "#" + key + "_" + controller_pid.get_u();
+                }
+                else if (key.Contains("y"))
+                {
+                    message += "#" + key + "_" + package_last[key].ToString();
+                }
+            }
+            return message;
         }
 
         public static void parse_message(string message)
@@ -158,11 +182,11 @@ namespace Controller
                 string key = subitem[0];
                 string value = subitem[1];
 
-                if (dict.ContainsKey(key) == false)
+                if (package_last.ContainsKey(key) == false)
                 {
-                    dict.Add(key, value);
-                    }
-                dict[key] = value;
+                    package_last.Add(key, value);
+                }
+                package_last[key] = value;
             }
         }
     }
@@ -226,7 +250,11 @@ namespace Controller
 
             // saturation
             if (u > u_max) u = u_max;
-            if (u < u_min) u = u_min;
+            if (u < u_min)
+            {
+                u = u_min;
+                I = 0;
+            }
 
             ep = e; // update prior error
 

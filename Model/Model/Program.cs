@@ -64,10 +64,18 @@ namespace Model_watertank
             {
                 Thread.Sleep(10);
 
-                // send y (and recieve u)
-                string y1 = Convert.ToString(plant.get_y1());
-                string y2 = Convert.ToString(plant.get_y2());
-                client.send("y1_" + y1 + "#y2_" + y2);
+                // send measurements y      
+                string message = "";
+                int counter = -1;
+                for (int i = 0; i < plant.get_y().Length; i++)
+                {
+                    counter++;
+                    message += "y" + (i+1) + "_" + plant.get_y()[i].ToString() + "#";
+                }
+                message += "y" + (3) + "_" + 6.ToString() + "#";
+                message = message.Substring(0, message.LastIndexOf('#'));
+                Console.WriteLine(message);
+                client.send(message);
             }
         }
 
@@ -77,7 +85,7 @@ namespace Model_watertank
             {
                 Thread.Sleep(10);
                 plant.update_state();
-                Console.WriteLine("y1: " + Math.Round(plant.get_y1(), 2) + "y2: " + Math.Round(plant.get_y2(), 2));
+                // Console.WriteLine("y1: " + Math.Round(plant.get_y()[0], 2) + "  y2: " + Math.Round(plant.get_y()[1], 2));
             }
         }
     }
@@ -119,14 +127,9 @@ namespace Model_watertank
             if (h2 < 0) h2 = 0; // empty tank
         }
 
-        public double get_y1()
+        public double[] get_y()
         {
-            return h1;
-        }
-
-        public double get_y2()
-        {
-            return h2;
+            return new double[] { h1, h2 };
         }
 
         public void set_u(double _u)

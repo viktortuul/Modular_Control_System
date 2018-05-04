@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,9 +16,6 @@ namespace GUI
 {
     public partial class Form1 : Form
     {
-        // connection count
-        public int n_connections = 0;
-
         // chart settings
         public static int n_steps = 500;
 
@@ -43,8 +40,17 @@ namespace GUI
  
         private void timerChart_Tick(object sender, EventArgs e)
         {
+            int index = -1; //
             foreach (ControllerConnection controller in connections)
             {
+                index++;
+
+                // update listbox
+                if (controller.is_recieving == true)
+                {
+                    listBoxControllers.Items[index] = controller.Identity();
+                }
+                
                 // push each element in the temporal data vectors one step back (don't consider the time key)
                 var keys = controller.package_last.Keys.ToList();
                 keys.Remove("time");
@@ -114,12 +120,6 @@ namespace GUI
             // clear and update the graphs (for each key)
             foreach (string key in keys)
             {
-                // if series does not exist, add it
-                if (dataChart.Series.IndexOf(key) == -1)
-                {
-                    AddChartSeries(key);
-                }
-
                 dataChart.Series[key].Points.Clear();
                 for (int i = 0; i < controller.packages[key].Length; i++)
                 {
@@ -134,7 +134,7 @@ namespace GUI
                 dataChart.Series["reference"].Points.AddY(controller.r_array[i]);
             }
 
-            // update tank charts
+            // Tank charts
             try
             {
                 chartTankTop.Series["tank_top"].Points.Clear();
@@ -144,7 +144,7 @@ namespace GUI
             }
             catch { }
 
-            // update time labels
+            // display timers
             try
             {
                 DateTime time_sent = DateTime.ParseExact(controller.package_last["time"], FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
@@ -161,126 +161,34 @@ namespace GUI
         {
             try
             {
-                // specify the new connection
                 connection_current = connections[listBoxControllers.SelectedIndex];
-
-                // clear and add keys to the new chart
-                dataChart.Series.Clear();
-
-                var keys = connection_current.packages.Keys.ToList();
-                keys.Remove("time");
-
-                AddChartSeries("reference");
-                foreach (string key in keys)
-                {
-                    AddChartSeries(key);
-                }
-    
-                // update GUI values according to the connected controller
-                trackBarReference.Value = Convert.ToInt16(connection_current.r);
-                labelReference.Text = connection_current.r.ToString();
-                numUpDownKp.Value = Convert.ToDecimal(connection_current.ControllerParameters.Kp);
-                numUpDownKi.Value = Convert.ToDecimal(connection_current.ControllerParameters.Ki);
-                numUpDownKd.Value = Convert.ToDecimal(connection_current.ControllerParameters.Kd);
-                textBox_ip_send.Text = connection_current.ConnectionParameters.ip_send;
-                textBox_ip_recieve.Text = connection_current.ConnectionParameters.ip_recieve;
-                numericUpDown_port_send.Text = connection_current.ConnectionParameters.port_send.ToString();
-                numericUpDown_port_recieve.Text = connection_current.ConnectionParameters.port_recieve.ToString();
-
-                // select the corresponding item in the treeview
-                treeViewControllers.SelectedNode = treeViewControllers.Nodes[connection_current.name];
             }
             catch { }
+
+            // update GUI values according to the connected controller
+            trackBarReference.Value = Convert.ToInt16(connection_current.r);
+            labelReference.Text = connection_current.r.ToString();
+            numUpDownKp.Value = Convert.ToDecimal(connection_current.PID.Kp);
+            numUpDownKi.Value = Convert.ToDecimal(connection_current.PID.Ki);
+            numUpDownKd.Value = Convert.ToDecimal(connection_current.PID.Kd);
         }
 
-        /*
-        public void UpdateListBox(ControllerConnection controller) // renames an item in the listbox (not currently in use)
+        private void btnAllowConnection_Click_1(object sender, EventArgs e)
         {
-            int index = 0;
-            for (int i = 0; i < connections.Count(); i++)
-            {
-                if (connections[i].Equals(controller))
-                {
-                    index = i;
-                    break;
-                }
-            }
-
-            // update listbox
-            this.Invoke((MethodInvoker)delegate ()
-            {
-                listBoxControllers.Items[index] = controller.Status();
-            });
-        }
-        */
-
-        public void UpdateTree(ControllerConnection controller)
-        {
-            // update tree
-            this.Invoke((MethodInvoker)delegate ()
-            {
-                treeViewControllers.Nodes[controller.name].Text = controller.name + " (" + controller.Status() + ")";
-                treeViewControllers.Nodes[controller.name].Nodes["Controller"].Nodes["Kp"].Text = connection_current.ControllerParameters.Kp.ToString();
-                treeViewControllers.Nodes[controller.name].Nodes["Controller"].Nodes["Ki"].Text = connection_current.ControllerParameters.Ki.ToString();
-                treeViewControllers.Nodes[controller.name].Nodes["Controller"].Nodes["Kd"].Text = connection_current.ControllerParameters.Kd.ToString();
-            });
-        }
-
-    private void btnAllowConnection_Click_1(object sender, EventArgs e)
-        {
-            // controller/connection name and corresponding ip:port pairs
-            string label = textBoxName.Text;
+            string label = "PID";
             string ip_send = textBox_ip_send.Text;
             string ip_recieve = textBox_ip_recieve.Text;
-            int port_recieve = Convert.ToInt16(numericUpDown_port_recieve.Value);
-            int port_send = Convert.ToInt16(numericUpDown_port_send.Text);
+            int port_recieve = Convert.ToInt32(textBox_port_recieve.Text);
+            int port_send = Convert.ToInt32(textBox_port_send.Text);
 
-            // look for name and port conflicts with present allowed traffics
-            bool already_exists = false;
-            foreach (ControllerConnection controller in connections)
-            {
-                if (controller.ConnectionParameters.port_recieve == port_recieve ||
-                    controller.ConnectionParameters.port_send == port_send ||
-                    controller.name == label)
-                {
-                    already_exists = true;
-                }
-            }
-            if (already_exists == true)
-            {
-                log("Error: name or port already in use");
-            }
-            else
-            {
-                // connection parameters
-                ConnectionParameters ConnParams = new ConnectionParameters(ip_recieve, ip_send, port_recieve, port_send);
+            // create and add controller
+            PIDparameters parameters = new PIDparameters(Convert.ToDouble(numUpDownKp.Value), Convert.ToDouble(numUpDownKi.Value), Convert.ToDouble(numUpDownKd.Value));
+            ControllerConnection PID_1 = new ControllerConnection(this, label, parameters, ip_recieve, ip_send, port_recieve, port_send);
+            connections.Add(PID_1);
+            connection_current = PID_1;
+            listBoxControllers.Items.Add("PID (waiting)");
 
-                // create and add controller
-                PIDparameters ControllerParameters = new PIDparameters(Convert.ToDouble(numUpDownKp.Value), Convert.ToDouble(numUpDownKi.Value), Convert.ToDouble(numUpDownKd.Value));
-                ControllerConnection PID_1 = new ControllerConnection(this, label, ControllerParameters, ConnParams);
-                connections.Add(PID_1);
-                connection_current = PID_1;
-                listBoxControllers.Items.Add(label);
-
-                timerChart.Start();
-
-
-                // create a root node
-                treeViewControllers.Nodes.Add(label, label);
-                treeViewControllers.Nodes[label].Nodes.Add("Connection", "Connection");
-                treeViewControllers.Nodes[label].Nodes["Connection"].Nodes.Add("ip", "IP: " + ip_send.ToString());
-                treeViewControllers.Nodes[label].Nodes["Connection"].Nodes.Add("port", "Port: " + port_send.ToString());
-                treeViewControllers.Nodes[label].Nodes["Connection"].Nodes.Add("port_gui", "Port (gui): " + port_recieve.ToString());
-                treeViewControllers.Nodes[label].Nodes.Add("Controller", "Controller (Kp, Ki, Kd)");
-                treeViewControllers.Nodes[label].Nodes["Controller"].Nodes.Add("Kp", ControllerParameters.Kp.ToString());
-                treeViewControllers.Nodes[label].Nodes["Controller"].Nodes.Add("Ki", ControllerParameters.Ki.ToString());
-                treeViewControllers.Nodes[label].Nodes["Controller"].Nodes.Add("Kd", ControllerParameters.Kd.ToString());
-                //treeView1.ExpandAll();
-
-                // update counter
-                n_connections += 1;
-                textBoxName.Text = "PID" + (n_connections + 1);
-            }
+            timerChart.Start();
         }
 
 
@@ -288,13 +196,14 @@ namespace GUI
         public class ControllerConnection
         {
             // identity parameters
-            public string name = "";
+            string name = "";
             string status = "waiting";
 
             // connection parameters
-            public ConnectionParameters ConnectionParameters;
             public bool is_recieving = false;
             public bool is_sending = false;
+            string ip = "";
+            string port = "";
 
             // time parameters
             public DateTime last_recieved_time;
@@ -308,30 +217,31 @@ namespace GUI
             public Dictionary<string, double[]> packages = new Dictionary<string, double[]>(); // recieved values (continously added according to timer)
 
             // controller parameters
-            public PIDparameters ControllerParameters;
+            public PIDparameters PID;
 
             // main form access
             Form1 Main_form;
 
-            public ControllerConnection(Form1 f, string label_, PIDparameters ControllerParameters_, ConnectionParameters ConnectionParameters_)
+            public ControllerConnection(Form1 f, string label_, PIDparameters parameters, string ip_recieve, string ip_send, int port_recieve, int port_send)
             {
-                // main form access
-                Main_form = f;
-
                 // identity parameters
                 name = label_;
-                ConnectionParameters = ConnectionParameters_;
-
-                // update controller parameters
-                ControllerParameters = ControllerParameters_;
+                ip = ip_send;
+                port = port_send.ToString();
 
                 // create a new thread for the listener
-                Thread thread_listener = new Thread(() => Listener(ConnectionParameters.ip_recieve, ConnectionParameters.port_recieve));
+                Thread thread_listener = new Thread(() => Listener(ip_send, port_recieve));
                 thread_listener.Start();
 
                 // create a new thread for the sender
-                Thread thread_sender = new Thread(() => Sender(ConnectionParameters.ip_send, ConnectionParameters.port_send));
+                Thread thread_sender = new Thread(() => Sender(ip_recieve, port_send));
                 thread_sender.Start();
+
+                // update controller parameters
+                PID = new PIDparameters(parameters.Kp, parameters.Ki, parameters.Kd);
+
+                // main form access
+                Main_form = f;
             }
 
             private void Listener(string IP, int port)
@@ -353,11 +263,7 @@ namespace GUI
                         ParseMessage(server.last_recieved);
 
                         // flag that the GUI is recieving packages from the controller
-                        if (is_recieving == false)
-                        {
-                            is_recieving = true;
-                            Main_form.UpdateTree(this);
-                        }                    
+                        is_recieving = true;
                     }
                     catch (Exception ex)
                     {
@@ -377,15 +283,11 @@ namespace GUI
                     Thread.Sleep(100);
 
                     // send r, kp, ki, kd
-                    string message = Convert.ToString("r_" + r + "#Kp_" + ControllerParameters.Kp + "#Ki_" + ControllerParameters.Ki + "#Kd_" + ControllerParameters.Kd);
+                    string message = Convert.ToString("r_" + r + "#Kp_" + PID.Kp + "#Ki_" + PID.Ki + "#Kd_" + PID.Kd);
                     client.send(message);
 
                     // flag that the GUI is sending packages to the controller
-                    if (is_sending == false)
-                    {
-                        is_sending = true;
-                        Main_form.UpdateTree(this);
-                    }
+                    is_sending = true;
                 }
             }
 
@@ -394,6 +296,7 @@ namespace GUI
                 string text = message;
                 // split the message with the delimiter '#'
                 string[] container = text.Split('#');
+
 
                 foreach (string item in container)
                 {
@@ -404,9 +307,13 @@ namespace GUI
                     string key = subitem[0];
                     string value = subitem[1];
 
-                    // store the value
                     if (package_last.ContainsKey(key) == false)
                     {
+                        // add new chart
+                        if (key != "time")
+                        {
+                            Main_form.AddChartSeries(key);             
+                        }
                         package_last.Add(key, value);
                     }
                     else
@@ -417,7 +324,7 @@ namespace GUI
                 }
             }
 
-            public string Status()
+            public string Identity()
             {
                 if (is_sending == true && is_recieving == true)
                 {
@@ -425,14 +332,14 @@ namespace GUI
                 }
                 else if (is_sending == false && is_recieving == true)
                 {
-                    status = "only recieving";
+                    status = " only recieving";
                 }
                 else if (is_sending == true && is_recieving == false)
                 {
                     status = "only sending";
                 }
 
-                return status;
+                return name + " (" + status + "), " + ip + ":" + port;
             }
         }
 
@@ -448,20 +355,6 @@ namespace GUI
             }
         }
 
-        public struct ConnectionParameters
-        {
-            public string ip_recieve, ip_send;
-            public int port_recieve, port_send;
-
-            public ConnectionParameters(string ip_recieve_, string ip_send_, int port_recieve_, int port_send_)
-            {
-                ip_recieve = ip_recieve_;
-                ip_send = ip_send_;
-                port_recieve = port_recieve_;
-                port_send = port_send_;
-            }
-        }
-
         private void trackBarReference_Scroll(object sender, EventArgs e)
         {
             // set the reference signal value according to the track bar
@@ -474,34 +367,20 @@ namespace GUI
 
         private void numUpDownKp_ValueChanged(object sender, EventArgs e)
         {
-            try
-            {
-                connection_current.ControllerParameters.Kp = Convert.ToDouble(numUpDownKp.Value);
-                UpdateTree(connection_current);
-            }
-            catch { }
- 
+            connection_current.PID.Kp = Convert.ToDouble(numUpDownKp.Value);
         }
 
         private void numUpDownKi_ValueChanged(object sender, EventArgs e)
         {
-            try
-            {
-                connection_current.ControllerParameters.Ki = Convert.ToDouble(numUpDownKi.Value);
-                UpdateTree(connection_current);
-            }
-            catch { }
+            connection_current.PID.Ki = Convert.ToDouble(numUpDownKi.Value);
         }
 
         private void numUpDownKd_ValueChanged(object sender, EventArgs e)
         {
-            try
-            {
-                connection_current.ControllerParameters.Kd = Convert.ToDouble(numUpDownKd.Value);
-                UpdateTree(connection_current);
-            }
-            catch { }
+            connection_current.PID.Kd = Convert.ToDouble(numUpDownKd.Value);
         }
+
+
 
 
         public void EditListBox(int index, string message)
@@ -518,6 +397,5 @@ namespace GUI
         {
            
         }
-
     }
 }
