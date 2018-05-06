@@ -15,10 +15,12 @@ namespace Controller
         // time format
         const string FMT = "yyyy-MM-dd HH:mm:ss.fffffff";
 
-        // other
-        static double reference; // reference from GUI
+        // data containers (dictionaries)
         static Dictionary<string, string> package_last = new Dictionary<string, string>(); // contains control and measurement values
         static bool connected_to_plant = false; // marker if a plant is connected to the plant (otherwise don't run cuntroller)
+
+        // controller container
+        static List<PID> PIDList = new List<PID>();
 
         static void Main(string[] args)
         {
@@ -32,33 +34,28 @@ namespace Controller
             int port_plant_send = Convert.ToInt16(args[6]);
             int port_plant_recieve = Convert.ToInt16(args[7]);
 
-            // initialize the dicationary
-            package_last.Add("u", "0");
-            package_last.Add("y1", "0");
-            package_last.Add("y2", "0");
-
             // initialize the controller
             PID controller_pid = new PID(2, 70, 3);
 
             // create a thruead for sending to the GUI
-            Thread thread_send_GUI = new Thread(() => send_GUI(ip_gui_send, port_gui_send, controller_pid));
+            Thread thread_send_GUI = new Thread(() => send_GUI(ip_gui_send, port_gui_send, PIDList));
             thread_send_GUI.Start();
 
             // create a thread for listening on the GUI
-            Thread thread_listen_GUI = new Thread(() => listen_GUI(ip_gui_recieve, port_gui_recieve, controller_pid));
+            Thread thread_listen_GUI = new Thread(() => listen_GUI(ip_gui_recieve, port_gui_recieve, PIDList));
             thread_listen_GUI.Start();
 
             // create a thruead for sending to  the plant
-            Thread thread_send_plant = new Thread(() => send_plant(ip_plant_send, port_plant_send, controller_pid));
+            Thread thread_send_plant = new Thread(() => send_plant(ip_plant_send, port_plant_send, PIDList));
             thread_send_plant.Start();
 
             // create a thread for listening on the plant
-            Thread thread_listen_plant = new Thread(() => listen_plant(ip_plant_recieve, port_plant_recieve, controller_pid));
+            Thread thread_listen_plant = new Thread(() => listen_plant(ip_plant_recieve, port_plant_recieve, PIDList));
             thread_listen_plant.Start();
 
         }
 
-        public static void send_GUI(string IP, int port, PID controller_pid)
+        public static void send_GUI(string IP, int port, List<PID> PIDList_)
         {
             // initialize a connection to the GUI
             Client client = new Client(IP, port);
@@ -66,16 +63,16 @@ namespace Controller
             while (true)
             {
                 Thread.Sleep(100);
+
                 // send time, u, and y
-
-                string message = ConstructMessage(controller_pid);
-                
-
+                string message = ConstructMessageGui(PIDList_);
+                //Console.WriteLine("sent gui: " + message);
                 client.send(message);
+                Console.WriteLine("sent GUI: " + message);
             }
         }
 
-        public static void listen_GUI(string IP, int port, PID controller_pid)
+        public static void listen_GUI(string IP, int port, List<PID> PIDList_)
         {
             // initialize a connection to the GUI
             Server server = new Server(IP, port);
@@ -87,13 +84,33 @@ namespace Controller
                 try
                 {
                     server.listen();
+                    Console.WriteLine("from GUI:" + server.last_recieved);
                     parse_message(server.last_recieved);
 
-                    // compute the new control signal (with updated r)
-                    reference = Convert.ToDouble(package_last["r"]);
-                    double measurement = Convert.ToDouble(package_last["y2"]);
-                    controller_pid.update_parameters(Convert.ToDouble(package_last["Kp"]), Convert.ToDouble(package_last["Ki"]), Convert.ToDouble(package_last["Kd"]));
-                    if (connected_to_plant) controller_pid.compute_control_signal(reference, measurement);
+                    /*
+                    foreach (string key in package_last.Keys)
+                    {
+                        Console.WriteLine(key);
+                    }
+                    Console.WriteLine(PIDList_.Count);
+                    */
+
+
+                    // compute the new control signal for each controller (with updated r)
+                    int index = 0;
+                    foreach (PID controller in PIDList_)
+                    {           
+                        index++;
+                        double reference = Convert.ToDouble(package_last["r" + index]);
+                        double measurement = Convert.ToDouble(package_last["cy" + index]);
+
+                        controller.update_parameters(Convert.ToDouble(package_last["Kp"]), Convert.ToDouble(package_last["Ki"]), Convert.ToDouble(package_last["Kd"]));
+
+                        if (connected_to_plant)
+                        {
+                            controller.compute_control_signal(reference, measurement);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -102,7 +119,7 @@ namespace Controller
             }
         }
 
-        static public void send_plant(string IP, int port, PID controller_pid)
+        static public void send_plant(string IP, int port, List<PID> PIDList_)
         {
             // initialize a connection to the plant
             Client client = new Client(IP, port);
@@ -110,13 +127,16 @@ namespace Controller
             while (true)
             {
                 Thread.Sleep(10);
+
                 // send u to the plant
-                client.send(Convert.ToString(controller_pid.get_u()));
-                Console.WriteLine("sent u: " + Math.Round(controller_pid.get_u(), 2));
+                string message = ConstructMessagePlant(PIDList_);
+
+                client.send(message);
+                Console.WriteLine("sent plant: " + message);
             }
         }
 
-        public static void listen_plant(string IP, int port, PID controller_pid)
+        public static void listen_plant(string IP, int port, List<PID> PIDList_)
         {
             // initialize a connection to the plant
             Server server = new Server(IP, port);
@@ -130,10 +150,16 @@ namespace Controller
                     server.listen();
                     parse_message(server.last_recieved);
 
-                    // compute the new control signal (with updated y2)    
-                    double measurement = Convert.ToDouble(package_last["y2"]);
-                    controller_pid.compute_control_signal(reference, measurement);
-
+                    // compute the new control signal for each controller
+                    int index = 0;
+                    foreach (PID controller in PIDList_)
+                    {
+                        index++;
+                        double reference = Convert.ToDouble(package_last["r" + index]);
+                        double measurement = Convert.ToDouble(package_last["cy" + index]);
+                        Console.WriteLine("reci: " + "cy" + index + ":" + measurement.ToString());
+                        controller.compute_control_signal(reference, measurement);
+                    }
                     connected_to_plant = true;
                 }
                 catch (Exception ex)
@@ -144,32 +170,65 @@ namespace Controller
             }
         }
 
-        public static string ConstructMessage(PID controller_pid)
+        public static string ConstructMessageGui(List<PID> PIDList_)
         {
             string message = "";
             message += Convert.ToString("time_" + DateTime.UtcNow.ToString(FMT));
 
 
+            int index = 0;
+            foreach (PID controller in PIDList_)
+            {
+                index++;
+                message += "#u" + index + "_" + controller.get_u();
+            }
+
             for (int i = 0; i < package_last.Keys.Count(); i++)
             {
-                var item = package_last.ElementAt(i);
-                string key = item.Key;
+                try
+                {            
+                    var item = package_last.ElementAt(i);
+                    string key = item.Key;
 
-                if (key.Contains("u"))
-                {
-                    message += "#" + key + "_" + controller_pid.get_u();
+                    if (key.Contains("ly"))
+                    {
+                        message += "#" + key + "_" + package_last[key].ToString();
+                    }
+                    else if (key.Contains("cy"))
+                    {
+                        message += "#" + key + "_" + package_last[key].ToString();
+                    }
                 }
-                else if (key.Contains("y"))
+                catch (Exception ex)
                 {
-                    message += "#" + key + "_" + package_last[key].ToString();
+                    Console.WriteLine(ex);
                 }
             }
+            return message;
+        }
+
+        public static string ConstructMessagePlant(List<PID> PIDList_)
+        {
+            string message = "";
+
+            int index = 0;
+            foreach (PID controller in PIDList_)
+            {
+                index++;
+                message += "#u" + index + "_" + controller.get_u();
+            }
+            try
+            {
+                message = message.Substring(1);
+            }
+            catch { }
             return message;
         }
 
         public static void parse_message(string message)
         {
             string text = message;
+
             // split the message with the delimiter '#'
             string[] container = text.Split('#');
 
@@ -185,6 +244,14 @@ namespace Controller
                 if (package_last.ContainsKey(key) == false)
                 {
                     package_last.Add(key, value);
+
+                    // add controller to detected output 
+                    if (key.Contains("cy"))
+                    {
+                        PIDList.Add(new PID(1, 1, 1));
+
+                        package_last.Add("r" + key.Substring(2), "0");
+                    }
                 }
                 package_last[key] = value;
             }
@@ -219,8 +286,8 @@ namespace Controller
         private double Kd; // derivator
 
         // controller limitations
-        private double u_max = 5;
-        private double u_min = 0;
+        private double u_max = 7.5;
+        private double u_min = -7.5;
 
         // constructor
         public PID(double Kp_, double Ki_, double Kd_) 
@@ -252,7 +319,8 @@ namespace Controller
             if (u > u_max) u = u_max;
             if (u < u_min)
             {
-                u = u_min;
+                // u = u_min;
+                u = 0;
                 I = 0;
             }
 

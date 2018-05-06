@@ -36,18 +36,27 @@ namespace GUI
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            AddChartSeries("reference");
             dataChart.ChartAreas["ChartArea1"].AxisX.Title = "Time [steps * 100ms]";
             dataChart.ChartAreas["ChartArea1"].AxisY.Title = "Magnitude";
         }
  
         private void timerChart_Tick(object sender, EventArgs e)
         {
+            // check if reference series exists
+            for (int i = 0; i < connection_current.n_refs; i++)
+            {
+                if ((dataChart.Series.IndexOf("r" + (i + 1).ToString()) == -1))
+                AddChartSeries("r" + (i + 1).ToString());
+            }
+
+            // enable or disable reference track bars
+            ManageTrackbars();
+
+            // push each element in the temporal data vectors one step back
             foreach (ControllerConnection controller in connections)
             {
-                // push each element in the temporal data vectors one step back (don't consider the time key)
                 var keys = controller.package_last.Keys.ToList();
-                keys.Remove("time");
+                keys.Remove("time"); // don't consider the time key
 
                 foreach (string key in keys)
                 {
@@ -60,11 +69,18 @@ namespace GUI
                     controller.packages[key][controller.packages[key].Length - 1] = Convert.ToDouble(controller.package_last[key]);
                 }
 
-                // reference
-                Array.Copy(controller.r_array, 1, controller.r_array, 0, controller.r_array.Length - 1);
-                controller.r_array[controller.r_array.Length - 1] = controller.r;
+                // push reference values
+                for (int i = 0; i < controller.n_refs; i++)
+                {
+                    for (int j = 0; j < controller.r_array.GetLength(1) - 1; j++)
+                    {
+                        controller.r_array[i, j] = controller.r_array[i, j + 1];
+                    }
+                    controller.r_array[i, n_steps - 1] = controller.r[i];
+                }
             }
 
+            // refresh the chart
             if (connections.Count > 0)
             {
                 UpdateChart(connection_current);       
@@ -86,19 +102,33 @@ namespace GUI
 
                     switch (key)
                     {
-                        case "reference":
+                        case "r1":
                             dataChart.Series[key].Color = Color.Red;
                             dataChart.Series[key].BorderWidth = 1;
                             break;
-                        case "u":
+                        case "r2":
+                            dataChart.Series[key].Color = Color.Maroon;
+                            dataChart.Series[key].BorderWidth = 1;
+                            break;
+                        case "u1":
                             dataChart.Series[key].Color = Color.Orange;
                             dataChart.Series[key].BorderWidth = 1;
                             break;
-                        case "y1":
+                        case "u2":
+                            dataChart.Series[key].Color = Color.Yellow;
+                            dataChart.Series[key].BorderWidth = 1;
+                            break;
+                        case "ly1":
                             dataChart.Series[key].Color = Color.Blue;
                             break;
-                        case "y2":
+                        case "ly2":
                             dataChart.Series[key].Color = Color.Green;
+                            break;
+                        case "cy1":
+                            dataChart.Series[key].Color = Color.Black;
+                            break;
+                        case "cy2":
+                            dataChart.Series[key].Color = Color.Gray;
                             break;
                         default:
                             break;
@@ -128,10 +158,20 @@ namespace GUI
             }
 
             // clear and update the graphs (for the reference)
-            dataChart.Series["reference"].Points.Clear();
-            for (int i = 0; i < controller.r_array.Length; i++)
+            try
             {
-                dataChart.Series["reference"].Points.AddY(controller.r_array[i]);
+                for (int i = 0; i < controller.n_refs; i++)
+                {
+                    dataChart.Series["r" + (i + 1).ToString()].Points.Clear();
+                    for (int j = 0; j < controller.r_array.GetLength(1); j++)
+                    {
+                        dataChart.Series["r" + (i + 1).ToString()].Points.AddY(controller.r_array[i, j]);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log(ex.ToString());
             }
 
             // update tank charts
@@ -166,19 +206,26 @@ namespace GUI
 
                 // clear and add keys to the new chart
                 dataChart.Series.Clear();
-
                 var keys = connection_current.packages.Keys.ToList();
                 keys.Remove("time");
 
-                AddChartSeries("reference");
+                for (int i = 0; i < connection_current.n_refs; i++)
+                {
+                    AddChartSeries("r" + (i+1).ToString());
+                }
+
+                // enable or disable reference track bars
+                ManageTrackbars();
+
+
                 foreach (string key in keys)
                 {
                     AddChartSeries(key);
                 }
-    
+
                 // update GUI values according to the connected controller
-                trackBarReference.Value = Convert.ToInt16(connection_current.r);
-                labelReference.Text = connection_current.r.ToString();
+                trackBarReference.Value = Convert.ToInt16(connection_current.r[0]);
+                trackBar1.Value = Convert.ToInt16(connection_current.r[1]);
                 numUpDownKp.Value = Convert.ToDecimal(connection_current.ControllerParameters.Kp);
                 numUpDownKi.Value = Convert.ToDecimal(connection_current.ControllerParameters.Ki);
                 numUpDownKd.Value = Convert.ToDecimal(connection_current.ControllerParameters.Kd);
@@ -190,7 +237,29 @@ namespace GUI
                 // select the corresponding item in the treeview
                 treeViewControllers.SelectedNode = treeViewControllers.Nodes[connection_current.name];
             }
-            catch { }
+            catch (Exception ex)
+            {
+                log(ex.ToString());
+            }
+        }
+
+        public void ManageTrackbars()
+        {
+            // enable or disable trackbars
+            if (connection_current.n_refs == 1)
+            {
+                trackBarReference.Enabled = true;
+            }
+            else if (connection_current.n_refs == 2)
+            {
+                trackBarReference.Enabled = true;
+                trackBar1.Enabled = true;
+            }
+            else
+            {
+                trackBarReference.Enabled = false;
+                trackBar1.Enabled = false;
+            }
         }
 
         /*
@@ -228,7 +297,7 @@ namespace GUI
 
     private void btnAllowConnection_Click_1(object sender, EventArgs e)
         {
-            // controller/connection name and corresponding ip:port pairs
+            // controller name and corresponding ip:port pairs
             string label = textBoxName.Text;
             string ip_send = textBox_ip_send.Text;
             string ip_recieve = textBox_ip_recieve.Text;
@@ -261,6 +330,12 @@ namespace GUI
                 connections.Add(PID_1);
                 connection_current = PID_1;
                 listBoxControllers.Items.Add(label);
+
+                // if no listbox item is selected, select the top one
+                if (listBoxControllers.SelectedIndex == -1)
+                {
+                    listBoxControllers.SelectedIndex = 0;
+                }
 
                 timerChart.Start();
 
@@ -300,8 +375,9 @@ namespace GUI
             public DateTime last_recieved_time;
 
             // display variables
-            public double r = 0; // current reference value
-            public double[] r_array = new double[n_steps]; // reference value (array) 
+            public int n_refs = 0;
+            public double[] r = new double[] {0, 0}; // current reference value
+            public double[,] r_array = new double[2, n_steps]; // reference value (array) 
 
             // data containers (dictionaries)
             public Dictionary<string, string> package_last = new Dictionary<string, string>(); // recieved values (last)
@@ -349,6 +425,13 @@ namespace GUI
                         server.listen();
                         last_recieved_time = DateTime.UtcNow;
 
+                        int counter = 0;
+                        foreach (string key in package_last.Keys)
+                        {
+                            if (key.Contains("cy")) counter++;
+                        }
+                        n_refs = counter;
+
                         // parse the message which contains time, u, y1, y2
                         ParseMessage(server.last_recieved);
 
@@ -376,8 +459,22 @@ namespace GUI
                 {
                     Thread.Sleep(100);
 
-                    // send r, kp, ki, kd
-                    string message = Convert.ToString("r_" + r + "#Kp_" + ControllerParameters.Kp + "#Ki_" + ControllerParameters.Ki + "#Kd_" + ControllerParameters.Kd);
+                    // attatch reference values
+                    string message = "";
+                    for (int i = 0; i < n_refs; i++)
+                    {
+                        message += "r" + (i+1).ToString() + "_" + r[i] + "#";
+                    }
+
+                    // attach controller parameters
+                    message += Convert.ToString("Kp_" + ControllerParameters.Kp + "#Ki_" + ControllerParameters.Ki + "#Kd_" + ControllerParameters.Kd);
+
+                    if (message.Substring(0, 1) == "#")
+                    {
+                        message = message.Substring(1);
+                    }
+
+
                     client.send(message);
 
                     // flag that the GUI is sending packages to the controller
@@ -467,8 +564,19 @@ namespace GUI
             // set the reference signal value according to the track bar
             if (connections.Count > 0 && listBoxControllers.SelectedIndex != -1)
             {
-                connection_current.r = trackBarReference.Value;
-                labelReference.Text = connection_current.r.ToString();
+                connection_current.r[0] = trackBarReference.Value;
+                labelReference1.Text = trackBarReference.Value.ToString();
+            }
+        }
+
+
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            // set the reference signal value according to the track bar
+            if (connections.Count > 0 && listBoxControllers.SelectedIndex != -1)
+            {
+                connection_current.r[1] = trackBar1.Value;
+                labelReference2.Text = trackBar1.Value.ToString();
             }
         }
 

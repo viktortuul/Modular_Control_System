@@ -44,7 +44,7 @@
             this.timerChart = new System.Windows.Forms.Timer(this.components);
             this.dataChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.trackBarReference = new System.Windows.Forms.TrackBar();
-            this.labelReference = new System.Windows.Forms.Label();
+            this.labelReference1 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.numUpDownKp = new System.Windows.Forms.NumericUpDown();
             this.numUpDownKi = new System.Windows.Forms.NumericUpDown();
@@ -71,8 +71,8 @@
             this.label8 = new System.Windows.Forms.Label();
             this.trackBar1 = new System.Windows.Forms.TrackBar();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.label2 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
+            this.labelReference2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarReference)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownKp)).BeginInit();
@@ -91,17 +91,17 @@
             // 
             // tbDebugLog
             // 
-            this.tbDebugLog.Location = new System.Drawing.Point(899, 24);
+            this.tbDebugLog.Location = new System.Drawing.Point(923, 24);
             this.tbDebugLog.Multiline = true;
             this.tbDebugLog.Name = "tbDebugLog";
             this.tbDebugLog.ReadOnly = true;
-            this.tbDebugLog.Size = new System.Drawing.Size(284, 93);
+            this.tbDebugLog.Size = new System.Drawing.Size(492, 93);
             this.tbDebugLog.TabIndex = 0;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(897, 7);
+            this.label1.Location = new System.Drawing.Point(921, 7);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(54, 13);
             this.label1.TabIndex = 1;
@@ -135,20 +135,20 @@
             // trackBarReference
             // 
             this.trackBarReference.Location = new System.Drawing.Point(11, 24);
-            this.trackBarReference.Maximum = 4;
+            this.trackBarReference.Maximum = 20;
             this.trackBarReference.Name = "trackBarReference";
             this.trackBarReference.Size = new System.Drawing.Size(155, 45);
             this.trackBarReference.TabIndex = 4;
             this.trackBarReference.Scroll += new System.EventHandler(this.trackBarReference_Scroll);
             // 
-            // labelReference
+            // labelReference1
             // 
-            this.labelReference.AutoSize = true;
-            this.labelReference.Location = new System.Drawing.Point(172, 27);
-            this.labelReference.Name = "labelReference";
-            this.labelReference.Size = new System.Drawing.Size(13, 13);
-            this.labelReference.TabIndex = 5;
-            this.labelReference.Text = "0";
+            this.labelReference1.AutoSize = true;
+            this.labelReference1.Location = new System.Drawing.Point(172, 27);
+            this.labelReference1.Name = "labelReference1";
+            this.labelReference1.Size = new System.Drawing.Size(13, 13);
+            this.labelReference1.TabIndex = 5;
+            this.labelReference1.Text = "0";
             // 
             // label3
             // 
@@ -163,7 +163,7 @@
             // 
             this.numUpDownKp.DecimalPlaces = 1;
             this.numUpDownKp.Increment = new decimal(new int[] {
-            5,
+            1,
             0,
             0,
             65536});
@@ -172,7 +172,7 @@
             this.numUpDownKp.Size = new System.Drawing.Size(49, 20);
             this.numUpDownKp.TabIndex = 7;
             this.numUpDownKp.Value = new decimal(new int[] {
-            2,
+            5,
             0,
             0,
             0});
@@ -180,6 +180,12 @@
             // 
             // numUpDownKi
             // 
+            this.numUpDownKi.DecimalPlaces = 1;
+            this.numUpDownKi.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
             this.numUpDownKi.Location = new System.Drawing.Point(37, 51);
             this.numUpDownKi.Maximum = new decimal(new int[] {
             500,
@@ -190,7 +196,7 @@
             this.numUpDownKi.Size = new System.Drawing.Size(49, 20);
             this.numUpDownKi.TabIndex = 8;
             this.numUpDownKi.Value = new decimal(new int[] {
-            20,
+            15,
             0,
             0,
             0});
@@ -209,10 +215,10 @@
             this.numUpDownKd.Size = new System.Drawing.Size(49, 20);
             this.numUpDownKd.TabIndex = 9;
             this.numUpDownKd.Value = new decimal(new int[] {
-            1,
+            5,
             0,
             0,
-            0});
+            65536});
             this.numUpDownKd.ValueChanged += new System.EventHandler(this.numUpDownKd_ValueChanged);
             // 
             // groupBox1
@@ -473,33 +479,25 @@
             // 
             this.trackBar1.Enabled = false;
             this.trackBar1.Location = new System.Drawing.Point(11, 58);
-            this.trackBar1.Maximum = 4;
+            this.trackBar1.Maximum = 20;
             this.trackBar1.Name = "trackBar1";
             this.trackBar1.Size = new System.Drawing.Size(155, 45);
             this.trackBar1.TabIndex = 19;
+            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
             // 
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.label9);
-            this.groupBox4.Controls.Add(this.label2);
+            this.groupBox4.Controls.Add(this.labelReference2);
             this.groupBox4.Controls.Add(this.trackBar1);
             this.groupBox4.Controls.Add(this.trackBarReference);
-            this.groupBox4.Controls.Add(this.labelReference);
+            this.groupBox4.Controls.Add(this.labelReference1);
             this.groupBox4.Location = new System.Drawing.Point(298, 11);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(200, 110);
             this.groupBox4.TabIndex = 20;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Reference";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(172, 62);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(13, 13);
-            this.label2.TabIndex = 20;
-            this.label2.Text = "0";
             // 
             // label9
             // 
@@ -508,6 +506,15 @@
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(0, 13);
             this.label9.TabIndex = 21;
+            // 
+            // labelReference2
+            // 
+            this.labelReference2.AutoSize = true;
+            this.labelReference2.Location = new System.Drawing.Point(172, 62);
+            this.labelReference2.Name = "labelReference2";
+            this.labelReference2.Size = new System.Drawing.Size(13, 13);
+            this.labelReference2.TabIndex = 20;
+            this.labelReference2.Text = "0";
             // 
             // Form1
             // 
@@ -557,7 +564,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Timer timerChart;
         private System.Windows.Forms.TrackBar trackBarReference;
-        private System.Windows.Forms.Label labelReference;
+        private System.Windows.Forms.Label labelReference1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown numUpDownKp;
         private System.Windows.Forms.NumericUpDown numUpDownKi;
@@ -586,7 +593,7 @@
         private System.Windows.Forms.TrackBar trackBar1;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label labelReference2;
     }
 }
 
