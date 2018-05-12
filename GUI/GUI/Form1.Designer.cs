@@ -29,16 +29,16 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea13 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend13 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea14 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend14 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series9 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint9 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, 5D);
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea15 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend15 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series10 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint10 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, 5D);
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint1 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, 5D);
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint2 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, 5D);
             this.tbDebugLog = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.timerChart = new System.Windows.Forms.Timer(this.components);
@@ -62,7 +62,7 @@
             this.btnAllowConnection = new System.Windows.Forms.Button();
             this.textBox_ip_send = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.listBoxControllers = new System.Windows.Forms.ListBox();
+            this.listBoxModules = new System.Windows.Forms.ListBox();
             this.chartTankBottom = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.chartTankTop = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.treeViewControllers = new System.Windows.Forms.TreeView();
@@ -116,16 +116,16 @@
             this.dataChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea13.Area3DStyle.Inclination = 0;
-            chartArea13.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
-            chartArea13.Area3DStyle.Rotation = 0;
-            chartArea13.Area3DStyle.WallWidth = 1;
-            chartArea13.BackColor = System.Drawing.SystemColors.ControlLight;
-            chartArea13.Name = "ChartArea1";
-            chartArea13.ShadowColor = System.Drawing.Color.Gray;
-            this.dataChart.ChartAreas.Add(chartArea13);
-            legend13.Name = "Legend1";
-            this.dataChart.Legends.Add(legend13);
+            chartArea1.Area3DStyle.Inclination = 0;
+            chartArea1.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
+            chartArea1.Area3DStyle.Rotation = 0;
+            chartArea1.Area3DStyle.WallWidth = 1;
+            chartArea1.BackColor = System.Drawing.SystemColors.ControlLight;
+            chartArea1.Name = "ChartArea1";
+            chartArea1.ShadowColor = System.Drawing.Color.Gray;
+            this.dataChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.dataChart.Legends.Add(legend1);
             this.dataChart.Location = new System.Drawing.Point(191, 150);
             this.dataChart.Name = "dataChart";
             this.dataChart.Size = new System.Drawing.Size(716, 526);
@@ -323,7 +323,7 @@
             this.textBoxName.Name = "textBoxName";
             this.textBoxName.Size = new System.Drawing.Size(52, 20);
             this.textBoxName.TabIndex = 11;
-            this.textBoxName.Text = "PID1";
+            this.textBoxName.Text = "Module1";
             // 
             // label5
             // 
@@ -379,32 +379,32 @@
             this.label4.TabIndex = 1;
             this.label4.Text = "IP:Port (controller)";
             // 
-            // listBoxControllers
+            // listBoxModules
             // 
-            this.listBoxControllers.FormattingEnabled = true;
-            this.listBoxControllers.Location = new System.Drawing.Point(5, 32);
-            this.listBoxControllers.Name = "listBoxControllers";
-            this.listBoxControllers.Size = new System.Drawing.Size(168, 108);
-            this.listBoxControllers.TabIndex = 0;
-            this.listBoxControllers.SelectedIndexChanged += new System.EventHandler(this.listBoxControllers_SelectedIndexChanged);
+            this.listBoxModules.FormattingEnabled = true;
+            this.listBoxModules.Location = new System.Drawing.Point(5, 32);
+            this.listBoxModules.Name = "listBoxModules";
+            this.listBoxModules.Size = new System.Drawing.Size(168, 108);
+            this.listBoxModules.TabIndex = 0;
+            this.listBoxModules.SelectedIndexChanged += new System.EventHandler(this.listBoxControllers_SelectedIndexChanged);
             // 
             // chartTankBottom
             // 
             this.chartTankBottom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea14.AxisY.Maximum = 10D;
-            chartArea14.AxisY.Minimum = 0D;
-            chartArea14.Name = "ChartArea1";
-            this.chartTankBottom.ChartAreas.Add(chartArea14);
-            legend14.Name = "Legend1";
-            this.chartTankBottom.Legends.Add(legend14);
+            chartArea2.AxisY.Maximum = 10D;
+            chartArea2.AxisY.Minimum = 0D;
+            chartArea2.Name = "ChartArea1";
+            this.chartTankBottom.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.chartTankBottom.Legends.Add(legend2);
             this.chartTankBottom.Location = new System.Drawing.Point(914, 401);
             this.chartTankBottom.Name = "chartTankBottom";
-            series9.ChartArea = "ChartArea1";
-            series9.Legend = "Legend1";
-            series9.Name = "tank_bottom";
-            series9.Points.Add(dataPoint9);
-            this.chartTankBottom.Series.Add(series9);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "tank_bottom";
+            series1.Points.Add(dataPoint1);
+            this.chartTankBottom.Series.Add(series1);
             this.chartTankBottom.Size = new System.Drawing.Size(269, 275);
             this.chartTankBottom.TabIndex = 13;
             this.chartTankBottom.Text = "chart1";
@@ -413,19 +413,19 @@
             // 
             this.chartTankTop.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea15.AxisY.Maximum = 10D;
-            chartArea15.AxisY.Minimum = 0D;
-            chartArea15.Name = "ChartArea1";
-            this.chartTankTop.ChartAreas.Add(chartArea15);
-            legend15.Name = "Legend1";
-            this.chartTankTop.Legends.Add(legend15);
+            chartArea3.AxisY.Maximum = 10D;
+            chartArea3.AxisY.Minimum = 0D;
+            chartArea3.Name = "ChartArea1";
+            this.chartTankTop.ChartAreas.Add(chartArea3);
+            legend3.Name = "Legend1";
+            this.chartTankTop.Legends.Add(legend3);
             this.chartTankTop.Location = new System.Drawing.Point(914, 150);
             this.chartTankTop.Name = "chartTankTop";
-            series10.ChartArea = "ChartArea1";
-            series10.Legend = "Legend1";
-            series10.Name = "tank_top";
-            series10.Points.Add(dataPoint10);
-            this.chartTankTop.Series.Add(series10);
+            series2.ChartArea = "ChartArea1";
+            series2.Legend = "Legend1";
+            series2.Name = "tank_top";
+            series2.Points.Add(dataPoint2);
+            this.chartTankTop.Series.Add(series2);
             this.chartTankTop.Size = new System.Drawing.Size(269, 245);
             this.chartTankTop.TabIndex = 14;
             this.chartTankTop.Text = "chart2";
@@ -454,7 +454,7 @@
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox3.Controls.Add(this.label8);
-            this.groupBox3.Controls.Add(this.listBoxControllers);
+            this.groupBox3.Controls.Add(this.listBoxModules);
             this.groupBox3.Controls.Add(this.label6);
             this.groupBox3.Controls.Add(this.treeViewControllers);
             this.groupBox3.Location = new System.Drawing.Point(9, 10);
@@ -464,16 +464,16 @@
             this.groupBox3.Size = new System.Drawing.Size(177, 668);
             this.groupBox3.TabIndex = 18;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Overview";
+            this.groupBox3.Text = "Controller modules overview";
             // 
             // label8
             // 
             this.label8.AutoSize = true;
             this.label8.Location = new System.Drawing.Point(8, 18);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(56, 13);
+            this.label8.Size = new System.Drawing.Size(47, 13);
             this.label8.TabIndex = 18;
-            this.label8.Text = "Controllers";
+            this.label8.Text = "Modules";
             // 
             // trackBar1
             // 
@@ -573,7 +573,7 @@
         private System.Windows.Forms.Label label_time;
         private System.Windows.Forms.Button button_update_pid;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.ListBox listBoxControllers;
+        private System.Windows.Forms.ListBox listBoxModules;
         private System.Windows.Forms.TextBox textBox_ip_send;
         private System.Windows.Forms.Label label4;
         public System.Windows.Forms.DataVisualization.Charting.Chart dataChart;

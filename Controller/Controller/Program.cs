@@ -19,7 +19,7 @@ namespace Controller
         static Dictionary<string, string> package_last = new Dictionary<string, string>(); // contains control and measurement values
         static bool connected_to_plant = false; // marker if a plant is connected to the plant (otherwise don't run cuntroller)
 
-        // controller container
+        // container for all controllers in the module
         static List<PID> PIDList = new List<PID>();
 
         static void Main(string[] args)
@@ -102,7 +102,7 @@ namespace Controller
                     {           
                         index++;
                         double reference = Convert.ToDouble(package_last["r" + index]);
-                        double measurement = Convert.ToDouble(package_last["cy" + index]);
+                        double measurement = Convert.ToDouble(package_last["yc" + index]);
 
                         controller.update_parameters(Convert.ToDouble(package_last["Kp"]), Convert.ToDouble(package_last["Ki"]), Convert.ToDouble(package_last["Kd"]));
 
@@ -156,8 +156,8 @@ namespace Controller
                     {
                         index++;
                         double reference = Convert.ToDouble(package_last["r" + index]);
-                        double measurement = Convert.ToDouble(package_last["cy" + index]);
-                        Console.WriteLine("reci: " + "cy" + index + ":" + measurement.ToString());
+                        double measurement = Convert.ToDouble(package_last["yc" + index]);
+                        Console.WriteLine("reci: " + "yc" + index + ":" + measurement.ToString());
                         controller.compute_control_signal(reference, measurement);
                     }
                     connected_to_plant = true;
@@ -190,11 +190,11 @@ namespace Controller
                     var item = package_last.ElementAt(i);
                     string key = item.Key;
 
-                    if (key.Contains("ly"))
+                    if (key.Contains("yo"))
                     {
                         message += "#" + key + "_" + package_last[key].ToString();
                     }
-                    else if (key.Contains("cy"))
+                    else if (key.Contains("yc"))
                     {
                         message += "#" + key + "_" + package_last[key].ToString();
                     }
@@ -246,7 +246,7 @@ namespace Controller
                     package_last.Add(key, value);
 
                     // add controller to detected output 
-                    if (key.Contains("cy"))
+                    if (key.Contains("yc"))
                     {
                         PIDList.Add(new PID(1, 1, 1));
 
@@ -273,10 +273,13 @@ namespace Controller
 
     public class PID
     {
+        private bool anti_wind_up = true;
+
         // states
         private double I = 0; // error integral
         private double e = 0, ep = 0; // current and prior error
         private double de = 0; // error derivative
+        private double de_temp = 0; // error derivative holder
         private double u = 0; // control signal
         private DateTime time_prior = DateTime.Now; // time stamp of prior execution
 
@@ -301,27 +304,40 @@ namespace Controller
         {
             // calculate the dime duration from the last update
             // double dt = Convert.ToDouble(DateTime.Now - time_prior);
-            double dt = 0.1;
+            double dt = 0.005;
 
             // error
             e = r - y;
 
-            //integrator
-            I += dt*e;
+            //integrator with anti wind-up
+            if (anti_wind_up == true)
+            {
+                if (u >= u_max == false && u <= u_min == false)
+                {
+                    I += dt * e;
+                }
+            }
+            else
+            {
+                I += dt * e;
+            }
+
 
             // derivator
-            de = (e - ep) / dt;
+            de = 1 / (dt + 1) * y - de_temp;
+            de_temp = (y - de) / (dt + 1);
 
             // control signal
             u = Kp*e + (1/Ki)*I + (1/Kd)*de;
 
             // saturation
-            if (u > u_max) u = u_max;
+            if (u > u_max)
+            {
+                u = u_max;
+            }
             if (u < u_min)
             {
-                // u = u_min;
-                u = 0;
-                I = 0;
+                u = u_min;
             }
 
             ep = e; // update prior error

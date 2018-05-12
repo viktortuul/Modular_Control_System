@@ -12,6 +12,8 @@ namespace Model_DoubleWatertank
 {
     class Program
     {
+        // measurement noise
+
 
         // data containers (dictionaries)
         static Dictionary<string, string> package_last = new Dictionary<string, string>(); // contains control signals
@@ -26,8 +28,10 @@ namespace Model_DoubleWatertank
 
             // initialize the DoubleWatertank model
             double dt = 0.01;
+
             DoubleWatertank watertank = new DoubleWatertank(dt);
             //QuadWatertank watertank = new QuadWatertank(dt);
+
             Plant plant = new Plant(watertank);
 
             // create a thread for listening on the controller
@@ -87,13 +91,13 @@ namespace Model_DoubleWatertank
                 for (int i = 0; i < plant.get_ly().Length; i++)
                 {
                     counter++;
-                    message += "ly" + (i + 1) + "_" + (plant.get_ly()[i]).ToString() + "#";
+                    message += "yo" + (i + 1) + "_" + (plant.get_ly()[i]).ToString() + "#";
                 }
                 counter = -1;
                 for (int i = 0; i < plant.get_cy().Length; i++)
                 {
                     counter++;
-                    message += "cy" + (i + 1) + "_" + plant.get_cy()[i].ToString() + "#";
+                    message += "yc" + (i + 1) + "_" + plant.get_cy()[i].ToString() + "#";
                 }
 
                 message = message.Substring(0, message.LastIndexOf('#'));
@@ -210,7 +214,7 @@ namespace Model_DoubleWatertank
     }
 
     class DoubleWatertank
-        {
+    {
         // internal states
         double h1 = 0; // height tank 1 (top)
         double h2 = 0; // height tank 2 (bottom)
@@ -258,10 +262,16 @@ namespace Model_DoubleWatertank
 
         public double[] get_ly()
         {
-            return new double[] { h1};
+            var r = new GaussianRandom();
+            double n = r.NextGaussian(0, 0.05);
+
+            return new double[] { h1 + n };
         }
         public double[] get_cy()
         {
+            var r = new GaussianRandom();
+            double n = r.NextGaussian(0, 0.05);
+
             return new double[] { h2 };
         }
 
@@ -297,8 +307,8 @@ namespace Model_DoubleWatertank
         double a22 = 0.06504;
 
         // Valve settings
-        double gam1 = 1-0.625;
-        double gam2 = 1-0.625;
+        double gam1 = 0.625;
+        double gam2 = 0.625;
 
         // Cross section areas [cm^2]
         double A11 = 15.5179;
@@ -343,18 +353,68 @@ namespace Model_DoubleWatertank
 
         public double[] get_ly()
         {
-            return new double[] { h11, h12 };
+            var r = new GaussianRandom();
+            double n1 = r.NextGaussian(0, 0.05);
+            double n2 = r.NextGaussian(0, 0.05);
+
+            return new double[] { h11 + n1, h12 + n2};
         }
 
         public double[] get_cy()
         {
-            return new double[] { h21, h22 };
+            var r = new GaussianRandom();
+            double n1 = r.NextGaussian(0, 0.05);
+            double n2 = r.NextGaussian(0, 0.05);
+
+            return new double[] { h21 + n1, h22 + n2};
         }
 
         public void set_u(double[] u_)
         {
             u1 = u_[0];
             u2 = u_[1];
+        }
+    }
+
+    public sealed class GaussianRandom
+    {
+        private bool _hasDeviate;
+        private double _storedDeviate;
+        private readonly Random _random;
+
+        public GaussianRandom(Random random = null)
+        {
+            _random = random ?? new Random();
+        }
+
+        public double NextGaussian(double mu = 0, double sigma = 1)
+        {
+            if (sigma <= 0)
+                throw new ArgumentOutOfRangeException("sigma", "Must be greater than zero.");
+
+            if (_hasDeviate)
+            {
+                _hasDeviate = false;
+                return _storedDeviate * sigma + mu;
+            }
+
+            double v1, v2, rSquared;
+            do
+            {
+                // two random values between -1.0 and 1.0
+                v1 = 2 * _random.NextDouble() - 1;
+                v2 = 2 * _random.NextDouble() - 1;
+                rSquared = v1 * v1 + v2 * v2;
+                // ensure within the unit circle
+            } while (rSquared >= 1 || rSquared == 0);
+
+            // calculate polar tranformation for each deviate
+            var polar = Math.Sqrt(-2 * Math.Log(rSquared) / rSquared);
+            // store first deviate
+            _storedDeviate = v2 * polar;
+            _hasDeviate = true;
+            // return second deviate
+            return v1 * polar * sigma + mu;
         }
     }
 }

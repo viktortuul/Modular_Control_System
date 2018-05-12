@@ -22,7 +22,7 @@ namespace GUI
         // chart settings
         public static int n_steps = 500;
 
-        // container for controller connections
+        // container for controller module connections
         List<ControllerConnection> connections = new List<ControllerConnection>();
         ControllerConnection connection_current;
 
@@ -36,23 +36,21 @@ namespace GUI
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            // set chart axes
             dataChart.ChartAreas["ChartArea1"].AxisX.Title = "Time [steps * 100ms]";
             dataChart.ChartAreas["ChartArea1"].AxisY.Title = "Magnitude";
         }
  
         private void timerChart_Tick(object sender, EventArgs e)
         {
-            // check if reference series exists
+            // add the correct number of reference series
             for (int i = 0; i < connection_current.n_refs; i++)
             {
                 if ((dataChart.Series.IndexOf("r" + (i + 1).ToString()) == -1))
                 AddChartSeries("r" + (i + 1).ToString());
             }
 
-            // enable or disable reference track bars
-            ManageTrackbars();
-
-            // push each element in the temporal data vectors one step back
+            // push each element in the data vectors one step back
             foreach (ControllerConnection controller in connections)
             {
                 var keys = controller.package_last.Keys.ToList();
@@ -85,6 +83,10 @@ namespace GUI
             {
                 UpdateChart(connection_current);       
             }
+
+            // enable or disable reference track bars
+            ManageTrackbars();
+
         }
 
         public void AddChartSeries(string key)
@@ -118,16 +120,16 @@ namespace GUI
                             dataChart.Series[key].Color = Color.Yellow;
                             dataChart.Series[key].BorderWidth = 1;
                             break;
-                        case "ly1":
+                        case "yo1":
                             dataChart.Series[key].Color = Color.Blue;
                             break;
-                        case "ly2":
+                        case "yo2":
                             dataChart.Series[key].Color = Color.Green;
                             break;
-                        case "cy1":
+                        case "yc1":
                             dataChart.Series[key].Color = Color.Black;
                             break;
-                        case "cy2":
+                        case "yc2":
                             dataChart.Series[key].Color = Color.Gray;
                             break;
                         default:
@@ -179,8 +181,8 @@ namespace GUI
             {
                 chartTankTop.Series["tank_top"].Points.Clear();
                 chartTankBottom.Series["tank_bottom"].Points.Clear();
-                chartTankTop.Series["tank_top"].Points.AddY(Convert.ToDouble(controller.package_last["y1"]));
-                chartTankBottom.Series["tank_bottom"].Points.AddY(Convert.ToDouble(controller.package_last["y2"]));
+                chartTankTop.Series["tank_top"].Points.AddY(Convert.ToDouble(controller.package_last["yo1"]));
+                chartTankBottom.Series["tank_bottom"].Points.AddY(Convert.ToDouble(controller.package_last["yc1"]));
             }
             catch { }
 
@@ -202,7 +204,7 @@ namespace GUI
             try
             {
                 // specify the new connection
-                connection_current = connections[listBoxControllers.SelectedIndex];
+                connection_current = connections[listBoxModules.SelectedIndex];
 
                 // clear and add keys to the new chart
                 dataChart.Series.Clear();
@@ -329,12 +331,12 @@ namespace GUI
                 ControllerConnection PID_1 = new ControllerConnection(this, label, ControllerParameters, ConnParams);
                 connections.Add(PID_1);
                 connection_current = PID_1;
-                listBoxControllers.Items.Add(label);
+                listBoxModules.Items.Add(label);
 
                 // if no listbox item is selected, select the top one
-                if (listBoxControllers.SelectedIndex == -1)
+                if (listBoxModules.SelectedIndex == -1)
                 {
-                    listBoxControllers.SelectedIndex = 0;
+                    listBoxModules.SelectedIndex = 0;
                 }
 
                 timerChart.Start();
@@ -354,7 +356,7 @@ namespace GUI
 
                 // update counter
                 n_connections += 1;
-                textBoxName.Text = "PID" + (n_connections + 1);
+                textBoxName.Text = "Module" + (n_connections + 1);
             }
         }
 
@@ -428,7 +430,7 @@ namespace GUI
                         int counter = 0;
                         foreach (string key in package_last.Keys)
                         {
-                            if (key.Contains("cy")) counter++;
+                            if (key.Contains("yc")) counter++;
                         }
                         n_refs = counter;
 
@@ -562,7 +564,7 @@ namespace GUI
         private void trackBarReference_Scroll(object sender, EventArgs e)
         {
             // set the reference signal value according to the track bar
-            if (connections.Count > 0 && listBoxControllers.SelectedIndex != -1)
+            if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
             {
                 connection_current.r[0] = trackBarReference.Value;
                 labelReference1.Text = trackBarReference.Value.ToString();
@@ -573,7 +575,7 @@ namespace GUI
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
             // set the reference signal value according to the track bar
-            if (connections.Count > 0 && listBoxControllers.SelectedIndex != -1)
+            if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
             {
                 connection_current.r[1] = trackBar1.Value;
                 labelReference2.Text = trackBar1.Value.ToString();
@@ -614,7 +616,7 @@ namespace GUI
 
         public void EditListBox(int index, string message)
         {
-            listBoxControllers.Items[index] = message;
+            listBoxModules.Items[index] = message;
         }
 
         public void log(string text)
