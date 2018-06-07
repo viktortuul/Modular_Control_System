@@ -1,6 +1,6 @@
 ﻿namespace GUI
 {
-    partial class Form1
+    partial class FrameGUI
     {
         /// <summary>
         /// Required designer variable.
@@ -31,14 +31,6 @@
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint1 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, 5D);
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.DataPoint dataPoint2 = new System.Windows.Forms.DataVisualization.Charting.DataPoint(0D, 5D);
             this.tbDebugLog = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.timerChart = new System.Windows.Forms.Timer(this.components);
@@ -53,6 +45,7 @@
             this.button_update_pid = new System.Windows.Forms.Button();
             this.label_time = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.button_thisIP = new System.Windows.Forms.Button();
             this.numericUpDown_port_send = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown_port_recieve = new System.Windows.Forms.NumericUpDown();
             this.textBoxName = new System.Windows.Forms.TextBox();
@@ -63,8 +56,6 @@
             this.textBox_ip_send = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.listBoxModules = new System.Windows.Forms.ListBox();
-            this.chartTankBottom = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.chartTankTop = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.treeViewControllers = new System.Windows.Forms.TreeView();
             this.label6 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
@@ -73,6 +64,16 @@
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.label9 = new System.Windows.Forms.Label();
             this.labelReference2 = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.numUpDown_A1 = new System.Windows.Forms.NumericUpDown();
+            this.numUpDown_a1a = new System.Windows.Forms.NumericUpDown();
+            this.numUpDown_A2 = new System.Windows.Forms.NumericUpDown();
+            this.numUpDown_a2a = new System.Windows.Forms.NumericUpDown();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarReference)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownKp)).BeginInit();
@@ -82,26 +83,30 @@
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_port_send)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_port_recieve)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chartTankBottom)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chartTankTop)).BeginInit();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numUpDown_A1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numUpDown_a1a)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numUpDown_A2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numUpDown_a2a)).BeginInit();
+            this.groupBox5.SuspendLayout();
             this.SuspendLayout();
             // 
             // tbDebugLog
             // 
-            this.tbDebugLog.Location = new System.Drawing.Point(923, 24);
+            this.tbDebugLog.Location = new System.Drawing.Point(1152, 12);
             this.tbDebugLog.Multiline = true;
             this.tbDebugLog.Name = "tbDebugLog";
             this.tbDebugLog.ReadOnly = true;
-            this.tbDebugLog.Size = new System.Drawing.Size(492, 93);
+            this.tbDebugLog.Size = new System.Drawing.Size(414, 545);
             this.tbDebugLog.TabIndex = 0;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(921, 7);
+            this.label1.Location = new System.Drawing.Point(981, 7);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(54, 13);
             this.label1.TabIndex = 1;
@@ -120,7 +125,7 @@
             chartArea1.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
             chartArea1.Area3DStyle.Rotation = 0;
             chartArea1.Area3DStyle.WallWidth = 1;
-            chartArea1.BackColor = System.Drawing.SystemColors.ControlLight;
+            chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
             chartArea1.Name = "ChartArea1";
             chartArea1.ShadowColor = System.Drawing.Color.Gray;
             this.dataChart.ChartAreas.Add(chartArea1);
@@ -128,7 +133,7 @@
             this.dataChart.Legends.Add(legend1);
             this.dataChart.Location = new System.Drawing.Point(191, 150);
             this.dataChart.Name = "dataChart";
-            this.dataChart.Size = new System.Drawing.Size(716, 526);
+            this.dataChart.Size = new System.Drawing.Size(404, 522);
             this.dataChart.TabIndex = 2;
             this.dataChart.Text = "chart1";
             // 
@@ -172,7 +177,7 @@
             this.numUpDownKp.Size = new System.Drawing.Size(49, 20);
             this.numUpDownKp.TabIndex = 7;
             this.numUpDownKp.Value = new decimal(new int[] {
-            5,
+            2,
             0,
             0,
             0});
@@ -196,10 +201,10 @@
             this.numUpDownKi.Size = new System.Drawing.Size(49, 20);
             this.numUpDownKi.TabIndex = 8;
             this.numUpDownKi.Value = new decimal(new int[] {
-            15,
+            1,
             0,
             0,
-            0});
+            65536});
             this.numUpDownKi.ValueChanged += new System.EventHandler(this.numUpDownKi_ValueChanged);
             // 
             // numUpDownKd
@@ -215,10 +220,10 @@
             this.numUpDownKd.Size = new System.Drawing.Size(49, 20);
             this.numUpDownKd.TabIndex = 9;
             this.numUpDownKd.Value = new decimal(new int[] {
-            5,
+            3,
             0,
             0,
-            65536});
+            0});
             this.numUpDownKd.ValueChanged += new System.EventHandler(this.numUpDownKd_ValueChanged);
             // 
             // groupBox1
@@ -228,7 +233,7 @@
             this.groupBox1.Controls.Add(this.numUpDownKd);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.numUpDownKp);
-            this.groupBox1.Location = new System.Drawing.Point(191, 11);
+            this.groupBox1.Location = new System.Drawing.Point(478, 10);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(102, 110);
             this.groupBox1.TabIndex = 10;
@@ -247,7 +252,7 @@
             // label_time
             // 
             this.label_time.AutoSize = true;
-            this.label_time.Location = new System.Drawing.Point(751, 18);
+            this.label_time.Location = new System.Drawing.Point(791, 10);
             this.label_time.Name = "label_time";
             this.label_time.Size = new System.Drawing.Size(54, 13);
             this.label_time.TabIndex = 11;
@@ -255,6 +260,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.button_thisIP);
             this.groupBox2.Controls.Add(this.numericUpDown_port_send);
             this.groupBox2.Controls.Add(this.numericUpDown_port_recieve);
             this.groupBox2.Controls.Add(this.textBoxName);
@@ -264,16 +270,26 @@
             this.groupBox2.Controls.Add(this.btnAllowConnection);
             this.groupBox2.Controls.Add(this.textBox_ip_send);
             this.groupBox2.Controls.Add(this.label4);
-            this.groupBox2.Location = new System.Drawing.Point(503, 11);
+            this.groupBox2.Location = new System.Drawing.Point(191, 10);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(242, 110);
+            this.groupBox2.Size = new System.Drawing.Size(281, 110);
             this.groupBox2.TabIndex = 12;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "New controller";
+            this.groupBox2.Text = "New controller module";
+            // 
+            // button_thisIP
+            // 
+            this.button_thisIP.Location = new System.Drawing.Point(70, 22);
+            this.button_thisIP.Name = "button_thisIP";
+            this.button_thisIP.Size = new System.Drawing.Size(44, 25);
+            this.button_thisIP.TabIndex = 21;
+            this.button_thisIP.Text = "get IP";
+            this.button_thisIP.UseVisualStyleBackColor = true;
+            this.button_thisIP.Click += new System.EventHandler(this.button_thisIP_Click);
             // 
             // numericUpDown_port_send
             // 
-            this.numericUpDown_port_send.Location = new System.Drawing.Point(187, 51);
+            this.numericUpDown_port_send.Location = new System.Drawing.Point(222, 51);
             this.numericUpDown_port_send.Margin = new System.Windows.Forms.Padding(2);
             this.numericUpDown_port_send.Maximum = new decimal(new int[] {
             9000,
@@ -296,7 +312,7 @@
             // 
             // numericUpDown_port_recieve
             // 
-            this.numericUpDown_port_recieve.Location = new System.Drawing.Point(187, 24);
+            this.numericUpDown_port_recieve.Location = new System.Drawing.Point(222, 24);
             this.numericUpDown_port_recieve.Margin = new System.Windows.Forms.Padding(2);
             this.numericUpDown_port_recieve.Maximum = new decimal(new int[] {
             9000,
@@ -345,18 +361,17 @@
             // 
             // textBox_ip_recieve
             // 
-            this.textBox_ip_recieve.Enabled = false;
-            this.textBox_ip_recieve.Location = new System.Drawing.Point(103, 24);
+            this.textBox_ip_recieve.Location = new System.Drawing.Point(119, 24);
             this.textBox_ip_recieve.Name = "textBox_ip_recieve";
-            this.textBox_ip_recieve.Size = new System.Drawing.Size(80, 20);
+            this.textBox_ip_recieve.Size = new System.Drawing.Size(98, 20);
             this.textBox_ip_recieve.TabIndex = 8;
             this.textBox_ip_recieve.Text = "127.0.0.1";
             // 
             // btnAllowConnection
             // 
-            this.btnAllowConnection.Location = new System.Drawing.Point(103, 75);
+            this.btnAllowConnection.Location = new System.Drawing.Point(119, 73);
             this.btnAllowConnection.Name = "btnAllowConnection";
-            this.btnAllowConnection.Size = new System.Drawing.Size(134, 25);
+            this.btnAllowConnection.Size = new System.Drawing.Size(98, 25);
             this.btnAllowConnection.TabIndex = 5;
             this.btnAllowConnection.Text = "Enable traffic";
             this.btnAllowConnection.UseVisualStyleBackColor = true;
@@ -364,9 +379,9 @@
             // 
             // textBox_ip_send
             // 
-            this.textBox_ip_send.Location = new System.Drawing.Point(103, 50);
+            this.textBox_ip_send.Location = new System.Drawing.Point(122, 50);
             this.textBox_ip_send.Name = "textBox_ip_send";
-            this.textBox_ip_send.Size = new System.Drawing.Size(80, 20);
+            this.textBox_ip_send.Size = new System.Drawing.Size(98, 20);
             this.textBox_ip_send.TabIndex = 2;
             this.textBox_ip_send.Text = "127.0.0.1";
             // 
@@ -388,48 +403,6 @@
             this.listBoxModules.TabIndex = 0;
             this.listBoxModules.SelectedIndexChanged += new System.EventHandler(this.listBoxControllers_SelectedIndexChanged);
             // 
-            // chartTankBottom
-            // 
-            this.chartTankBottom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea2.AxisY.Maximum = 10D;
-            chartArea2.AxisY.Minimum = 0D;
-            chartArea2.Name = "ChartArea1";
-            this.chartTankBottom.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.chartTankBottom.Legends.Add(legend2);
-            this.chartTankBottom.Location = new System.Drawing.Point(914, 401);
-            this.chartTankBottom.Name = "chartTankBottom";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "tank_bottom";
-            series1.Points.Add(dataPoint1);
-            this.chartTankBottom.Series.Add(series1);
-            this.chartTankBottom.Size = new System.Drawing.Size(269, 275);
-            this.chartTankBottom.TabIndex = 13;
-            this.chartTankBottom.Text = "chart1";
-            // 
-            // chartTankTop
-            // 
-            this.chartTankTop.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea3.AxisY.Maximum = 10D;
-            chartArea3.AxisY.Minimum = 0D;
-            chartArea3.Name = "ChartArea1";
-            this.chartTankTop.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            this.chartTankTop.Legends.Add(legend3);
-            this.chartTankTop.Location = new System.Drawing.Point(914, 150);
-            this.chartTankTop.Name = "chartTankTop";
-            series2.ChartArea = "ChartArea1";
-            series2.Legend = "Legend1";
-            series2.Name = "tank_top";
-            series2.Points.Add(dataPoint2);
-            this.chartTankTop.Series.Add(series2);
-            this.chartTankTop.Size = new System.Drawing.Size(269, 245);
-            this.chartTankTop.TabIndex = 14;
-            this.chartTankTop.Text = "chart2";
-            // 
             // treeViewControllers
             // 
             this.treeViewControllers.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -437,7 +410,7 @@
             this.treeViewControllers.Location = new System.Drawing.Point(7, 168);
             this.treeViewControllers.Margin = new System.Windows.Forms.Padding(2);
             this.treeViewControllers.Name = "treeViewControllers";
-            this.treeViewControllers.Size = new System.Drawing.Size(166, 489);
+            this.treeViewControllers.Size = new System.Drawing.Size(166, 486);
             this.treeViewControllers.TabIndex = 16;
             // 
             // label6
@@ -461,7 +434,7 @@
             this.groupBox3.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox3.Size = new System.Drawing.Size(177, 668);
+            this.groupBox3.Size = new System.Drawing.Size(177, 665);
             this.groupBox3.TabIndex = 18;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Controller modules overview";
@@ -492,12 +465,12 @@
             this.groupBox4.Controls.Add(this.trackBar1);
             this.groupBox4.Controls.Add(this.trackBarReference);
             this.groupBox4.Controls.Add(this.labelReference1);
-            this.groupBox4.Location = new System.Drawing.Point(298, 11);
+            this.groupBox4.Location = new System.Drawing.Point(585, 10);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(200, 110);
             this.groupBox4.TabIndex = 20;
             this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Reference";
+            this.groupBox4.Text = "Reference values";
             // 
             // label9
             // 
@@ -516,22 +489,179 @@
             this.labelReference2.TabIndex = 20;
             this.labelReference2.Text = "0";
             // 
-            // Form1
+            // pictureBox1
+            // 
+            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pictureBox1.Location = new System.Drawing.Point(602, 150);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(353, 522);
+            this.pictureBox1.TabIndex = 23;
+            this.pictureBox1.TabStop = false;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 16);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(48, 13);
+            this.label2.TabIndex = 11;
+            this.label2.Text = "Tank1 A";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(5, 37);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(47, 13);
+            this.label10.TabIndex = 24;
+            this.label10.Text = "Tank1 a";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(6, 79);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(47, 13);
+            this.label11.TabIndex = 26;
+            this.label11.Text = "Tank2 a";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(6, 58);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(48, 13);
+            this.label12.TabIndex = 25;
+            this.label12.Text = "Tank2 A";
+            // 
+            // numUpDown_A1
+            // 
+            this.numUpDown_A1.DecimalPlaces = 1;
+            this.numUpDown_A1.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.numUpDown_A1.Location = new System.Drawing.Point(60, 14);
+            this.numUpDown_A1.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numUpDown_A1.Name = "numUpDown_A1";
+            this.numUpDown_A1.Size = new System.Drawing.Size(59, 20);
+            this.numUpDown_A1.TabIndex = 11;
+            this.numUpDown_A1.Value = new decimal(new int[] {
+            15,
+            0,
+            0,
+            0});
+            // 
+            // numUpDown_a1a
+            // 
+            this.numUpDown_a1a.DecimalPlaces = 2;
+            this.numUpDown_a1a.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            this.numUpDown_a1a.Location = new System.Drawing.Point(60, 35);
+            this.numUpDown_a1a.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numUpDown_a1a.Name = "numUpDown_a1a";
+            this.numUpDown_a1a.Size = new System.Drawing.Size(59, 20);
+            this.numUpDown_a1a.TabIndex = 27;
+            this.numUpDown_a1a.Value = new decimal(new int[] {
+            16,
+            0,
+            0,
+            131072});
+            // 
+            // numUpDown_A2
+            // 
+            this.numUpDown_A2.DecimalPlaces = 1;
+            this.numUpDown_A2.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.numUpDown_A2.Location = new System.Drawing.Point(60, 56);
+            this.numUpDown_A2.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numUpDown_A2.Name = "numUpDown_A2";
+            this.numUpDown_A2.Size = new System.Drawing.Size(59, 20);
+            this.numUpDown_A2.TabIndex = 28;
+            this.numUpDown_A2.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            // 
+            // numUpDown_a2a
+            // 
+            this.numUpDown_a2a.DecimalPlaces = 2;
+            this.numUpDown_a2a.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            131072});
+            this.numUpDown_a2a.Location = new System.Drawing.Point(60, 77);
+            this.numUpDown_a2a.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numUpDown_a2a.Name = "numUpDown_a2a";
+            this.numUpDown_a2a.Size = new System.Drawing.Size(59, 20);
+            this.numUpDown_a2a.TabIndex = 29;
+            this.numUpDown_a2a.Value = new decimal(new int[] {
+            16,
+            0,
+            0,
+            131072});
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.groupBox5.Controls.Add(this.label2);
+            this.groupBox5.Controls.Add(this.numUpDown_a2a);
+            this.groupBox5.Controls.Add(this.label10);
+            this.groupBox5.Controls.Add(this.numUpDown_A2);
+            this.groupBox5.Controls.Add(this.label12);
+            this.groupBox5.Controls.Add(this.numUpDown_a1a);
+            this.groupBox5.Controls.Add(this.label11);
+            this.groupBox5.Controls.Add(this.numUpDown_A1);
+            this.groupBox5.Location = new System.Drawing.Point(820, 150);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(135, 108);
+            this.groupBox5.TabIndex = 30;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "Visual settings";
+            // 
+            // FrameGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1195, 696);
+            this.ClientSize = new System.Drawing.Size(1336, 693);
+            this.Controls.Add(this.groupBox5);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
-            this.Controls.Add(this.chartTankTop);
-            this.Controls.Add(this.chartTankBottom);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.label_time);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.dataChart);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.tbDebugLog);
-            this.Name = "Form1";
+            this.Name = "FrameGUI";
             this.Text = "GUI";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -546,13 +676,18 @@
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_port_send)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_port_recieve)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chartTankBottom)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chartTankTop)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numUpDown_A1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numUpDown_a1a)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numUpDown_A2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numUpDown_a2a)).EndInit();
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox5.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -580,8 +715,6 @@
         private System.Windows.Forms.Button btnAllowConnection;
         private System.Windows.Forms.TextBox textBox_ip_recieve;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chartTankBottom;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chartTankTop;
         private System.Windows.Forms.TextBox textBoxName;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TreeView treeViewControllers;
@@ -594,6 +727,17 @@
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label labelReference2;
+        private System.Windows.Forms.Button button_thisIP;
+        public System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.NumericUpDown numUpDown_A1;
+        private System.Windows.Forms.NumericUpDown numUpDown_a1a;
+        private System.Windows.Forms.NumericUpDown numUpDown_A2;
+        private System.Windows.Forms.NumericUpDown numUpDown_a2a;
+        private System.Windows.Forms.GroupBox groupBox5;
     }
 }
 

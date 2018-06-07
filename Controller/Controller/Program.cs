@@ -68,7 +68,7 @@ namespace Controller
                 string message = ConstructMessageGui(PIDList_);
                 //Console.WriteLine("sent gui: " + message);
                 client.send(message);
-                Console.WriteLine("sent GUI: " + message);
+                //Console.WriteLine("sent GUI: " + message);
             }
         }
 
@@ -84,7 +84,7 @@ namespace Controller
                 try
                 {
                     server.listen();
-                    Console.WriteLine("from GUI:" + server.last_recieved);
+                    //Console.WriteLine("from GUI:" + server.last_recieved);
                     parse_message(server.last_recieved);
 
                     /*
@@ -132,7 +132,7 @@ namespace Controller
                 string message = ConstructMessagePlant(PIDList_);
 
                 client.send(message);
-                Console.WriteLine("sent plant: " + message);
+                //Console.WriteLine("sent plant: " + message);
             }
         }
 
@@ -157,7 +157,7 @@ namespace Controller
                         index++;
                         double reference = Convert.ToDouble(package_last["r" + index]);
                         double measurement = Convert.ToDouble(package_last["yc" + index]);
-                        Console.WriteLine("reci: " + "yc" + index + ":" + measurement.ToString());
+                        //Console.WriteLine("reci: " + "yc" + index + ":" + measurement.ToString());
                         controller.compute_control_signal(reference, measurement);
                     }
                     connected_to_plant = true;
@@ -281,7 +281,7 @@ namespace Controller
         private double de = 0; // error derivative
         private double de_temp = 0; // error derivative holder
         private double u = 0; // control signal
-        private DateTime time_prior = DateTime.Now; // time stamp of prior execution
+        private DateTime update_last = DateTime.Now; // time stamp of prior execution
 
         // controller coefficients
         private double Kp; // proportional
@@ -290,7 +290,7 @@ namespace Controller
 
         // controller limitations
         private double u_max = 7.5;
-        private double u_min = -7.5;
+        private double u_min = -7.5*0;
 
         // constructor
         public PID(double Kp_, double Ki_, double Kd_) 
@@ -303,47 +303,47 @@ namespace Controller
         public void compute_control_signal(double r, double y)
         {
             // calculate the dime duration from the last update
-            // double dt = Convert.ToDouble(DateTime.Now - time_prior);
-            double dt = 0.005;
+            DateTime nowTime = DateTime.Now;
 
-            // error
+            // double dt = 0.005;
+
+            // calculte error
             e = r - y;
 
-            //integrator with anti wind-up
-            if (anti_wind_up == true)
+            if (update_last != null)
             {
-                if (u >= u_max == false && u <= u_min == false)
+                double dt = (nowTime - update_last).TotalSeconds;
+
+                //integrator with anti wind-up
+                if (anti_wind_up == true)
+                {
+                    // only add intergral action if the control signal is not saturated
+                    if (u > u_min  && u < u_max) 
+                    {
+                        I += dt * e;
+                    }
+                }
+                else
                 {
                     I += dt * e;
                 }
+
+                // derivator
+                de = 1 / (dt + 1) * y - de_temp;
+                de_temp = (y - de) / (dt + 1);
+
+                // control signal
+                u = Kp * e + Ki * I - Kd * de;
+
+                ep = e; // update prior error
+
+                // saturation
+                if (u > u_max) u = u_max;
+                if (u < u_min) u = u_min;               
             }
-            else
-            {
-                I += dt * e;
-            }
-
-
-            // derivator
-            de = 1 / (dt + 1) * y - de_temp;
-            de_temp = (y - de) / (dt + 1);
-
-            // control signal
-            u = Kp*e + (1/Ki)*I + (1/Kd)*de;
-
-            // saturation
-            if (u > u_max)
-            {
-                u = u_max;
-            }
-            if (u < u_min)
-            {
-                u = u_min;
-            }
-
-            ep = e; // update prior error
 
             // update prior time
-            // time_prior = DateTime.Now;
+            update_last = nowTime;
         }
 
         public void update_parameters(double Kp_, double Ki_, double Kd_)
