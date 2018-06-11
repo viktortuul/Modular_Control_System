@@ -13,7 +13,7 @@ namespace Controller
     public class Program
     {
         // time format
-        const string FMT = "yyyy-MM-dd HH:mm:ss.fffffff";
+        const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
 
         // data containers (dictionaries)
         static Dictionary<string, string> package_last = new Dictionary<string, string>(); // contains control and measurement values
@@ -66,9 +66,7 @@ namespace Controller
 
                 // send time, u, and y
                 string message = ConstructMessageGui(PIDList_);
-                //Console.WriteLine("sent gui: " + message);
                 client.send(message);
-                //Console.WriteLine("sent GUI: " + message);
             }
         }
 
@@ -84,17 +82,7 @@ namespace Controller
                 try
                 {
                     server.listen();
-                    //Console.WriteLine("from GUI:" + server.last_recieved);
                     parse_message(server.last_recieved);
-
-                    /*
-                    foreach (string key in package_last.Keys)
-                    {
-                        Console.WriteLine(key);
-                    }
-                    Console.WriteLine(PIDList_.Count);
-                    */
-
 
                     // compute the new control signal for each controller (with updated r)
                     int index = 0;

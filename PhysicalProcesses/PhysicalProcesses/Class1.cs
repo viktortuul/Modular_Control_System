@@ -103,7 +103,7 @@ namespace PhysicalProcesses
         double k = 6.32;
 
         // outlet areas [cm^2]
-        double a1 = 0.16;
+        double a1 = 0.16*3;
         double a2 = 0.16;
 
         // cross section areas [cm^2]
