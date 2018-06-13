@@ -13,8 +13,8 @@ namespace Model_Watertank
 {
     class Program
     {
-        // measurement noise
-
+        // time format
+        const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
 
         // data containers (dictionaries)
         static Dictionary<string, string> package_last = new Dictionary<string, string>(); // recieved package <tag, value>
@@ -88,6 +88,8 @@ namespace Model_Watertank
 
                 // send measurements y      
                 string message = "";
+
+                message += Convert.ToString("time_" + DateTime.UtcNow.ToString(FMT) + "#");
 
                 // observed states
                 int counter = -1;

@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using System.Threading;
 
 using Communication;
+using System.Diagnostics;
 
 namespace GUI
 {
+
     public class ControllerConnection
     {
         // time format
@@ -19,7 +21,7 @@ namespace GUI
 
         // identity parameters
         public string name = "";
-        string status = "waiting";
+        string status = "";
 
         // connection parameters
         public ConnectionParameters ConnectionParameters;
@@ -30,19 +32,12 @@ namespace GUI
         // time parameters
         public DateTime last_recieved_time;
 
-        // display variables
+        // number of controlled states
         public int n_contr_states = 0;
-        public double[] r = new double[] { 0, 0 }; // current reference value
-        public double[,] r_array = new double[2, n_steps]; // reference value (array) 
 
         // data containers (dictionaries)
-        public Dictionary<string, string> package_last = new Dictionary<string, string>(); // recieved values (last)
-        public Dictionary<string, string[]> packages = new Dictionary<string, string[]>(); // recieved values (continously added according to timer)
-        public Dictionary<string, string> reference_last = new Dictionary<string, string>(); // recieved values (last)
-        public Dictionary<string, string[]> references = new Dictionary<string, string[]>(); // recieved values (continously added according to timer)
-
         public Dictionary<string, DataContainer> recieved_packages = new Dictionary<string, DataContainer>();
-
+        public Dictionary<string, DataContainer> references = new Dictionary<string, DataContainer>();
 
         // controller parameters
         public PIDparameters ControllerParameters;
@@ -52,8 +47,6 @@ namespace GUI
 
         public ControllerConnection(FrameGUI f, string label_, PIDparameters ControllerParameters_, ConnectionParameters ConnectionParameters_)
         {
-            reference_last.Add("time", DateTime.UtcNow.ToString(FMT)); reference_last.Add("r1", "0"); reference_last.Add("r2", "0");
-
             // main form access
             Main_form = f;
 
@@ -71,6 +64,10 @@ namespace GUI
             // create a new thread for the sender
             Thread thread_sender = new Thread(() => Sender(ConnectionParameters.ip_send, ConnectionParameters.port_send));
             thread_sender.Start();
+
+            // add reference keys
+            references.Add("r1", new DataContainer(n_steps)); references.Add("r2", new DataContainer(n_steps));
+            references["r1"].InsertData(DateTime.UtcNow.ToString(FMT), "0"); references["r2"].InsertData(DateTime.UtcNow.ToString(FMT), "0");
         }
 
         private void Listener(string IP, int port)
@@ -88,33 +85,29 @@ namespace GUI
                     server.listen();
                     last_recieved_time = DateTime.UtcNow;
 
-                    // parse the message which contains time, u, y1, y2
+                    // parse the message which may contain u1, u2, yc1, yc2, yo1, yo2
                     ParseMessage(server.last_recieved);
+
+                    // flag that the GUI is recieving packages from the controller
+                    if (is_recieving == false) is_recieving = true;
 
                     // count the number of controlled states recieved
                     int counter = 0;
-                    foreach (string key in package_last.Keys)
+                    foreach (string key in recieved_packages.Keys)
                     {
                         if (key.Contains("yc"))
                         {
                             counter++;
 
-                            if (is_connected_to_process == false)
-                            {
-                                is_connected_to_process = true;
-                            }
-                        }
+                            // add reference time-stamp
+                            references["r1"].CopyAndPushArray();
+                            references["r2"].CopyAndPushArray();
 
+                            // flag that full communication is present
+                            if (is_connected_to_process == false) is_connected_to_process = true;
+                        }
                     }
                     n_contr_states = counter;
-
-                    // flag that the GUI is recieving packages from the controller
-                    if (is_recieving == false)
-                    {
-                        is_recieving = true;
-                    }
-
-                    //PushArrays(); ///////-----------------------------------------------------------------
                 }
                 catch (Exception ex)
                 {
@@ -135,32 +128,33 @@ namespace GUI
 
                 // attatch reference values
                 string message = "";
-                for (int i = 0; i < n_contr_states; i++)
+
+                message += Convert.ToString("time_" + DateTime.UtcNow.ToString(FMT) + "#");
+
+                for (int i = 1; i <= n_contr_states; i++)
                 {
-                    message += "r" + (i + 1).ToString() + "_" + reference_last["r" + (i + 1)] + "#";
+                    message += "r" + i.ToString() + "_" + references["r" + i.ToString()].GetLastValue() + "#";
                 }
 
                 // attach controller parameters
                 message += Convert.ToString("Kp_" + ControllerParameters.Kp + "#Ki_" + ControllerParameters.Ki + "#Kd_" + ControllerParameters.Kd);
 
-                if (message.Substring(0, 1) == "#")
-                {
-                    message = message.Substring(1);
-                }
-
+                // if the first character is '#', then remove it
+                if (message.Substring(0, 1) == "#")  message = message.Substring(1);
+                
+                // send message
                 client.send(message);
 
                 // flag that the GUI is sending packages to the controller
-                if (is_sending == false)
-                {
-                    is_sending = true;
-                }
+                if (is_sending == false) is_sending = true;              
             }
         }
 
         public void ParseMessage(string message)
         {
+            string time = "";
             string text = message;
+
             // split the message with the delimiter '#'
             string[] container = text.Split('#');
 
@@ -173,67 +167,36 @@ namespace GUI
                 string key = subitem[0];
                 string value = subitem[1];
 
+                // detect the time (don't add it as a separate key)
+                if (key == "time")
+                {
+                    time = value;
+                    continue;
+                }
+
+                // if the key doesn't exist, add it
+                if (recieved_packages.ContainsKey(key) == false)
+                {
+                    recieved_packages.Add(key, new DataContainer(n_steps));
+
+                    // flag the state yc1 as having a residual
+                    if (key == "yc1") recieved_packages[key].hasResidual = true;
+                }
+
                 // store the value
-                if (package_last.ContainsKey(key) == false)
-                {
-                    package_last.Add(key, value);
-                }
-                else
-                {
-                    package_last[key] = value;
-                }
+                recieved_packages[key].InsertData(time, value);
 
+                // calcuate residual
+                if (recieved_packages[key].hasResidual == true) recieved_packages[key].CalculateResidual(references["r1"].GetLastValue());
             }
-        }
-
-        public void PushArrays()
-        {
-            var keys = package_last.Keys.ToList();
-            //keys.Remove("time"); // don't consider the time key
-
-            foreach (string key in keys)
-            {
-                if (packages.ContainsKey(key) == false)
-                {
-                    packages.Add(key, new string[n_steps]);
-                }
-
-                Array.Copy(packages[key], 1, packages[key], 0, packages[key].Length - 1);
-                packages[key][packages[key].Length - 1] = package_last[key];
-            }
-
-            // REFERENCE
-
-            keys = reference_last.Keys.ToList();
-            reference_last["time"] = DateTime.UtcNow.ToString(FMT);
-            foreach (string key in keys)
-            {
-                if (references.ContainsKey(key) == false)
-                {
-                    references.Add(key, new string[n_steps]);
-                }
-
-                Array.Copy(references[key], 1, references[key], 0, references[key].Length - 1);
-                references[key][references[key].Length - 1] = reference_last[key];
-            }
-
-            // push reference values
-            //for (int i = 0; i < n_contr_states; i++)
-            //{
-            //    for (int j = 0; j < r_array.GetLength(1) - 1; j++)
-            //    {
-            //        r_array[i, j] = r_array[i, j + 1];
-            //    }
-            //    r_array[i, n_steps - 1] = r[i];
-            //}
-        }
+        } 
 
         public string GetStatus()
         {
             if (is_connected_to_process == true)
             {
                 status = "GUI <-> Contr <-> Plant";
-                if (ConnectedToControllerModule() == false) status = "GUI || Contr ? Plant";
+                if (LastRecievedStatus() == false) status = "GUI || Contr ? Plant";
             }
             else if (is_sending == true && is_recieving == true) status = "GUI <-> Contr";
             else if (is_sending == false && is_recieving == true) status = "GUI <- Contr";
@@ -241,18 +204,12 @@ namespace GUI
             return status;
         }
 
-        public bool ConnectedToControllerModule()
+        public bool LastRecievedStatus()
         {
             TimeSpan time_diff = DateTime.UtcNow - last_recieved_time;
 
-            if (time_diff.Seconds > 3)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            if (time_diff.Seconds > 3) return false;
+            else return true;    
         }
     }
 
@@ -262,9 +219,7 @@ namespace GUI
 
         public PIDparameters(double Kp_, double Ki_, double Kd_)
         {
-            Kp = Kp_;
-            Ki = Ki_;
-            Kd = Kd_;
+            Kp = Kp_; Ki = Ki_; Kd = Kd_;
         }
     }
 
@@ -284,15 +239,23 @@ namespace GUI
 
     public class DataContainer
     {
+        // time format
+        const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
+
         // store the time:value pair in string arrays
         public string[] time;
         public string[] value;
+        public string[] residual;
+
+        // residual setting
+        public bool hasResidual = false;
 
         // constructor
         public DataContainer(int size)
         {
             time = new string[size];
             value = new string[size];
+            residual = new string[size];
         }
 
         // instert a new time:value pair data point
@@ -305,9 +268,30 @@ namespace GUI
             value[value.Length - 1] = value_;
         }
 
-        public void check()
+        // calculate residual
+        public void CalculateResidual(string value)
         {
+            double resid = Convert.ToDouble(GetLastValue()) - Convert.ToDouble(value);
+            Array.Copy(residual, 1, residual, 0, residual.Length - 1);
+            residual[residual.Length - 1] = resid.ToString();
+        }
 
+        public string GetLastTime()
+        {
+            return time[time.Length - 1];
+        }
+        public string GetLastValue()
+        {
+            return value[value.Length - 1];
+        }
+
+        public void CopyAndPushArray()
+        {
+            Array.Copy(time, 1, time, 0, time.Length - 1);
+            time[time.Length - 1] = DateTime.UtcNow.ToString(FMT);
+
+            Array.Copy(value, 1, value, 0, value.Length - 1);
+            value[value.Length - 1] = value[value.Length - 2];
         }
     }
 

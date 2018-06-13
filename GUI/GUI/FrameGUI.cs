@@ -33,6 +33,7 @@ namespace GUI
 
         // time format
         const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
+        const string FMT_plot = "HH:mm:ss";
 
         // drawing
         Graphics g;
@@ -54,14 +55,16 @@ namespace GUI
             dataChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
             dataChart.ChartAreas["ChartArea1"].AxisY.Title = "Magnitude";
             dataChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
-            dataChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Days;
-            dataChart.ChartAreas["ChartArea1"].AxisX.Interval = 50;
+            dataChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
+            dataChart.ChartAreas["ChartArea1"].AxisX.Interval = 5000;
+            //dataChart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.AddSeconds(-60).ToOADate();
+            //dataChart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
 
             residualChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
             residualChart.ChartAreas["ChartArea1"].AxisY.Title = "Magnitude";
             residualChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
-            residualChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Days;
-            residualChart.ChartAreas["ChartArea1"].AxisX.Interval = 50;
+            residualChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
+            residualChart.ChartAreas["ChartArea1"].AxisX.Interval = 5000;
             residualChart.Series.Add("res1");
             residualChart.Series["res1"].XValueType = ChartValueType.DateTime;
             residualChart.Series["res1"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
@@ -71,7 +74,6 @@ namespace GUI
             toolStripStatusLabel1.Text = "Dir: " + folderName;
         }
 
-
         private void timerChart_Tick(object sender, EventArgs e)
         {
             if (connection_current.is_connected_to_process == true)
@@ -79,14 +81,15 @@ namespace GUI
                 // add the correct number of reference series
                 addReferenceSeries();
 
-                // push each element in the data vectors one step back
-                foreach (ControllerConnection controller in connections)
-                {
-                    controller.PushArrays();
-                }
+                // clear residual chart
+                residualChart.Series["res1"].Points.Clear();
 
                 // refresh the chart
-                UpdateChart(connection_current);
+                UpdateChart(connection_current.references); // reference
+                UpdateChart(connection_current.recieved_packages); // states
+
+                // update time labels
+                UpdateTimeLabels(connection_current);
 
                 // enable or disable reference track bars
                 ManageTrackbars();
@@ -96,11 +99,10 @@ namespace GUI
             }
         }
 
-        private void UpdateChart(ControllerConnection connection)
+        private void UpdateChart(Dictionary<string, DataContainer> dict)
         {
             // get all keys from the current connection
-            var keys = connection.packages.Keys.ToList();
-            keys.Remove("time"); // don't consider the time key
+            var keys = dict.Keys.ToList();
 
             // clear and update the graphs (for each key)
             foreach (string key in keys)
@@ -112,71 +114,33 @@ namespace GUI
                 }
 
                 dataChart.Series[key].Points.Clear();
-                residualChart.Series["res1"].Points.Clear();
 
-                for (int i = 0; i < connection.packages[key].Length; i++)
+                for (int i = 0; i < dict[key].time.Length; i++)
                 {
-                    //dataChart.Series[key].Points.AddY(connection.packages[key][i]);                   
-                    if (connection.packages["time"][i] != null)
+                    if (dict[key].time[i] != null)
                     {
-                        DateTime time = DateTime.ParseExact(connection.packages["time"][i], FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
-                        dataChart.Series[key].Points.AddXY(time.ToString("hh:mm:ss tt"), Convert.ToDouble(connection.packages[key][i]));
-                        //TimeSpan time =  DateTime.ParseExact(connection.packages["time"][i], FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal) - DateTime.UtcNow;
-                        //dataChart.Series[key].Points.AddXY(Math.Round(time.TotalSeconds,1), Convert.ToDouble(connection.packages[key][i]));
-
+                        DateTime time = DateTime.ParseExact(dict[key].time[i], FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+                        dataChart.Series[key].Points.AddXY(time, Convert.ToDouble(dict[key].value[i]));
+                    
                         // plot residuals
-                        if (key == "yc1")
+                        if (dict[key].hasResidual == true)
                         {
-                            residualChart.Series["res1"].Points.AddXY(time.ToString("hh:mm:ss tt"), Convert.ToDouble(connection.packages[key][i]) - Convert.ToDouble(connection.references["r1"][i]));
+                            residualChart.Series["res1"].Points.AddXY(time, Convert.ToDouble(dict[key].residual[i]));
                         }
                     }
                 }
             }
+        }
 
-            // clear and update the graphs (for the reference)
-            //for (int i = 0; i < connection.n_contr_states; i++)
-            //{
-            //    dataChart.Series["r" + (i + 1).ToString()].Points.Clear();
-            //    for (int j = 0; j < connection.r_array.GetLength(1); j++)
-            //    {
-            //        dataChart.Series["r" + (i + 1).ToString()].Points.AddY(connection.r_array[i, j]);
-            //    }
-            //}
-
-            // get all keys from the current connection
-            keys = connection.references.Keys.ToList();
-            keys.Remove("time");
-            // clear and update the graphs (for each key)
-            foreach (string key in keys)
-            {
-                // if series does not exist, add it
-                if (dataChart.Series.IndexOf(key) == -1)
-                {
-                    AddChartSeries(key);
-                }
-
-                dataChart.Series[key].Points.Clear();
-                for (int i = 0; i < connection.references[key].Length; i++)
-                {
-                    //dataChart.Series[key].Points.AddY(connection.packages[key][i]);                   
-                    if (connection.references["time"][i] != null)
-                    {
-                        DateTime time = DateTime.ParseExact(connection.references["time"][i], FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
-                        dataChart.Series[key].Points.AddXY(time.ToString("hh:mm:ss tt"), Convert.ToDouble(connection.references[key][i]));
-                        //TimeSpan time =  DateTime.ParseExact(connection.packages["time"][i], FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal) - DateTime.UtcNow;
-                        //dataChart.Series[key].Points.AddXY(Math.Round(time.TotalSeconds,1), Convert.ToDouble(connection.packages[key][i]));
-                    }
-                }
-            }
-
-            // update time labels
+        public void UpdateTimeLabels(ControllerConnection connection)
+        {
             try
             {
-                DateTime time_sent = DateTime.ParseExact(connection.package_last["time"], FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+                DateTime time_sent = DateTime.ParseExact(connection.recieved_packages["u1"].GetLastTime(), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
                 TimeSpan timeDiff = connection.last_recieved_time - time_sent;
                 label_time.Text = "time now:                    " + DateTime.UtcNow.ToString("hh:mm:ss.fff tt") + "\n" +
                                   "last recieved:              " + connection.last_recieved_time.ToString("hh:mm:ss.fff tt") + "\n" +
-                                  "when it was sent:        " + time_sent.ToString("hh:mm:ss.fff tt") + "\n" + 
+                                  "when it was sent:        " + time_sent.ToString("hh:mm:ss.fff tt") + "\n" +
                                   "transmission duration [ms]: " + timeDiff.TotalMilliseconds;
             }
             catch { }
@@ -191,26 +155,19 @@ namespace GUI
 
                 // clear and add keys to the new chart
                 dataChart.Series.Clear();
-                var keys = connection_current.packages.Keys.ToList();
-                keys.Remove("time");
+                var keys = connection_current.recieved_packages.Keys.ToList();
 
-                for (int i = 0; i < connection_current.n_contr_states; i++)
-                {
-                    AddChartSeries("r" + (i+1).ToString());
-                }
+                for (int i = 0; i < connection_current.n_contr_states; i++) AddChartSeries("r" + (i+1).ToString());              
 
                 // enable or disable reference track bars
                 ManageTrackbars();
 
                 // add all chart series
-                foreach (string key in keys)
-                {
-                    AddChartSeries(key);
-                }
+                foreach (string key in keys) AddChartSeries(key);
 
                 // update GUI values according to the connected controller
-                trackBarReference.Value = Convert.ToInt16(connection_current.r[0]);
-                trackBar1.Value = Convert.ToInt16(connection_current.r[1]);
+                trackBarReference1.Value = Convert.ToInt16(connection_current.references["r1"].GetLastValue());
+                trackBarReference2.Value = Convert.ToInt16(connection_current.references["r2"].GetLastValue());
                 numUpDownKp.Value = Convert.ToDecimal(connection_current.ControllerParameters.Kp);
                 numUpDownKi.Value = Convert.ToDecimal(connection_current.ControllerParameters.Ki);
                 numUpDownKd.Value = Convert.ToDecimal(connection_current.ControllerParameters.Kd);
@@ -241,17 +198,17 @@ namespace GUI
             // enable or disable trackbars
             if (connection_current.n_contr_states == 1)
             {
-                trackBarReference.Enabled = true;
+                trackBarReference1.Enabled = true;
             }
             else if (connection_current.n_contr_states == 2)
             {
-                trackBarReference.Enabled = true;
-                trackBar1.Enabled = true;
+                trackBarReference1.Enabled = true;
+                trackBarReference2.Enabled = true;
             }
             else
             {
-                trackBarReference.Enabled = false;
-                trackBar1.Enabled = false;
+                trackBarReference1.Enabled = false;
+                trackBarReference2.Enabled = false;
             }
         }
 
@@ -270,7 +227,6 @@ namespace GUI
         public void AddChartSeries(string key)
         {
             // add a new time series
-            log(key);
             this.Invoke((MethodInvoker)delegate ()
             {
                 if (dataChart.Series.IndexOf(key) == -1)
@@ -327,9 +283,7 @@ namespace GUI
         private void btnAllowConnection_Click_1(object sender, EventArgs e)
         {
             // enable parameter settings
-            numUpDownKp.Enabled = true;
-            numUpDownKi.Enabled = true;
-            numUpDownKd.Enabled = true;
+            numUpDownKp.Enabled = true; numUpDownKi.Enabled = true; numUpDownKd.Enabled = true;
             
             // controller name and corresponding ip:port pairs
             string label = textBoxName.Text;
@@ -340,20 +294,17 @@ namespace GUI
 
             // look for name and port conflicts with present allowed traffics
             bool already_exists = false;
+
             foreach (ControllerConnection controller in connections)
             {
-                if ((controller.ConnectionParameters.port_recieve == port_recieve &&
-                    controller.ConnectionParameters.port_send == port_send) ||
+                if ((controller.ConnectionParameters.port_recieve == port_recieve && controller.ConnectionParameters.port_send == port_send) ||
                     controller.name == label)
                 {
                     already_exists = true;
                 }
             }
 
-            if (already_exists == true)
-            {
-                log("Error: name or ip:port pair already in use");
-            }
+            if (already_exists == true) log("Error: name or ip:port pair already in use");
             else
             {
                 // connection parameters
@@ -361,9 +312,9 @@ namespace GUI
 
                 // create and add controller
                 PIDparameters ControllerParameters = new PIDparameters(Convert.ToDouble(numUpDownKp.Value), Convert.ToDouble(numUpDownKi.Value), Convert.ToDouble(numUpDownKd.Value));
-                ControllerConnection PID_1 = new ControllerConnection(this, label, ControllerParameters, ConnParams);
-                connections.Add(PID_1);
-                connection_current = PID_1;
+                ControllerConnection PID = new ControllerConnection(this, label, ControllerParameters, ConnParams);
+                connections.Add(PID);
+                connection_current = PID;
                 listBoxModules.Items.Add(label);
 
                 // if no listbox item is selected, select the top one
@@ -405,10 +356,10 @@ namespace GUI
             double cm2pix = max_height_p / max_height_r;
 
             // extract signals
-            int u = Convert.ToInt16(Convert.ToDouble(connection.package_last["u1"]));
-            int y1 = Convert.ToInt16(cm2pix * Convert.ToDouble(connection.package_last["yo1"]));
-            int y2 = Convert.ToInt16(cm2pix * Convert.ToDouble(connection.package_last["yc1"]));
-            int reference = Convert.ToInt16(cm2pix * Convert.ToDouble(connection.reference_last["r1"]));
+            int u = Convert.ToInt16(Convert.ToDouble(connection.recieved_packages["u1"].GetLastValue()));
+            int y1 = Convert.ToInt16(cm2pix * Convert.ToDouble(connection.recieved_packages["yo1"].GetLastValue()));
+            int y2 = Convert.ToInt16(cm2pix * Convert.ToDouble(connection.recieved_packages["yc1"].GetLastValue()));
+            int reference = Convert.ToInt16(cm2pix * Convert.ToDouble(connection.references["r1"].GetLastValue()));
 
             //
             double A1 = Convert.ToDouble(numUpDown_A1.Value);
@@ -491,8 +442,8 @@ namespace GUI
             // set the reference signal value according to the track bar
             if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
             {
-                connection_current.reference_last["r1"] = trackBarReference.Value.ToString();
-                labelReference1.Text = trackBarReference.Value.ToString();
+                connection_current.references["r1"].InsertData(DateTime.UtcNow.ToString(FMT), trackBarReference1.Value.ToString());
+                labelReference1.Text = trackBarReference1.Value.ToString();
             }
         }
 
@@ -501,8 +452,8 @@ namespace GUI
             // set the reference signal value according to the track bar
             if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
             {
-                connection_current.reference_last["r2"] = trackBar1.Value.ToString();
-                labelReference2.Text = trackBar1.Value.ToString();
+                connection_current.references["r2"].InsertData(DateTime.UtcNow.ToString(FMT), trackBarReference2.Value.ToString());
+                labelReference2.Text = trackBarReference2.Value.ToString();
             }
         }
 

@@ -29,16 +29,18 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title5 = new System.Windows.Forms.DataVisualization.Charting.Title();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameGUI));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title6 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.tbDebugLog = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.timerChart = new System.Windows.Forms.Timer(this.components);
             this.dataChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.trackBarReference = new System.Windows.Forms.TrackBar();
+            this.trackBarReference1 = new System.Windows.Forms.TrackBar();
             this.labelReference1 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.numUpDownKp = new System.Windows.Forms.NumericUpDown();
@@ -63,7 +65,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label8 = new System.Windows.Forms.Label();
-            this.trackBar1 = new System.Windows.Forms.TrackBar();
+            this.trackBarReference2 = new System.Windows.Forms.TrackBar();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.label9 = new System.Windows.Forms.Label();
             this.labelReference2 = new System.Windows.Forms.Label();
@@ -86,7 +88,7 @@
             this.timerTree = new System.Windows.Forms.Timer(this.components);
             this.residualChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             ((System.ComponentModel.ISupportInitialize)(this.dataChart)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarReference)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarReference1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownKp)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownKi)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownKd)).BeginInit();
@@ -95,7 +97,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_port_send)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_port_recieve)).BeginInit();
             this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarReference2)).BeginInit();
             this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDown_A1)).BeginInit();
@@ -111,8 +113,8 @@
             // 
             this.tbDebugLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbDebugLog.Location = new System.Drawing.Point(1488, 185);
-            this.tbDebugLog.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tbDebugLog.Location = new System.Drawing.Point(1487, 186);
+            this.tbDebugLog.Margin = new System.Windows.Forms.Padding(4);
             this.tbDebugLog.Multiline = true;
             this.tbDebugLog.Name = "tbDebugLog";
             this.tbDebugLog.ReadOnly = true;
@@ -140,32 +142,35 @@
             this.dataChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea3.Area3DStyle.Inclination = 0;
-            chartArea3.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
-            chartArea3.Area3DStyle.Rotation = 0;
-            chartArea3.Area3DStyle.WallWidth = 1;
-            chartArea3.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea3.Name = "ChartArea1";
-            chartArea3.ShadowColor = System.Drawing.Color.Gray;
-            this.dataChart.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            this.dataChart.Legends.Add(legend3);
+            chartArea5.Area3DStyle.Inclination = 0;
+            chartArea5.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
+            chartArea5.Area3DStyle.Rotation = 0;
+            chartArea5.Area3DStyle.WallWidth = 1;
+            chartArea5.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea5.Name = "ChartArea1";
+            chartArea5.ShadowColor = System.Drawing.Color.Gray;
+            this.dataChart.ChartAreas.Add(chartArea5);
+            legend5.Name = "Legend1";
+            this.dataChart.Legends.Add(legend5);
             this.dataChart.Location = new System.Drawing.Point(304, 155);
-            this.dataChart.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.dataChart.Margin = new System.Windows.Forms.Padding(4);
             this.dataChart.Name = "dataChart";
             this.dataChart.Size = new System.Drawing.Size(696, 470);
             this.dataChart.TabIndex = 2;
             this.dataChart.Text = "chart1";
+            title5.Name = "Title1";
+            title5.Text = "States";
+            this.dataChart.Titles.Add(title5);
             // 
-            // trackBarReference
+            // trackBarReference1
             // 
-            this.trackBarReference.Location = new System.Drawing.Point(15, 30);
-            this.trackBarReference.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.trackBarReference.Maximum = 20;
-            this.trackBarReference.Name = "trackBarReference";
-            this.trackBarReference.Size = new System.Drawing.Size(207, 56);
-            this.trackBarReference.TabIndex = 4;
-            this.trackBarReference.Scroll += new System.EventHandler(this.trackBarReference_Scroll);
+            this.trackBarReference1.Location = new System.Drawing.Point(15, 30);
+            this.trackBarReference1.Margin = new System.Windows.Forms.Padding(4);
+            this.trackBarReference1.Maximum = 20;
+            this.trackBarReference1.Name = "trackBarReference1";
+            this.trackBarReference1.Size = new System.Drawing.Size(207, 56);
+            this.trackBarReference1.TabIndex = 4;
+            this.trackBarReference1.Scroll += new System.EventHandler(this.trackBarReference_Scroll);
             // 
             // labelReference1
             // 
@@ -197,7 +202,7 @@
             0,
             65536});
             this.numUpDownKp.Location = new System.Drawing.Point(49, 32);
-            this.numUpDownKp.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.numUpDownKp.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownKp.Name = "numUpDownKp";
             this.numUpDownKp.Size = new System.Drawing.Size(65, 22);
             this.numUpDownKp.TabIndex = 7;
@@ -218,7 +223,7 @@
             0,
             65536});
             this.numUpDownKi.Location = new System.Drawing.Point(49, 63);
-            this.numUpDownKi.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.numUpDownKi.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownKi.Maximum = new decimal(new int[] {
             500,
             0,
@@ -244,7 +249,7 @@
             0,
             65536});
             this.numUpDownKd.Location = new System.Drawing.Point(49, 95);
-            this.numUpDownKd.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.numUpDownKd.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownKd.Name = "numUpDownKd";
             this.numUpDownKd.Size = new System.Drawing.Size(65, 22);
             this.numUpDownKd.TabIndex = 9;
@@ -263,9 +268,9 @@
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.numUpDownKp);
             this.groupBox1.Location = new System.Drawing.Point(687, 12);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox1.Size = new System.Drawing.Size(136, 135);
             this.groupBox1.TabIndex = 10;
             this.groupBox1.TabStop = false;
@@ -274,7 +279,7 @@
             // button_update_pid
             // 
             this.button_update_pid.Location = new System.Drawing.Point(140, 91);
-            this.button_update_pid.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button_update_pid.Margin = new System.Windows.Forms.Padding(4);
             this.button_update_pid.Name = "button_update_pid";
             this.button_update_pid.Size = new System.Drawing.Size(100, 28);
             this.button_update_pid.TabIndex = 10;
@@ -304,9 +309,9 @@
             this.groupBox2.Controls.Add(this.textBox_ip_send);
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Location = new System.Drawing.Point(304, 12);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox2.Size = new System.Drawing.Size(375, 135);
             this.groupBox2.TabIndex = 12;
             this.groupBox2.TabStop = false;
@@ -315,7 +320,7 @@
             // button_thisIP
             // 
             this.button_thisIP.Location = new System.Drawing.Point(93, 27);
-            this.button_thisIP.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.button_thisIP.Margin = new System.Windows.Forms.Padding(4);
             this.button_thisIP.Name = "button_thisIP";
             this.button_thisIP.Size = new System.Drawing.Size(59, 31);
             this.button_thisIP.TabIndex = 21;
@@ -372,7 +377,7 @@
             // textBoxName
             // 
             this.textBoxName.Location = new System.Drawing.Point(61, 96);
-            this.textBoxName.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBoxName.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxName.Name = "textBoxName";
             this.textBoxName.Size = new System.Drawing.Size(68, 22);
             this.textBoxName.TabIndex = 11;
@@ -401,7 +406,7 @@
             // textBox_ip_recieve
             // 
             this.textBox_ip_recieve.Location = new System.Drawing.Point(159, 30);
-            this.textBox_ip_recieve.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBox_ip_recieve.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_ip_recieve.Name = "textBox_ip_recieve";
             this.textBox_ip_recieve.Size = new System.Drawing.Size(129, 22);
             this.textBox_ip_recieve.TabIndex = 8;
@@ -410,7 +415,7 @@
             // btnAllowConnection
             // 
             this.btnAllowConnection.Location = new System.Drawing.Point(159, 90);
-            this.btnAllowConnection.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnAllowConnection.Margin = new System.Windows.Forms.Padding(4);
             this.btnAllowConnection.Name = "btnAllowConnection";
             this.btnAllowConnection.Size = new System.Drawing.Size(204, 31);
             this.btnAllowConnection.TabIndex = 5;
@@ -421,7 +426,7 @@
             // textBox_ip_send
             // 
             this.textBox_ip_send.Location = new System.Drawing.Point(163, 62);
-            this.textBox_ip_send.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.textBox_ip_send.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_ip_send.Name = "textBox_ip_send";
             this.textBox_ip_send.Size = new System.Drawing.Size(129, 22);
             this.textBox_ip_send.TabIndex = 2;
@@ -442,7 +447,7 @@
             this.listBoxModules.FormattingEnabled = true;
             this.listBoxModules.ItemHeight = 16;
             this.listBoxModules.Location = new System.Drawing.Point(7, 39);
-            this.listBoxModules.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.listBoxModules.Margin = new System.Windows.Forms.Padding(4);
             this.listBoxModules.Name = "listBoxModules";
             this.listBoxModules.Size = new System.Drawing.Size(271, 132);
             this.listBoxModules.TabIndex = 0;
@@ -495,28 +500,28 @@
             this.label8.TabIndex = 18;
             this.label8.Text = "Modules";
             // 
-            // trackBar1
+            // trackBarReference2
             // 
-            this.trackBar1.Enabled = false;
-            this.trackBar1.Location = new System.Drawing.Point(15, 71);
-            this.trackBar1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.trackBar1.Maximum = 20;
-            this.trackBar1.Name = "trackBar1";
-            this.trackBar1.Size = new System.Drawing.Size(207, 56);
-            this.trackBar1.TabIndex = 19;
-            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
+            this.trackBarReference2.Enabled = false;
+            this.trackBarReference2.Location = new System.Drawing.Point(15, 71);
+            this.trackBarReference2.Margin = new System.Windows.Forms.Padding(4);
+            this.trackBarReference2.Maximum = 20;
+            this.trackBarReference2.Name = "trackBarReference2";
+            this.trackBarReference2.Size = new System.Drawing.Size(207, 56);
+            this.trackBarReference2.TabIndex = 19;
+            this.trackBarReference2.Scroll += new System.EventHandler(this.trackBar1_Scroll);
             // 
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.label9);
             this.groupBox4.Controls.Add(this.labelReference2);
-            this.groupBox4.Controls.Add(this.trackBar1);
-            this.groupBox4.Controls.Add(this.trackBarReference);
+            this.groupBox4.Controls.Add(this.trackBarReference2);
+            this.groupBox4.Controls.Add(this.trackBarReference1);
             this.groupBox4.Controls.Add(this.labelReference1);
             this.groupBox4.Location = new System.Drawing.Point(829, 12);
-            this.groupBox4.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox4.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox4.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox4.Size = new System.Drawing.Size(267, 135);
             this.groupBox4.TabIndex = 20;
             this.groupBox4.TabStop = false;
@@ -547,7 +552,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictureBox1.Location = new System.Drawing.Point(1009, 155);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(470, 646);
             this.pictureBox1.TabIndex = 23;
@@ -602,7 +607,7 @@
             0,
             65536});
             this.numUpDown_A1.Location = new System.Drawing.Point(80, 17);
-            this.numUpDown_A1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.numUpDown_A1.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDown_A1.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -626,7 +631,7 @@
             0,
             131072});
             this.numUpDown_a1a.Location = new System.Drawing.Point(80, 43);
-            this.numUpDown_a1a.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.numUpDown_a1a.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDown_a1a.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -650,7 +655,7 @@
             0,
             65536});
             this.numUpDown_A2.Location = new System.Drawing.Point(80, 69);
-            this.numUpDown_A2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.numUpDown_A2.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDown_A2.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -674,7 +679,7 @@
             0,
             131072});
             this.numUpDown_a2a.Location = new System.Drawing.Point(80, 95);
-            this.numUpDown_a2a.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.numUpDown_a2a.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDown_a2a.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -700,9 +705,9 @@
             this.groupBox5.Controls.Add(this.label11);
             this.groupBox5.Controls.Add(this.numUpDown_A1);
             this.groupBox5.Location = new System.Drawing.Point(1104, 12);
-            this.groupBox5.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox5.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox5.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox5.Size = new System.Drawing.Size(180, 133);
             this.groupBox5.TabIndex = 30;
             this.groupBox5.TabStop = false;
@@ -763,28 +768,32 @@
             // 
             this.residualChart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea4.Area3DStyle.Inclination = 0;
-            chartArea4.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
-            chartArea4.Area3DStyle.Rotation = 0;
-            chartArea4.Area3DStyle.WallWidth = 1;
-            chartArea4.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea4.Name = "ChartArea1";
-            chartArea4.ShadowColor = System.Drawing.Color.Gray;
-            this.residualChart.ChartAreas.Add(chartArea4);
-            legend4.Name = "Legend1";
-            this.residualChart.Legends.Add(legend4);
+            chartArea6.Area3DStyle.Inclination = 0;
+            chartArea6.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
+            chartArea6.Area3DStyle.Rotation = 0;
+            chartArea6.Area3DStyle.WallWidth = 1;
+            chartArea6.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea6.Name = "ChartArea1";
+            chartArea6.ShadowColor = System.Drawing.Color.Gray;
+            this.residualChart.ChartAreas.Add(chartArea6);
+            legend6.Name = "Legend1";
+            this.residualChart.Legends.Add(legend6);
             this.residualChart.Location = new System.Drawing.Point(305, 633);
             this.residualChart.Margin = new System.Windows.Forms.Padding(4);
             this.residualChart.Name = "residualChart";
             this.residualChart.Size = new System.Drawing.Size(696, 168);
             this.residualChart.TabIndex = 32;
             this.residualChart.Text = "chart1";
+            title6.Name = "Title1";
+            title6.Text = "Residual";
+            this.residualChart.Titles.Add(title6);
             // 
             // FrameGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1924, 862);
+            this.Controls.Add(this.tbDebugLog);
             this.Controls.Add(this.residualChart);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.groupBox5);
@@ -796,14 +805,13 @@
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.dataChart);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.tbDebugLog);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FrameGUI";
             this.Text = "GUI";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataChart)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBarReference)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarReference1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownKp)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownKi)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownKd)).EndInit();
@@ -815,7 +823,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_port_recieve)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBarReference2)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -838,7 +846,7 @@
         private System.Windows.Forms.TextBox tbDebugLog;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Timer timerChart;
-        private System.Windows.Forms.TrackBar trackBarReference;
+        private System.Windows.Forms.TrackBar trackBarReference1;
         private System.Windows.Forms.Label labelReference1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown numUpDownKp;
@@ -863,7 +871,7 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.NumericUpDown numericUpDown_port_send;
         private System.Windows.Forms.NumericUpDown numericUpDown_port_recieve;
-        private System.Windows.Forms.TrackBar trackBar1;
+        private System.Windows.Forms.TrackBar trackBarReference2;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label labelReference2;

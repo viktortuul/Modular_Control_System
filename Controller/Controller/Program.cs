@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Threading;
 using Communication;
+using System.Globalization;
 
 namespace Controller
 {
@@ -15,12 +16,21 @@ namespace Controller
         // time format
         const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
 
+        // data container size
+        public static int n_steps = 500;
+
         // data containers (dictionaries)
-        static Dictionary<string, string> package_last = new Dictionary<string, string>(); // contains control and measurement values
-        static bool connected_to_plant = false; // marker if a plant is connected to the plant (otherwise don't run cuntroller)
+        // static Dictionary<string, string> recieved_packages = new Dictionary<string, string>(); // contains control and measurement values
+
+        // data containers (dictionaries)
+        static Dictionary<string, DataContainer> recieved_packages = new Dictionary<string, DataContainer>();
+        static Dictionary<string, DataContainer> references = new Dictionary<string, DataContainer>();
 
         // container for all controllers in the module
         static List<PID> PIDList = new List<PID>();
+
+        // state variables
+        static bool isListeningOnPlant = false;
 
         static void Main(string[] args)
         {
@@ -63,10 +73,12 @@ namespace Controller
             while (true)
             {
                 Thread.Sleep(100);
-
-                // send time, u, and y
-                string message = ConstructMessageGui(PIDList_);
-                client.send(message);
+                if (isListeningOnPlant == true)
+                {
+                    // send time, u, and y
+                    string message = ConstructMessageGui(PIDList_);
+                    client.send(message);
+                }
             }
         }
 
@@ -89,15 +101,14 @@ namespace Controller
                     foreach (PID controller in PIDList_)
                     {           
                         index++;
-                        double reference = Convert.ToDouble(package_last["r" + index]);
-                        double measurement = Convert.ToDouble(package_last["yc" + index]);
+                        double reference = Convert.ToDouble(recieved_packages["r" + index].GetLastValue());
+                        double measurement = Convert.ToDouble(recieved_packages["yc" + index].GetLastValue());
 
-                        controller.update_parameters(Convert.ToDouble(package_last["Kp"]), Convert.ToDouble(package_last["Ki"]), Convert.ToDouble(package_last["Kd"]));
+                        // update controller parameters
+                        controller.update_parameters(Convert.ToDouble(recieved_packages["Kp"].GetLastValue()), Convert.ToDouble(recieved_packages["Ki"].GetLastValue()), Convert.ToDouble(recieved_packages["Kd"].GetLastValue()));
 
-                        if (connected_to_plant)
-                        {
-                            controller.compute_control_signal(reference, measurement);
-                        }
+                        // update control signal
+                        if (isListeningOnPlant) controller.compute_control_signal(reference, measurement);                   
                     }
                 }
                 catch (Exception ex)
@@ -116,11 +127,14 @@ namespace Controller
             {
                 Thread.Sleep(10);
 
-                // send u to the plant
-                string message = ConstructMessagePlant(PIDList_);
+                if (isListeningOnPlant == true)
+                {
+                    // send u to the plant
+                    string message = ConstructMessagePlant(PIDList_);
 
-                client.send(message);
-                //Console.WriteLine("sent plant: " + message);
+                    client.send(message);
+                    //Console.WriteLine("sent plant: " + message);
+                }
             }
         }
 
@@ -143,12 +157,12 @@ namespace Controller
                     foreach (PID controller in PIDList_)
                     {
                         index++;
-                        double reference = Convert.ToDouble(package_last["r" + index]);
-                        double measurement = Convert.ToDouble(package_last["yc" + index]);
+                        double reference = Convert.ToDouble(recieved_packages["r" + index].GetLastValue());
+                        double measurement = Convert.ToDouble(recieved_packages["yc" + index].GetLastValue());
                         //Console.WriteLine("reci: " + "yc" + index + ":" + measurement.ToString());
                         controller.compute_control_signal(reference, measurement);
                     }
-                    connected_to_plant = true;
+                    isListeningOnPlant = true;
                 }
                 catch (Exception ex)
                 {
@@ -171,20 +185,20 @@ namespace Controller
                 message += "#u" + index + "_" + controller.get_u();
             }
 
-            for (int i = 0; i < package_last.Keys.Count(); i++)
+            for (int i = 0; i < recieved_packages.Keys.Count(); i++)
             {
                 try
                 {            
-                    var item = package_last.ElementAt(i);
+                    var item = recieved_packages.ElementAt(i);
                     string key = item.Key;
 
                     if (key.Contains("yo"))
                     {
-                        message += "#" + key + "_" + package_last[key].ToString();
+                        message += "#" + key + "_" + recieved_packages[key].GetLastValue();
                     }
                     else if (key.Contains("yc"))
                     {
-                        message += "#" + key + "_" + package_last[key].ToString();
+                        message += "#" + key + "_" + recieved_packages[key].GetLastValue();
                     }
                 }
                 catch (Exception ex)
@@ -209,12 +223,17 @@ namespace Controller
             {
                 message = message.Substring(1);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
             return message;
         }
 
         public static void parse_message(string message)
         {
+            string time = "";
             string text = message;
 
             // split the message with the delimiter '#'
@@ -229,19 +248,27 @@ namespace Controller
                 string key = subitem[0];
                 string value = subitem[1];
 
-                if (package_last.ContainsKey(key) == false)
+                // detect the time (don't add it as a separate key)
+                if (key == "time")
                 {
-                    package_last.Add(key, value);
+                    time = value;
+                    continue;
+                }
+
+                if (recieved_packages.ContainsKey(key) == false)
+                {
+                    recieved_packages.Add(key, new DataContainer(n_steps));
 
                     // add controller to detected output 
                     if (key.Contains("yc"))
                     {
                         PIDList.Add(new PID(1, 1, 1));
 
-                        package_last.Add("r" + key.Substring(2), "0");
+                        recieved_packages.Add("r" + key.Substring(2), new DataContainer(n_steps));
                     }
                 }
-                package_last[key] = value;
+
+                recieved_packages[key].InsertData(time, value);
             }
         }
     }
@@ -249,7 +276,7 @@ namespace Controller
     public struct PIDparameters
     {
         public double Kp, Ki, Kd;
-
+        
         public PIDparameters(double Kp_, double Ki_, double Kd_)
         {
             Kp = Kp_;
@@ -293,30 +320,25 @@ namespace Controller
             // calculate the dime duration from the last update
             DateTime nowTime = DateTime.Now;
 
-            // double dt = 0.005;
-
             // calculte error
             e = r - y;
 
             if (update_last != null)
             {
                 double dt = (nowTime - update_last).TotalSeconds;
-
+ 
                 //integrator with anti wind-up
                 if (anti_wind_up == true)
                 {
                     // only add intergral action if the control signal is not saturated
-                    if (u > u_min  && u < u_max) 
-                    {
-                        I += dt * e;
-                    }
+                    if (u > u_min  && u < u_max)  I += dt * e;
                 }
                 else
                 {
                     I += dt * e;
                 }
 
-                // derivator
+                // derivator (with low pass)
                 de = 1 / (dt + 1) * y - de_temp;
                 de_temp = (y - de) / (dt + 1);
 
@@ -346,5 +368,78 @@ namespace Controller
             return u;
         }
 
+    }
+
+    public class DataContainer
+    {
+        // time format
+        const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
+
+        // store the time:value pair in string arrays
+        public string[] time;
+        public string[] value;
+
+        // constructor
+        public DataContainer(int size)
+        {
+            time = new string[size];
+            value = new string[size];
+        }
+
+        // instert a new time:value pair data point
+        public void InsertData(string time_, string value_)
+        {
+            // compare timestamps
+            if (GetLastTime() != null)
+            { 
+                if (isMostRecent(time_, value_) == true)
+                {
+                    Array.Copy(time, 1, time, 0, time.Length - 1);
+                    time[time.Length - 1] = time_;
+
+                    Array.Copy(value, 1, value, 0, value.Length - 1);
+                    value[value.Length - 1] = value_;
+                }
+            }
+            else
+            {
+                time[time.Length - 1] = time_;
+                value[value.Length - 1] = value_;
+            }
+        }
+
+        public bool isMostRecent(string time, string value)
+        {
+            DateTime t_new = DateTime.ParseExact(time, FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+            DateTime t_prev = DateTime.ParseExact(GetLastTime(), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+            TimeSpan timeDiff = t_new - t_prev;
+
+            if (timeDiff.TotalMilliseconds > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public string GetLastTime()
+        {
+            return time[time.Length - 1];
+        }
+        public string GetLastValue()
+        {
+            return value[value.Length - 1];
+        }
+
+        public void CopyAndPushArray()
+        {
+            Array.Copy(time, 1, time, 0, time.Length - 1);
+            time[time.Length - 1] = DateTime.UtcNow.ToString(FMT);
+
+            Array.Copy(value, 1, value, 0, value.Length - 1);
+            value[value.Length - 1] = value[value.Length - 2];
+        }
     }
 }

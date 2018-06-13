@@ -15,7 +15,10 @@ using PhysicalProcesses;
 namespace Model_GUI
 {
     public partial class Form1 : Form
-    {        
+    {
+        // time format
+        const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
+
         // chart settings
         public static int n_steps = 500;
 
@@ -209,6 +212,8 @@ namespace Model_GUI
 
                 // send measurements y      
                 string message = "";
+
+                message += Convert.ToString("time_" + DateTime.UtcNow.ToString(FMT) + "#");
 
                 // observed states
                 int counter = -1;
