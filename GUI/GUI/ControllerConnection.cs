@@ -17,7 +17,7 @@ namespace GUI
         const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
 
         // chart settings
-        public static int n_steps = 500;
+        public static int n_steps = 1000;
 
         // identity parameters
         public string name = "";
@@ -38,6 +38,10 @@ namespace GUI
         // data containers (dictionaries)
         public Dictionary<string, DataContainer> recieved_packages = new Dictionary<string, DataContainer>();
         public Dictionary<string, DataContainer> references = new Dictionary<string, DataContainer>();
+        public Dictionary<string, DataContainer> estimates = new Dictionary<string, DataContainer>();
+
+        // initialize estimator
+        KalmanFilter filter = new KalmanFilter(new double[2, 1] { { 1 }, { 1 } }, 0.16 * 2.2, 0.16 * 2.1, 15, 100, 6.0);
 
         // controller parameters
         public PIDparameters ControllerParameters;
@@ -68,6 +72,10 @@ namespace GUI
             // add reference keys
             references.Add("r1", new DataContainer(n_steps)); references.Add("r2", new DataContainer(n_steps));
             references["r1"].InsertData(DateTime.UtcNow.ToString(FMT), "0"); references["r2"].InsertData(DateTime.UtcNow.ToString(FMT), "0");
+            
+            // add estimate keys
+            estimates.Add("y1_hat", new DataContainer(n_steps)); estimates.Add("y2_hat", new DataContainer(n_steps));
+            estimates["y1_hat"].InsertData(DateTime.UtcNow.ToString(FMT), "0"); estimates["y2_hat"].InsertData(DateTime.UtcNow.ToString(FMT), "0");
         }
 
         private void Listener(string IP, int port)
@@ -188,8 +196,23 @@ namespace GUI
 
                 // calcuate residual
                 if (recieved_packages[key].hasResidual == true) recieved_packages[key].CalculateResidual(references["r1"].GetLastValue());
+
+                // update state estimator
+                if (key == "yc1") StateEstimate(time);
             }
         } 
+
+        private void StateEstimate(string time)
+        {
+            // estimate states             
+            double z = Convert.ToDouble(recieved_packages["yc1"].GetLastValue());
+            double u = Convert.ToDouble(recieved_packages["u1"].GetLastValue());
+            double[,] x = filter.Update(z, u);
+
+            // store the value
+            estimates["y1_hat"].InsertData(time, x[0, 0].ToString());
+            estimates["y2_hat"].InsertData(time, x[1, 0].ToString());
+        }
 
         public string GetStatus()
         {
@@ -230,10 +253,8 @@ namespace GUI
 
         public ConnectionParameters(string ip_recieve_, string ip_send_, int port_recieve_, int port_send_)
         {
-            ip_recieve = ip_recieve_;
-            ip_send = ip_send_;
-            port_recieve = port_recieve_;
-            port_send = port_send_;
+            ip_recieve = ip_recieve_; ip_send = ip_send_;
+            port_recieve = port_recieve_; port_send = port_send_;
         }
     }
 

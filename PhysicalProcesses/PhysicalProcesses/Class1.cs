@@ -27,15 +27,29 @@ namespace PhysicalProcesses
         }
 
         // update the model states
-        public void update_state(double[] disturbanceVolume)
+        public void update_state(double[] disturbanceFlow)
         {
             switch (model_type)
             {
                 case "DoubleWatertank":
-                    dWT.update_states(disturbanceVolume);
+                    dWT.update_states(disturbanceFlow);
                     break;
                 case "QuadWatertank":
-                    qWT.update_states(disturbanceVolume);
+                    qWT.update_states(disturbanceFlow);
+                    break;
+            }
+        }
+
+        // update the model states
+        public void change_state(double[] disturbance)
+        {
+            switch (model_type)
+            {
+                case "DoubleWatertank":
+                    dWT.change_states(disturbance);
+                    break;
+                case "QuadWatertank":
+                    qWT.change_states(disturbance);
                     break;
             }
         }
@@ -101,10 +115,10 @@ namespace PhysicalProcesses
 
         // operating actuator proportional constants [cm^3/(Vs)]
         double k = 6.32;
-
+     
         // outlet areas [cm^2]
         double a1 = 0.16*2;
-        double a2 = 0.16;
+        double a2 = 0.16*2;
 
         // cross section areas [cm^2]
         double A1 = 15.0;
@@ -145,6 +159,12 @@ namespace PhysicalProcesses
 
             // update prior time
             update_last = nowTime;
+        }
+
+        public void change_states(double[] disturbance)
+        {
+            h1 += disturbance[0]; // top left tank 
+            h2 += disturbance[1]; // top right tank
         }
 
         public double[] get_yo()
@@ -254,8 +274,15 @@ namespace PhysicalProcesses
             update_last = nowTime;
         }
 
+        public void change_states(double[] disturbance)
+        {
+            h11 += disturbance[0]; // top left tank 
+            h12 += disturbance[1]; // top right tank
+            h21 += disturbance[2]; // bottom left tank        
+            h22 += disturbance[3]; // bottom right tank
+        }
 
-        public double[] get_yo()
+            public double[] get_yo()
         {
             // apply measurement noise
             var r = new GaussianRandom();

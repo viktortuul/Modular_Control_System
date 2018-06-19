@@ -8,9 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
-
+using System.Windows.Forms.DataVisualization.Charting;
 using Communication;
 using PhysicalProcesses;
+using System.Globalization;
+using System.Diagnostics;
+
 
 namespace Model_GUI
 {
@@ -20,21 +23,29 @@ namespace Model_GUI
         const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
 
         // chart settings
-        public static int n_steps = 500;
-
-        // measurement noise
+        public static int n_steps = 1000;
+        public int chart_history = 60;
 
         // data containers (dictionaries)
         public Dictionary<string, string> package_last = new Dictionary<string, string>(); // recieved package <tag, value>
         public Dictionary<string, double[]> packages = new Dictionary<string, double[]>(); // recieved values (continously added according to timer)
 
-        public Dictionary<string, double> states_last = new Dictionary<string, double>(); // recieved package <tag, value>
-        public Dictionary<string, double[]> states = new Dictionary<string, double[]>(); // recieved values (continously added according to timer)
+        // data containers (dictionaries)
+        public Dictionary<string, DataContainer> states = new Dictionary<string, DataContainer>();
+        public Dictionary<string, DataContainer> perturbations = new Dictionary<string, DataContainer>();
 
-        public Dictionary<string, double> disturbances_last = new Dictionary<string, double>(); // recieved package <tag, value>
-        public Dictionary<string, double[]> disturbances = new Dictionary<string, double[]>(); // recieved values (continously added according to timer)
+        // initialize perturbation settings
+        Perturbation Disturbance = new Perturbation();
+        Perturbation Noise = new Perturbation();
+        Perturbation Control = new Perturbation();
 
-        DisturbanceSettings DS = new DisturbanceSettings();
+        // drawing
+        Graphics g;
+        Pen pen_b = new Pen(Color.Black, 4);
+        Pen pen_r = new Pen(Color.Red, 3);
+        SolidBrush brush_b = new SolidBrush(Color.LightBlue);
+        Bitmap bm = new Bitmap(600, 600);
+
         public Form1()
         {
             InitializeComponent();
@@ -43,7 +54,7 @@ namespace Model_GUI
         private void Form1_Load(object sender, EventArgs e)
         {
             // string[] args = Environment.GetCommandLineArgs();
-            string[] args = {"127.0.0.1", "127.0.0.1", "8400", "8300"};
+            string[] args = { "127.0.0.1", "127.0.0.1", "8400", "8300" };
 
             // parse the command line arguments
             string ip_controller_send = args[0];
@@ -71,107 +82,171 @@ namespace Model_GUI
             Thread thread_process = new Thread(() => process(plant, dt));
             thread_process.Start();
 
-            timer1.Start();
+            // chart settings
+            dataChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
+            dataChart.ChartAreas["ChartArea1"].AxisY.Title = "Magnitude";
+            dataChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
+            dataChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
+            dataChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
+            dataChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
+
+            disturbanceChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
+            disturbanceChart.ChartAreas["ChartArea1"].AxisY.Title = "Magnitude";
+            disturbanceChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
+            disturbanceChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
+            disturbanceChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
+            disturbanceChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
+
+            timerChart.Start();
         }
 
-        private void buttonApplyDisturbance_Click(object sender, EventArgs e)
-        {
-            if (radioButtonConstant.Checked == true) DS.type = "constant";
-            if (radioButtonTransient.Checked == true) DS.type = "transient";
-            if (radioButtonSinusoid.Checked == true) DS.type = "sinusoid";
-
-            DS.duration = Convert.ToDouble(numUpDownDuration.Value);
-            DS.frequency = Convert.ToDouble(numUpDownFrequency.Value);
-            DS.amplitude = new double[] { Convert.ToDouble(numUpDownAmplitude11.Value), Convert.ToDouble(numUpDownAmplitude21.Value), Convert.ToDouble(numUpDownAmplitude12.Value), Convert.ToDouble(numUpDownAmplitude22.Value) };
-            DS.disturbance = new double[] { 0, 0, 0, 0 };
-
-            DS.time_elapsed = 0;
-        }
-
+  
 
         public void process(Plant plant, double dt_)
         {
             int dt = Convert.ToInt16(1000 * dt_); // convert s to ms
+            int time_accumulator = 0;
+
             while (true)
             {
                 Thread.Sleep(dt);
+                time_accumulator += dt;
 
-                if (DS.duration > 0)
+                // update disturbance and noise
+                if (Disturbance.time_left > 0)
                 {
-                    DS.DisturbanceNext(dt);              
-                    plant.update_state(DS.disturbance);
+                    Disturbance.PerturbationNext(dt);
+                    if (checkBoxInstant.Checked == true)
+                    {
+                        plant.change_state(Disturbance.value);
+                        Disturbance.Stop();
+                    }
+                    else plant.update_state(Disturbance.value);
 
-                    this.Invoke((MethodInvoker)delegate () { labelDisturbance.Text = "Disturbances: \n" + Math.Round(DS.disturbance[0], 1) + "\n" + Math.Round(DS.disturbance[1], 1) + "\n" + Math.Round(DS.disturbance[2], 1) + "\n" + Math.Round(DS.disturbance[3], 1); });
+                    this.Invoke((MethodInvoker)delegate () { labelDisturbance.Text = "Disturbances: \n" + 
+                                                            Math.Round(Disturbance.value[0], 1) + "\n" + 
+                                                            Math.Round(Disturbance.value[1], 1) + "\n" + 
+                                                            Math.Round(Disturbance.value[2], 1) + "\n" + 
+                                                            Math.Round(Disturbance.value[3], 1); });
                 }
                 else
                 {
-                    plant.update_state(new double[] {0,0,0,0} );
+                    plant.update_state(new double[] { 0, 0, 0, 0 });
                 }
 
-
-                // observed states
-                int counter = -1;
-                for (int i = 0; i < plant.get_yo().Length; i++)
+                if (Noise.time_left > 0)
                 {
-                    counter++;
-                    disturbances_last["yo" + (i + 1)] = plant.get_yo()[i];
+                    Noise.PerturbationNext(dt);
+                    this.Invoke((MethodInvoker)delegate () { labelNoise.Text = "Noises: \n" + 
+                                                            Math.Round(Noise.value[0], 1) + "\n" + 
+                                                            Math.Round(Noise.value[1], 1) + "\n" + 
+                                                            Math.Round(Noise.value[2], 1) + "\n" + 
+                                                            Math.Round(Noise.value[3], 1); });
                 }
 
-                // controlled states
-                counter = -1;
-                for (int i = 0; i < plant.get_yc().Length; i++)
+                if (Control.time_left > 0)
                 {
-                    counter++;
-                    disturbances_last["yc" + (i + 1)] = plant.get_yc()[i];
+                    Control.PerturbationNext(dt);
+                    this.Invoke((MethodInvoker)delegate () {
+                        labelControl.Text = "Controls: \n" +
+                       Math.Round(Control.value[0], 1) + "\n" +
+                       Math.Round(Control.value[1], 1) + "\n" +
+                       Math.Round(Control.value[2], 1) + "\n" +
+                       Math.Round(Control.value[3], 1);
+                    });
                 }
 
-                // disturbances
-                counter = -1;
-                for (int i = 0; i < DS.disturbance.Length; i++)
-                {
-                    counter++;
-                    states_last["dist." + (i + 1)] = DS.disturbance[i];
-                }
 
-                // Console.WriteLine("y1: " + Math.Round(plant.get_y()[0], 2) + "  y2: " + Math.Round(plant.get_y()[1], 2));
+                // track the last states ---------------
+                if (time_accumulator >= 100)
+                    {
+                    time_accumulator = 0;
+                    // observed states
+                    for (int i = 0; i < plant.get_yo().Length; i++)
+                    {      
+                        CheckKey(states, "yo" + (i + 1));
+                        states["yo" + (i + 1)].InsertData(DateTime.UtcNow.ToString(FMT), plant.get_yo()[i].ToString());
+                    }
+
+                    // controlled states
+                    for (int i = 0; i < plant.get_yc().Length; i++)
+                    {  
+                        CheckKey(states, "yc" + (i + 1));
+                        states["yc" + (i + 1)].InsertData(DateTime.UtcNow.ToString(FMT), plant.get_yc()[i].ToString());
+                    }
+
+                    // disturbances
+                    for (int i = 0; i < Disturbance.value.Length; i++)
+                    {
+                        CheckKey(perturbations, "dist." + (i + 1));
+                        perturbations["dist." + (i + 1)].InsertData(DateTime.UtcNow.ToString(FMT), Disturbance.value[i].ToString());
+                    }
+
+                    // noise
+                    for (int i = 0; i < Noise.value.Length; i++)
+                    {
+                        CheckKey(perturbations, "noise" + (i + 1));
+                        perturbations["noise" + (i + 1)].InsertData(DateTime.UtcNow.ToString(FMT), Noise.value[i].ToString());
+                    }
+
+                    // noise
+                    for (int i = 0; i < Control.value.Length; i++)
+                    {
+                        CheckKey(perturbations, "control" + (i + 1));
+                        perturbations["control" + (i + 1)].InsertData(DateTime.UtcNow.ToString(FMT), Control.value[i].ToString());
+                    }
+                }
             }
         }
 
-        public class DisturbanceSettings
+        public void CheckKey(Dictionary<string, DataContainer> dict, string key)
+        {
+            // if the key doesn't exist, add it
+            if (dict.ContainsKey(key) == false)
+            {
+                dict.Add(key, new DataContainer(n_steps));
+            }
+        }
+       
+
+        public class Perturbation
         {
             public string type;
-            public double duration;
+            public double time_left;
             public double time_elapsed;
             public double frequency;
+            public double time_const;
             public double[] amplitude;
             public int[] tanks;
-            public double[] disturbance = new double[] { 0, 0, 0, 0 };
+            public double[] value = new double[] { 0, 0, 0, 0 };
 
-            public void DisturbanceNext(int dt)
+            public void PerturbationNext(int dt)
             {
                 switch (type)
                 {
                     case "constant":
-                        disturbance = amplitude;
+                        value = amplitude;
                         break;
                     case "transient":
-                        disturbance[0] = amplitude[0] * Math.Exp(-time_elapsed);
-                        disturbance[1] = amplitude[1] * Math.Exp(-time_elapsed);
-                        disturbance[2] = amplitude[2] * Math.Exp(-time_elapsed);
-                        disturbance[3] = amplitude[3] * Math.Exp(-time_elapsed);
+                        for (int i = 0; i < value.Length; i++) value[i] = amplitude[i] * Math.Exp(-time_elapsed / time_const);
                         break;
                     case "sinusoid":
-                        disturbance[0] = amplitude[0] * Math.Sin(frequency * time_elapsed * 2 * Math.PI);
-                        disturbance[1] = amplitude[1] * Math.Sin(frequency * time_elapsed * 2 * Math.PI);
-                        disturbance[2] = amplitude[2] * Math.Sin(frequency * time_elapsed * 2 * Math.PI);
-                        disturbance[3] = amplitude[3] * Math.Sin(frequency * time_elapsed * 2 * Math.PI);
+                        for (int i = 0; i < value.Length; i++) value[i] = amplitude[i] * Math.Sin(frequency * time_elapsed * 2 * Math.PI);
                         break;
                 }
                 time_elapsed += Convert.ToDouble(dt) / 1000;
-                duration -= Convert.ToDouble(dt) / 1000;             
+                time_left -= Convert.ToDouble(dt) / 1000;        
+                
+                if (time_left <= 0 ) value = new double[] { 0, 0, 0, 0 };
+            }
+
+            public void Stop()
+            {
+                time_elapsed = 0;
+                time_left = 0;
+                value = new double[] { 0, 0, 0, 0 };
             }
         }
-
 
         public void Listener(string IP, int port, Plant plant)
         {
@@ -192,12 +267,17 @@ namespace Model_GUI
                     foreach (string key in package_last.Keys)
                     {
                         i++;
-                        u[i] = Convert.ToDouble(package_last[key]);
+                        u[i] = Convert.ToDouble(package_last[key]) + Control.value[i + 1]; // APPLY CONTROL PERTURBATION
                         //Console.WriteLine(key + ":" + u[i]);
+                        Debug.WriteLine(Control.value[i]);
+                        
                     }
                     plant.set_u(u);
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Console.Write(ex);
+                }
             }
         }
 
@@ -220,7 +300,7 @@ namespace Model_GUI
                 for (int i = 0; i < plant.get_yo().Length; i++)
                 {
                     counter++;
-                    message += "yo" + (i + 1) + "_" + (plant.get_yo()[i]).ToString() + "#";
+                    message += "yo" + (i + 1) + "_" + plant.get_yo()[i].ToString() + "#";
                 }
 
                 // controlled states
@@ -228,7 +308,7 @@ namespace Model_GUI
                 for (int i = 0; i < plant.get_yc().Length; i++)
                 {
                     counter++;
-                    message += "yc" + (i + 1) + "_" + plant.get_yc()[i].ToString() + "#";
+                    message += "yc" + (i + 1) + "_" + (plant.get_yc()[i] + Noise.value[i + 1]).ToString() + "#"; // WITH MEASUREMENT NOISE
                 }
 
                 message = message.Substring(0, message.LastIndexOf('#'));
@@ -236,8 +316,6 @@ namespace Model_GUI
                 client.send(message);
             }
         }
-
- 
 
         public void parse_message(string message)
         {
@@ -264,35 +342,25 @@ namespace Model_GUI
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            labelDebug.Text = "time left: " + Math.Round(DS.duration, 1);
+            labelDebug.Text = "time left: " + Math.Round(Disturbance.time_left, 1);
 
-            PushArrays(states_last, states);
-            PushArrays(disturbances_last, disturbances);
+            dataChart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
+            dataChart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
+            disturbanceChart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
+            disturbanceChart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
+
+            // draw chart
             UpdateChartStates();
             UpdateChartDisturbances();
-        }
 
-        public void PushArrays(Dictionary<string, double> dict_last, Dictionary<string, double[]> dict_all)
-        {
-            var keys = dict_last.Keys.ToList();
-            keys.Remove("time"); // don't consider the time key
-
-            foreach (string key in keys)
-            {
-                if (dict_all.ContainsKey(key) == false)
-                {
-                    dict_all.Add(key, new double[n_steps]);
-                }
-
-                Array.Copy(dict_all[key], 1, dict_all[key], 0, dict_all[key].Length - 1);
-                dict_all[key][dict_all[key].Length - 1] = dict_last[key];
-            }
+            // draw animation
+            if (package_last.ContainsKey("u1")) DrawTanks();
         }
 
         private void UpdateChartStates()
         {
             // get all keys from the current connection
-            var keys = states_last.Keys.ToArray();
+            var keys = states.Keys.ToArray();
 
             // clear and update the graphs (for each key)
             foreach (string key in keys)
@@ -303,17 +371,22 @@ namespace Model_GUI
                     AddChartSeries(key);
                 }
 
-                dataChart.Series[key].Points.Clear();
-                for (int i = 0; i < states[key].Length; i++)
+                int i = states[key].time.Length - 1;
+                if (states[key].time[i] != null)
                 {
-                    dataChart.Series[key].Points.AddY(states[key][i]);
+                    DateTime time = DateTime.ParseExact(states[key].time[i], FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+                    dataChart.Series[key].Points.AddXY(time.ToOADate(), Convert.ToDouble(states[key].value[i]));
                 }
+
+                // remove old data points
+                if (dataChart.Series[key].Points.Count > 1000 * 5) dataChart.Series[key].Points.RemoveAt(0);
             }
         }
+
         private void UpdateChartDisturbances()
         {
             // get all keys from the current connection
-            var keys = disturbances_last.Keys.ToArray();
+            var keys = perturbations.Keys.ToArray();
 
             // clear and update the graphs (for each key)
             foreach (string key in keys)
@@ -324,12 +397,140 @@ namespace Model_GUI
                     AddChartSeries_d(key);
                 }
 
-                disturbanceChart.Series[key].Points.Clear();
-                for (int i = 0; i < disturbances[key].Length; i++)
+                int i = perturbations[key].time.Length - 1;
+                if (perturbations[key].time[i] != null)
                 {
-                    disturbanceChart.Series[key].Points.AddY(disturbances[key][i]);
+                    DateTime time = DateTime.ParseExact(perturbations[key].time[i], FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+                    disturbanceChart.Series[key].Points.AddXY(time.ToOADate(), Convert.ToDouble(perturbations[key].value[i]));
                 }
+
+                // remove old data points
+                if (disturbanceChart.Series[key].Points.Count > 1000 * 5) disturbanceChart.Series[key].Points.RemoveAt(0);
             }
+        }
+
+        public class DataContainer
+        {
+            // time format
+            const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
+
+            // store the time:value pair in string arrays
+            public string[] time;
+            public string[] value;
+
+            // constructor
+            public DataContainer(int size)
+            {
+                time = new string[size];
+                value = new string[size];
+            }
+
+            // instert a new time:value pair data point
+            public void InsertData(string time_, string value_)
+            {
+                Array.Copy(time, 1, time, 0, time.Length - 1);
+                time[time.Length - 1] = time_;
+
+                Array.Copy(value, 1, value, 0, value.Length - 1);
+                value[value.Length - 1] = value_;
+            }
+
+            public string GetLastTime()
+            {
+                return time[time.Length - 1];
+            }
+            public string GetLastValue()
+            {
+                return value[value.Length - 1];
+            }
+        }
+
+        public void DrawTanks()
+        {
+            g = Graphics.FromImage(bm);
+            g.Clear(Color.White);
+
+            // map tank height in cm to pixels
+            double max_height_p = 200; // max height [pixels]
+            double max_inflow_width = 10;
+            double max_height_r = 25; // real max height [cm]
+            double cm2pix = max_height_p / max_height_r;
+
+            // extract signals
+            int u = Convert.ToInt16(Convert.ToDouble(package_last["u1"]));
+            int y1 = Convert.ToInt16(cm2pix * Convert.ToDouble(states["yo1"].GetLastValue()));
+            int y2 = Convert.ToInt16(cm2pix * Convert.ToDouble(states["yc1"].GetLastValue()));
+
+            //
+            double A1 = 15; //Convert.ToDouble(numUpDown_A1.Value);
+            double a1 = 0.16*2; //Convert.ToDouble(numUpDown_a1a.Value);
+            double A2 = 100; //Convert.ToDouble(numUpDown_A2.Value);
+            double a2 = 0.16; //Convert.ToDouble(numUpDown_a2a.Value);
+
+            // TANK 1 ----------------------------------------------------------------
+            Point T = new Point(75, 230);
+
+            // tank dimensions
+            double R1_ = Math.Sqrt(A1 / Math.PI); int R1 = Convert.ToInt16(R1_ * cm2pix);
+            double r1_ = Math.Sqrt(a1 / Math.PI); int r1 = Convert.ToInt16(r1_ * cm2pix);
+            double h1_ = 25; int h1 = Convert.ToInt16(h1_ * cm2pix);
+
+            // inlet
+            if (u > 0)
+            {
+                Rectangle water_in = new Rectangle(T.X - R1 + 5, T.Y - h1 - 50, Convert.ToInt16(max_inflow_width * (u / 7.5)), h1 + 50);
+                g.FillRectangle(brush_b, water_in);
+            }
+
+            // water 
+            Rectangle water1 = new Rectangle(T.X - R1, T.Y - y1, 2 * R1, y1);
+            g.FillRectangle(brush_b, water1);
+
+            if (y1 > 0)
+            {
+                Rectangle water_fall = new Rectangle(T.X - r1, T.Y, 2 * r1, 250);
+                g.FillRectangle(brush_b, water_fall);
+            }
+
+            // walls
+            Point w1_top = new Point(T.X - R1, T.Y - h1); Point w1_bot = new Point(T.X - R1, T.Y);
+            Point w2_top = new Point(T.X + R1, T.Y - h1); Point w2_bot = new Point(T.X + R1, T.Y);
+            Point wb1_l = new Point(T.X - R1, T.Y); Point wb1_r = new Point(T.X - r1, T.Y);
+            Point wb2_l = new Point(T.X + r1, T.Y); Point wb2_r = new Point(T.X + R1, T.Y);
+            g.DrawLine(pen_b, w1_top, w1_bot);
+            g.DrawLine(pen_b, w2_top, w2_bot);
+            g.DrawLine(pen_b, wb1_l, wb1_r);
+            g.DrawLine(pen_b, wb2_l, wb2_r);
+
+            // TANK 2 ----------------------------------------------------------------
+            T = new Point(T.X, T.Y + 250);
+
+            // tank dimensions
+            double R2_ = Math.Sqrt(A2 / Math.PI); int R2 = Convert.ToInt16(R2_ * cm2pix);
+            double r2_ = Math.Sqrt(a2 / Math.PI); int r2 = Convert.ToInt16(r2_ * cm2pix);
+            double h2_ = 25; int h2 = Convert.ToInt16(h2_ * cm2pix);
+
+            // water 
+            Rectangle water2 = new Rectangle(T.X - R2, T.Y - y2, 2 * R2, y2);
+            g.FillRectangle(brush_b, water2);
+
+            if (y2 > 0)
+            {
+                Rectangle water_fall = new Rectangle(T.X - r2, T.Y, 2 * r2, 200);
+                g.FillRectangle(brush_b, water_fall);
+            }
+
+            // walls
+            w1_top = new Point(T.X - R2, T.Y - h2); w1_bot = new Point(T.X - R2, T.Y);
+            w2_top = new Point(T.X + R2, T.Y - h2); w2_bot = new Point(T.X + R2, T.Y);
+            wb1_l = new Point(T.X - R2, T.Y); wb1_r = new Point(T.X - r2, T.Y);
+            wb2_l = new Point(T.X + r2, T.Y); wb2_r = new Point(T.X + R2, T.Y);
+            g.DrawLine(pen_b, w1_top, w1_bot);
+            g.DrawLine(pen_b, w2_top, w2_bot);
+            g.DrawLine(pen_b, wb1_l, wb1_r);
+            g.DrawLine(pen_b, wb2_l, wb2_r);
+
+            pictureBox1.Image = bm;
         }
 
         public void AddChartSeries(string key)
@@ -370,6 +571,8 @@ namespace Model_GUI
                     default:
                         break;
                 }
+                // set the x-axis type to DateTime
+                dataChart.Series[key].XValueType = ChartValueType.DateTime;
             }
         }
 
@@ -411,6 +614,8 @@ namespace Model_GUI
                     default:
                         break;
                 }
+                // set the x-axis type to DateTime
+                disturbanceChart.Series[key].XValueType = ChartValueType.DateTime;
             }
         }
 
@@ -428,6 +633,79 @@ namespace Model_GUI
         private void numUpDownAmplitude22_ValueChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxInstant.Checked == true)
+            {
+                numUpDownDisturbanceDuration.Enabled = false;
+                numUpDownDisturbanceFrequency.Enabled = false;
+                numUpDownDisturbanceTimeConst.Enabled = false;
+                label3.Text = "Amplitude [cm]";
+            }
+            else
+            {
+                numUpDownDisturbanceDuration.Enabled = true;
+                numUpDownDisturbanceFrequency.Enabled = true;
+                numUpDownDisturbanceTimeConst.Enabled = true;
+                label3.Text = "Amplitude [cm3/s]";
+            }
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            chart_history = Convert.ToInt16(numericUpDown1.Value);
+            
+            if (chart_history > 0)
+            {
+                dataChart.ChartAreas["ChartArea1"].AxisX.Interval = Convert.ToInt16(chart_history / 10);
+                disturbanceChart.ChartAreas["ChartArea1"].AxisX.Interval = Convert.ToInt16(chart_history / 10);
+            }
+        }
+
+        private void buttonApplyDisturbance_Click(object sender, EventArgs e)
+        {
+            if (rBtnDisturbanceConstant.Checked == true) Disturbance.type = "constant";
+            if (rBtnDisturbanceTransient.Checked == true) Disturbance.type = "transient";
+            if (rBtnDisturbanceSinusoid.Checked == true) Disturbance.type = "sinusoid";
+
+            Disturbance.time_left = Convert.ToDouble(numUpDownDisturbanceDuration.Value);
+            Disturbance.frequency = Convert.ToDouble(numUpDownDisturbanceFrequency.Value);
+            Disturbance.amplitude = new double[] { Convert.ToDouble(numUpDownDisturbanceAmplitude11.Value), Convert.ToDouble(numUpDownDisturbanceAmplitude21.Value), Convert.ToDouble(numUpDownDisturbanceAmplitude12.Value), Convert.ToDouble(numUpDownDisturbanceAmplitude22.Value) };
+            Disturbance.time_const = Convert.ToDouble(numUpDownDisturbanceTimeConst.Value);
+            Disturbance.value = new double[] { 0, 0, 0, 0 };
+
+            Disturbance.time_elapsed = 0;
+        }
+
+        private void buttonApplyNoise_Click(object sender, EventArgs e)
+        {
+            if (rBtnNoiseConstant.Checked == true) Noise.type = "constant";
+            if (rBtnNoiseTransient.Checked == true) Noise.type = "transient";
+            if (rBtnNoiseSinusoid.Checked == true) Noise.type = "sinusoid";
+
+            Noise.time_left = Convert.ToDouble(numUpDownNoiseDuration.Value);
+            Noise.frequency = Convert.ToDouble(numUpDownNoiseFrequency.Value);
+            Noise.amplitude = new double[] { Convert.ToDouble(numUpDownNoiseAmplitude11.Value), Convert.ToDouble(numUpDownNoiseAmplitude21.Value), Convert.ToDouble(numUpDownNoiseAmplitude12.Value), Convert.ToDouble(numUpDownNoiseAmplitude22.Value) };
+            Noise.time_const = Convert.ToDouble(numUpDownNoiseTimeConst.Value);
+            Noise.value = new double[] { 0, 0, 0, 0 };
+
+            Noise.time_elapsed = 0;
+        }
+        private void buttonApplyControl_Click(object sender, EventArgs e)
+        {
+            if (rBtnControlConstant.Checked == true) Control.type = "constant";
+            if (rBtnControlTransient.Checked == true) Control.type = "transient";
+            if (rBtnControlSinusoid.Checked == true) Control.type = "sinusoid";
+
+            Control.time_left = Convert.ToDouble(numUpDownControlDuration.Value);
+            Control.frequency = Convert.ToDouble(numUpDownControlFrequency.Value);
+            Control.amplitude = new double[] { Convert.ToDouble(numUpDownControlAmplitude11.Value), Convert.ToDouble(numUpDownControlAmplitude21.Value), Convert.ToDouble(numUpDownControlAmplitude12.Value), Convert.ToDouble(numUpDownControlAmplitude22.Value) };
+            Control.time_const = Convert.ToDouble(numUpDownControlTimeConst.Value);
+            Control.value = new double[] { 0, 0, 0, 0 };
+
+            Control.time_elapsed = 0;
         }
     }
 }

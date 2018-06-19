@@ -17,12 +17,14 @@ using System.IO;
 namespace GUI
 {
     public partial class FrameGUI : Form
-    {        
+    {
+
         // folder setting for chart image save
         public string folderName = "";
 
         // chart settings
-        public static int n_steps = 500;
+        public static int n_steps = 1000;
+        public int chart_history = 60;
 
         // connection count
         public int n_connections = 0;
@@ -56,15 +58,15 @@ namespace GUI
             dataChart.ChartAreas["ChartArea1"].AxisY.Title = "Magnitude";
             dataChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
             dataChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
-            dataChart.ChartAreas["ChartArea1"].AxisX.Interval = 5000;
-            //dataChart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.AddSeconds(-60).ToOADate();
-            //dataChart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
+            dataChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
+            dataChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
 
             residualChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
             residualChart.ChartAreas["ChartArea1"].AxisY.Title = "Magnitude";
             residualChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
             residualChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
-            residualChart.ChartAreas["ChartArea1"].AxisX.Interval = 5000;
+            residualChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
+            residualChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
             residualChart.Series.Add("res1");
             residualChart.Series["res1"].XValueType = ChartValueType.DateTime;
             residualChart.Series["res1"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
@@ -77,22 +79,25 @@ namespace GUI
         private void timerChart_Tick(object sender, EventArgs e)
         {
             if (connection_current.is_connected_to_process == true)
-            {            
+            {
                 // add the correct number of reference series
                 addReferenceSeries();
 
                 // clear residual chart
-                residualChart.Series["res1"].Points.Clear();
 
                 // refresh the chart
                 UpdateChart(connection_current.references); // reference
                 UpdateChart(connection_current.recieved_packages); // states
+                UpdateChart(connection_current.estimates); // kalman filter estimates
+
+                // update time axis minimum and maximum
+                dataChart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
+                dataChart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
+                residualChart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
+                residualChart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
 
                 // update time labels
                 UpdateTimeLabels(connection_current);
-
-                // enable or disable reference track bars
-                ManageTrackbars();
 
                 // draw simulation
                 DrawTanks(connection_current);
@@ -113,21 +118,24 @@ namespace GUI
                     AddChartSeries(key);
                 }
 
-                dataChart.Series[key].Points.Clear();
-
-                for (int i = 0; i < dict[key].time.Length; i++)
+                int i = dict[key].time.Length - 1;
+                if (dict[key].time[i] != null)
                 {
-                    if (dict[key].time[i] != null)
+                    DateTime time = DateTime.ParseExact(dict[key].time[i], FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+                    dataChart.Series[key].Points.AddXY(time.ToOADate(), Convert.ToDouble(dict[key].value[i]));
+
+                    // plot residuals for flagged states
+                    if (dict[key].hasResidual == true)
                     {
-                        DateTime time = DateTime.ParseExact(dict[key].time[i], FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
-                        dataChart.Series[key].Points.AddXY(time, Convert.ToDouble(dict[key].value[i]));
-                    
-                        // plot residuals
-                        if (dict[key].hasResidual == true)
-                        {
-                            residualChart.Series["res1"].Points.AddXY(time, Convert.ToDouble(dict[key].residual[i]));
-                        }
+                        residualChart.Series["res1"].Points.AddXY(time.ToOADate(), Convert.ToDouble(dict[key].residual[i]));
                     }
+                }
+
+                // remove old data points
+                if (dataChart.Series[key].Points.Count > 1000 * 5)
+                {
+                    dataChart.Series[key].Points.RemoveAt(0);
+                    residualChart.Series["res1"].Points.RemoveAt(0);
                 }
             }
         }
@@ -185,101 +193,6 @@ namespace GUI
             }
         }
 
-        private void addReferenceSeries()
-        {
-            for (int i = 0; i < connection_current.n_contr_states; i++)
-            {
-                if ((dataChart.Series.IndexOf("r" + (i + 1).ToString()) == -1)) AddChartSeries("r" + (i + 1).ToString());
-            }
-        }
-
-        public void ManageTrackbars()
-        {
-            // enable or disable trackbars
-            if (connection_current.n_contr_states == 1)
-            {
-                trackBarReference1.Enabled = true;
-            }
-            else if (connection_current.n_contr_states == 2)
-            {
-                trackBarReference1.Enabled = true;
-                trackBarReference2.Enabled = true;
-            }
-            else
-            {
-                trackBarReference1.Enabled = false;
-                trackBarReference2.Enabled = false;
-            }
-        }
-
-        public void UpdateTree(ControllerConnection controller)
-        {
-            // update tree
-            this.Invoke((MethodInvoker)delegate ()
-            {
-                treeViewControllers.Nodes[controller.name].Text = controller.name + " (" + controller.GetStatus() + ")";
-                treeViewControllers.Nodes[controller.name].Nodes["Controller"].Nodes["Kp"].Text = "Kp: " + connection_current.ControllerParameters.Kp.ToString();
-                treeViewControllers.Nodes[controller.name].Nodes["Controller"].Nodes["Ki"].Text = "Ki: " + connection_current.ControllerParameters.Ki.ToString();
-                treeViewControllers.Nodes[controller.name].Nodes["Controller"].Nodes["Kd"].Text = "Kd: " + connection_current.ControllerParameters.Kd.ToString();
-            });
-        }
-
-        public void AddChartSeries(string key)
-        {
-            // add a new time series
-            this.Invoke((MethodInvoker)delegate ()
-            {
-                if (dataChart.Series.IndexOf(key) == -1)
-                {
-                    dataChart.Series.Add(key);
-                    dataChart.Series[key].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-                    dataChart.Series[key].BorderWidth = 2;
-
-                    switch (key)
-                    {
-                        case "r1":
-                            dataChart.Series[key].Color = Color.Blue;
-                            dataChart.Series[key].BorderWidth = 1;
-                            break;
-                        case "r2":
-                            dataChart.Series[key].Color = Color.Green;
-                            dataChart.Series[key].BorderWidth = 1;
-                            break;
-                        case "u1":
-                            dataChart.Series[key].Color = Color.Orange;
-                            dataChart.Series[key].BorderWidth = 1;
-                            break;
-                        case "u2":
-                            dataChart.Series[key].Color = Color.Magenta;
-                            dataChart.Series[key].BorderWidth = 1;
-                            break;
-                        case "yo1":
-                            dataChart.Series[key].Color = Color.Black;
-                            dataChart.Series[key].BorderWidth = 2;
-                            break;
-                        case "yo2":
-                            dataChart.Series[key].Color = Color.Gray;
-                            dataChart.Series[key].BorderWidth = 2;
-                            break;
-                        case "yc1":
-                            dataChart.Series[key].Color = Color.Blue;
-                            dataChart.Series[key].BorderWidth = 3;
-                            break;
-                        case "yc2":
-                            dataChart.Series[key].Color = Color.Green;
-                            dataChart.Series[key].BorderWidth = 3;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    // set the x-axis type to DateTime
-                    dataChart.Series[key].XValueType = ChartValueType.DateTime;
-                }
-            });
-
-        }
-
         private void btnAllowConnection_Click_1(object sender, EventArgs e)
         {
             // enable parameter settings
@@ -317,11 +230,8 @@ namespace GUI
                 connection_current = PID;
                 listBoxModules.Items.Add(label);
 
-                // if no listbox item is selected, select the top one
-                if (listBoxModules.SelectedIndex == -1)
-                {
-                    listBoxModules.SelectedIndex = 0;
-                }
+                // select the added module
+                listBoxModules.SelectedIndex = listBoxModules.Items.Count -1;
 
                 timerChart.Start();
                 timerTree.Start();
@@ -368,7 +278,7 @@ namespace GUI
             double a2 = Convert.ToDouble(numUpDown_a2a.Value);
 
             // TANK 1 ----------------------------------------------------------------
-            Point T = new Point(150, 230);
+            Point T = new Point(75, 230);
 
             // tank dimensions
             double R1_ = Math.Sqrt(A1 / Math.PI); int R1 = Convert.ToInt16(R1_ * cm2pix);
@@ -437,13 +347,114 @@ namespace GUI
             pictureBox1.Image = bm;
         }
 
+        // ------------- helpers -----------------
+
+        private void addReferenceSeries()
+        {
+            for (int i = 0; i < connection_current.n_contr_states; i++)
+            {
+                if ((dataChart.Series.IndexOf("r" + (i + 1).ToString()) == -1)) AddChartSeries("r" + (i + 1).ToString());
+            }
+        }
+
+        public void UpdateTree(ControllerConnection controller)
+        {
+            // update tree
+            this.Invoke((MethodInvoker)delegate ()
+            {
+                treeViewControllers.Nodes[controller.name].Text = controller.name + " (" + controller.GetStatus() + ")";
+                treeViewControllers.Nodes[controller.name].Nodes["Controller"].Nodes["Kp"].Text = "Kp: " + connection_current.ControllerParameters.Kp.ToString();
+                treeViewControllers.Nodes[controller.name].Nodes["Controller"].Nodes["Ki"].Text = "Ki: " + connection_current.ControllerParameters.Ki.ToString();
+                treeViewControllers.Nodes[controller.name].Nodes["Controller"].Nodes["Kd"].Text = "Kd: " + connection_current.ControllerParameters.Kd.ToString();
+            });
+        }
+
+        public void AddChartSeries(string key)
+        {
+            // add a new time series
+            this.Invoke((MethodInvoker)delegate ()
+            {
+                if (dataChart.Series.IndexOf(key) == -1)
+                {
+                    dataChart.Series.Add(key);
+                    dataChart.Series[key].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+                    dataChart.Series[key].BorderWidth = 2;
+
+                    switch (key)
+                    {
+                        case "r1":
+                            dataChart.Series[key].Color = Color.Blue;
+                            dataChart.Series[key].BorderWidth = 1;
+                            break;
+                        case "r2":
+                            dataChart.Series[key].Color = Color.Green;
+                            dataChart.Series[key].BorderWidth = 1;
+                            break;
+                        case "u1":
+                            dataChart.Series[key].Color = Color.Orange;
+                            dataChart.Series[key].BorderWidth = 1;
+                            break;
+                        case "u2":
+                            dataChart.Series[key].Color = Color.Magenta;
+                            dataChart.Series[key].BorderWidth = 1;
+                            break;
+                        case "yo1":
+                            dataChart.Series[key].Color = Color.Black;
+                            dataChart.Series[key].BorderWidth = 2;
+                            break;
+                        case "yo2":
+                            dataChart.Series[key].Color = Color.Gray;
+                            dataChart.Series[key].BorderWidth = 2;
+                            break;
+                        case "yc1":
+                            dataChart.Series[key].Color = Color.Blue;
+                            dataChart.Series[key].BorderWidth = 3;
+                            break;
+                        case "yc2":
+                            dataChart.Series[key].Color = Color.Green;
+                            dataChart.Series[key].BorderWidth = 3;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    // set the x-axis type to DateTime
+                    dataChart.Series[key].XValueType = ChartValueType.DateTime;
+                }
+            });
+        }
+
+        public void ManageTrackbars()
+        {
+            // enable or disable trackbars
+            if (connection_current.n_contr_states == 1)
+            {
+                trackBarReference1.Enabled = true;
+                numUpDownRef1.Enabled = true;
+            }
+            else if (connection_current.n_contr_states == 2)
+            {
+                trackBarReference1.Enabled = true;
+                trackBarReference2.Enabled = true;
+                numUpDownRef1.Enabled = true;
+                numUpDownRef2.Enabled = true;
+            }
+            else
+            {
+                trackBarReference1.Enabled = false;
+                trackBarReference2.Enabled = false;
+                numUpDownRef1.Enabled = false;
+                numUpDownRef2.Enabled = false;
+            }
+        }
+
         private void trackBarReference_Scroll(object sender, EventArgs e)
         {
             // set the reference signal value according to the track bar
             if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
             {
                 connection_current.references["r1"].InsertData(DateTime.UtcNow.ToString(FMT), trackBarReference1.Value.ToString());
-                labelReference1.Text = trackBarReference1.Value.ToString();
+                numUpDownRef1.Value = trackBarReference1.Value;
             }
         }
 
@@ -453,7 +464,7 @@ namespace GUI
             if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
             {
                 connection_current.references["r2"].InsertData(DateTime.UtcNow.ToString(FMT), trackBarReference2.Value.ToString());
-                labelReference2.Text = trackBarReference2.Value.ToString();
+                numUpDownRef2.Value = trackBarReference2.Value;
             }
         }
 
@@ -512,7 +523,42 @@ namespace GUI
 
         private void timerTree_Tick(object sender, EventArgs e)
         {
+            // update tree information
             UpdateTree(connection_current);
+
+            // enable or disable reference track bars
+            ManageTrackbars();
+        }
+
+        private void numUpDownRef1_ValueChanged(object sender, EventArgs e)
+        {
+            // set the reference signal value according to the numeric up-down
+            if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
+            {
+                connection_current.references["r1"].InsertData(DateTime.UtcNow.ToString(FMT), numUpDownRef1.Value.ToString());
+                trackBarReference1.Value = Convert.ToInt16(numUpDownRef1.Value);
+            }
+        }
+
+        private void numUpDownRef2_ValueChanged(object sender, EventArgs e)
+        {
+            // set the reference signal value according to the numeric up-down
+            if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
+            {
+                connection_current.references["r2"].InsertData(DateTime.UtcNow.ToString(FMT), numUpDownRef2.Value.ToString());
+                trackBarReference2.Value = Convert.ToInt16(numUpDownRef2.Value);
+            }
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            chart_history = Convert.ToInt16(numericUpDown1.Value);
+
+            if (chart_history > 0)
+            {
+                dataChart.ChartAreas["ChartArea1"].AxisX.Interval = Convert.ToInt16(chart_history / 10);
+                residualChart.ChartAreas["ChartArea1"].AxisX.Interval = Convert.ToInt16(chart_history / 10);
+            }
         }
     }
 }

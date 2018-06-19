@@ -44,9 +44,6 @@ namespace Controller
             int port_plant_send = Convert.ToInt16(args[6]);
             int port_plant_recieve = Convert.ToInt16(args[7]);
 
-            // initialize the controller
-            PID controller_pid = new PID(2, 70, 3);
-
             // create a thruead for sending to the GUI
             Thread thread_send_GUI = new Thread(() => send_GUI(ip_gui_send, port_gui_send, PIDList));
             thread_send_GUI.Start();
@@ -105,7 +102,10 @@ namespace Controller
                         double measurement = Convert.ToDouble(recieved_packages["yc" + index].GetLastValue());
 
                         // update controller parameters
-                        controller.update_parameters(Convert.ToDouble(recieved_packages["Kp"].GetLastValue()), Convert.ToDouble(recieved_packages["Ki"].GetLastValue()), Convert.ToDouble(recieved_packages["Kd"].GetLastValue()));
+                        controller.update_parameters(Convert.ToDouble(recieved_packages["Kp"].GetLastValue()), 
+                                                    Convert.ToDouble(recieved_packages["Ki"].GetLastValue()), 
+                                                    Convert.ToDouble(recieved_packages["Kd"].GetLastValue()));
+
 
                         // update control signal
                         if (isListeningOnPlant) controller.compute_control_signal(reference, measurement);                   
@@ -159,8 +159,7 @@ namespace Controller
                         index++;
                         double reference = Convert.ToDouble(recieved_packages["r" + index].GetLastValue());
                         double measurement = Convert.ToDouble(recieved_packages["yc" + index].GetLastValue());
-                        //Console.WriteLine("reci: " + "yc" + index + ":" + measurement.ToString());
-                        controller.compute_control_signal(reference, measurement);
+                        controller.compute_control_signal(reference, measurement);    
                     }
                     isListeningOnPlant = true;
                 }
@@ -379,6 +378,10 @@ namespace Controller
         public string[] time;
         public string[] value;
 
+
+        // new/old data flag
+        public bool data_up_to_date = true;
+
         // constructor
         public DataContainer(int size)
         {
@@ -392,13 +395,20 @@ namespace Controller
             // compare timestamps
             if (GetLastTime() != null)
             { 
-                if (isMostRecent(time_, value_) == true)
+                if (isMostRecent(time_) == true)
                 {
+                    data_up_to_date = true;
+
                     Array.Copy(time, 1, time, 0, time.Length - 1);
                     time[time.Length - 1] = time_;
 
                     Array.Copy(value, 1, value, 0, value.Length - 1);
                     value[value.Length - 1] = value_;
+                }
+                else
+                {
+                    data_up_to_date = false;
+                    Console.WriteLine(DateTime.UtcNow.ToString() + " > ignoring measurement data (wrong order)");
                 }
             }
             else
@@ -408,7 +418,7 @@ namespace Controller
             }
         }
 
-        public bool isMostRecent(string time, string value)
+        public bool isMostRecent(string time)
         {
             DateTime t_new = DateTime.ParseExact(time, FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
             DateTime t_prev = DateTime.ParseExact(GetLastTime(), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
