@@ -11,16 +11,16 @@ namespace GUI
     {
         private double a1, a2, A1, A2, k, g = 981, dt;
         private double[,] x, G;
-        private double[,] P = new double[,] { { 1, 1 }, { 1, 1 } };
-        private double[,] R = new double[,] { { 3, 1 }, { 1, 1 } };
-        private double Q = 2;
-        private double[,] H = new double[1, 2] { {0, 1} };
+        private double[,] P = new double[,] { { 2, 1 }, { 1, 1 } }; // state covariance
+        private double[,] R = new double[,] { { 2, 1 }, { 1, 1 } }; // process noise covariance
+        private double Q = 3; // measurement noise covariance
+        private double[,] H = new double[1, 2] { {0, 1} }; // measurement model jacobian
         private double[,] I = new double[,] { { 1, 0 }, { 0, 1 } };
         private DateTime update_last = DateTime.Now;
 
-        public KalmanFilter(double[,] initial_x, double a1, double a2, double A1, double A2, double k)
+        public KalmanFilter(double[,] x, double a1, double a2, double A1, double A2, double k)
         {
-            this.x = initial_x; // states (h1, h2)
+            this.x = x; // states (h1, h2)
             this.a1 = a1;
             this.a2 = a2;
             this.A1 = A1;
@@ -31,17 +31,15 @@ namespace GUI
         public double[,] Update(double z, double u)
         {
             DateTime nowTime = DateTime.Now;
-
             dt = (nowTime - update_last).TotalSeconds;
 
             // saturation
             if (x[0, 0] <= 0) x[0, 0] = 0.01;
             if (x[1, 0] <= 0) x[1, 0] = 0.01;
 
-            double h1 = x[0, 0];
-            double h2 = x[1, 0];
-            double q_out1 = a1 * Math.Sqrt(2 * x[0, 0] * g);
-            double q_out2 = a2 * Math.Sqrt(2 * x[1, 0] * g);
+            // calcultate flows
+            double q_out1 = a1 * Math.Sqrt(2 * g * x[0, 0]);
+            double q_out2 = a2 * Math.Sqrt(2 * g * x[1, 0]);
 
             // apply motion 
             x[0, 0] += dt * (1 / A1) * (k * u - q_out1); // top tank
@@ -51,19 +49,17 @@ namespace GUI
             if (x[0, 0] <= 0) x[0, 0] = 0.01;
             if (x[1, 0] <= 0) x[1, 0] = 0.01;
 
-            G = update_G(x);
-            P = ADD(Matrix.Multiply(G, Matrix.Multiply(P, G)), R);
+            // update the state uncertainty
+            G = get_G(x);
+            P = Matrix.Add(Matrix.Multiply(G, Matrix.Multiply(P, G)), R);
 
-            // measurement
-            double[,] K = divide(Matrix.Multiply(P, Transpose(H)), add(Matrix.Multiply(H, Matrix.Multiply(P, Transpose(H))), Q)[0, 0]);
-            //x = ADD(x, mult(K, (z - x[1,0])));
+            // calculate the kalman gain
+            double[,] K = Matrix.Divide(Matrix.Multiply(P, Matrix.Transpose(H)), Matrix.Add(Matrix.Multiply(H, Matrix.Multiply(P, Matrix.Transpose(H))), Q)[0, 0]);
 
-            //Debug.WriteLine("dh1: " + (dt * (1 / A1) * (k * u - q_out1)));
-            //Debug.WriteLine("dh1: " + (K[0, 0] * (z - x[1, 0])));
-
-            x[0, 0] += K[0, 0] * (z - x[1, 0]);
-            x[1, 0] += K[1, 0] * (z - x[1, 0]);
-            P = Matrix.Multiply(MINUS(I, Matrix.Multiply(K, H)), P);
+            // measurement update
+            x[0, 0] += dt * K[0, 0] * (z - x[1, 0]);
+            x[1, 0] += dt * K[1, 0] * (z - x[1, 0]);
+            P = Matrix.Multiply(Matrix.Subtract(I, Matrix.Multiply(K, H)), P);
 
             //Debug.WriteLine("x1: " + x[0,0] + " x2: " + x[1,0]);
             //Debug.WriteLine("inno :" + (z - x[1, 0]));
@@ -75,16 +71,16 @@ namespace GUI
             return x;
         }
 
-        private double[,] update_G(double[,] x)
+        private double[,] get_G(double[,] x)
         {
             double x1 = x[0, 0];
             double x2 = x[1, 0];
             double[,] G = new double[2, 2];
 
-            G[0, 0] = 1 - 9.81 * dt * a1 / A1 * (1 / (Math.Sqrt(2 * g * x1)));
+            G[0, 0] = 1 - 2 * g * dt * (a1 / A1) * (1 / (Math.Sqrt(2 * g * x1)))/2;
             G[0, 1] = 0;
-            G[1, 0] = 9.81 * dt * a1 / A2 * (1 / (Math.Sqrt(2 * g * x1)));
-            G[1, 1] = 1 - 9.81 * dt * a2 / A2 * (1 / (Math.Sqrt(2 * g * x2)));
+            G[1, 0] = 2 * g * dt * (a1 / A2) * (1 / (Math.Sqrt(2 * g * x1)))/2;
+            G[1, 1] = 1 - 2 * g * dt * (a2 / A2) * (1 / (Math.Sqrt(2 * g * x2)))/2;
 
             return G;
         }
@@ -93,52 +89,51 @@ namespace GUI
         {
             return x[1, 0];
         }
+    }
 
-        //public double[,] MULT(double[,] A, double[,] B)
-        //{
-        //    int rA = A.GetLength(0);
-        //    int cA = A.GetLength(1);
-        //    int rB = B.GetLength(0);
-        //    int cB = B.GetLength(1);
-        //    double temp = 0;
-        //    double[,] kHasil = new double[rA, cB];
-        //    if (cA != rB)
-        //    {
-        //    }
-        //    else
-        //    {
-        //        for (int i = 0; i < rA; i++)
-        //        {
-        //            for (int j = 0; j < cB; j++)
-        //            {
-        //                temp = 0;
-        //                for (int k = 0; k < cA; k++)
-        //                {
-        //                    temp += A[i, k] * B[k, j];
-        //                }
-        //                kHasil[i, j] = temp;
-        //            }
-        //        }
-        //    }
-        //    return kHasil;
-        //}
-        //public double[,] mult(double[,] A, double B)
-        //{
-        //    int rA = A.GetLength(0);
-        //    int cA = A.GetLength(1);
+    static class Matrix
+    {
+        public static double[,] Multiply(double[,] A, double[,] B)
+        {
+            int rA = A.GetLength(0);
+            int cA = A.GetLength(1);
+            int rB = B.GetLength(0);
+            int cB = B.GetLength(1);
+            double temp = 0;
+            double[,] result = new double[rA, cB];
 
-        //    double[,] result = new double[rA, cA];
-        //    for (int i = 0; i < rA; i++)
-        //    {
-        //        for (int j = 0; j < cA; j++)
-        //        {
-        //            result[i, j] = A[i, j] * B;
-        //        }
-        //    }
-        //    return result;
-        //}
+            for (int i = 0; i < rA; i++)
+            {
+                for (int j = 0; j < cB; j++)
+                {
+                    temp = 0;
+                    for (int k = 0; k < cA; k++)
+                    {
+                        temp += A[i, k] * B[k, j];
+                    }
+                    result[i, j] = temp;
+                }
+            }         
+            return result;
+        }
 
-        public double[,] ADD(double[,] A, double[,] B)
+        public static double[,] Multiply(double[,] A, double b)
+        {
+            int rA = A.GetLength(0);
+            int cA = A.GetLength(1);
+
+            double[,] result = new double[rA, cA];
+            for (int i = 0; i < rA; i++)
+            {
+                for (int j = 0; j < cA; j++)
+                {
+                    result[i, j] = A[i, j] * b;
+                }
+            }
+            return result;
+        }
+
+        public static double[,] Add(double[,] A, double[,] B)
         {
             int rA = A.GetLength(0);
             int cA = A.GetLength(1);
@@ -154,7 +149,7 @@ namespace GUI
             return dotsum;
         }
 
-        public double[,] add(double[,] A, double B)
+        public static double[,] Add(double[,] A, double B)
         {
             int rA = A.GetLength(0);
             int cA = A.GetLength(1);
@@ -170,7 +165,7 @@ namespace GUI
             return dotsum;
         }
 
-        public double[,] MINUS(double[,] A, double[,] B)
+        public static double[,] Subtract(double[,] A, double[,] B)
         {
             int rA = A.GetLength(0);
             int cA = A.GetLength(1);
@@ -186,7 +181,7 @@ namespace GUI
             return dotsum;
         }
 
-        public double[,] divide(double[,] A, double B)
+        public static double[,] Divide(double[,] A, double B)
         {
             int rA = A.GetLength(0);
             int cA = A.GetLength(1);
@@ -202,7 +197,7 @@ namespace GUI
             return result;
         }
 
-        public double[,] Transpose(double[,] matrix)
+        public static double[,] Transpose(double[,] matrix)
         {
             int w = matrix.GetLength(0);
             int h = matrix.GetLength(1);
@@ -216,57 +211,7 @@ namespace GUI
                     result[j, i] = matrix[i, j];
                 }
             }
-
             return result;
         }
-    }
-
-    static class Matrix
-    {
-        public static double[,] Multiply(double[,] A, double[,] B)
-        {
-            int rA = A.GetLength(0);
-            int cA = A.GetLength(1);
-            int rB = B.GetLength(0);
-            int cB = B.GetLength(1);
-            double temp = 0;
-            double[,] result = new double[rA, cB];
-            if (cA != rB)
-            {
-            }
-            else
-            {
-                for (int i = 0; i < rA; i++)
-                {
-                    for (int j = 0; j < cB; j++)
-                    {
-                        temp = 0;
-                        for (int k = 0; k < cA; k++)
-                        {
-                            temp += A[i, k] * B[k, j];
-                        }
-                        result[i, j] = temp;
-                    }
-                }
-            }
-            return result;
-        }
-
-        //public static double[,] Multiply(double[,] A, double B)
-        //{
-        //    int rA = A.GetLength(0);
-        //    int cA = A.GetLength(1);
-
-        //    double[,] result = new double[rA, cA];
-        //    for (int i = 0; i < rA; i++)
-        //    {
-        //        for (int j = 0; j < cA; j++)
-        //        {
-        //            result[i, j] = A[i, j] * B;
-        //        }
-        //    }
-        //    return result;
-        //}
-
     }
 }

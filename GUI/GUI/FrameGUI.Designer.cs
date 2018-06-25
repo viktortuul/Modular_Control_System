@@ -38,7 +38,7 @@
             System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.tbDebugLog = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.timerChart = new System.Windows.Forms.Timer(this.components);
+            this.timerCharts = new System.Windows.Forms.Timer(this.components);
             this.dataChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.trackBarReference1 = new System.Windows.Forms.TrackBar();
             this.label3 = new System.Windows.Forms.Label();
@@ -85,10 +85,11 @@
             this.setDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveChartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.timerTree = new System.Windows.Forms.Timer(this.components);
+            this.timerUpdateGUI = new System.Windows.Forms.Timer(this.components);
             this.residualChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.label13 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarReference1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownKp)).BeginInit();
@@ -123,7 +124,7 @@
             this.tbDebugLog.Multiline = true;
             this.tbDebugLog.Name = "tbDebugLog";
             this.tbDebugLog.ReadOnly = true;
-            this.tbDebugLog.Size = new System.Drawing.Size(352, 646);
+            this.tbDebugLog.Size = new System.Drawing.Size(182, 646);
             this.tbDebugLog.TabIndex = 0;
             // 
             // label1
@@ -138,9 +139,9 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "debug log";
             // 
-            // timerChart
+            // timerCharts
             // 
-            this.timerChart.Tick += new System.EventHandler(this.timerChart_Tick);
+            this.timerCharts.Tick += new System.EventHandler(this.timerChart_Tick);
             // 
             // dataChart
             // 
@@ -148,12 +149,12 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             chartArea1.Area3DStyle.Inclination = 0;
-            chartArea1.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
             chartArea1.Area3DStyle.Rotation = 0;
             chartArea1.Area3DStyle.WallWidth = 1;
             chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea1.BorderColor = System.Drawing.Color.Bisque;
             chartArea1.Name = "ChartArea1";
-            chartArea1.ShadowColor = System.Drawing.Color.Gray;
+            chartArea1.ShadowColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.dataChart.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
             this.dataChart.Legends.Add(legend1);
@@ -712,7 +713,7 @@
             this.groupBox5.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox5.Size = new System.Drawing.Size(180, 133);
+            this.groupBox5.Size = new System.Drawing.Size(180, 135);
             this.groupBox5.TabIndex = 30;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Visual settings";
@@ -763,10 +764,10 @@
             this.saveChartToolStripMenuItem.Text = "Save chart";
             this.saveChartToolStripMenuItem.Click += new System.EventHandler(this.saveChartToolStripMenuItem_Click);
             // 
-            // timerTree
+            // timerUpdateGUI
             // 
-            this.timerTree.Interval = 1000;
-            this.timerTree.Tick += new System.EventHandler(this.timerTree_Tick);
+            this.timerUpdateGUI.Interval = 1000;
+            this.timerUpdateGUI.Tick += new System.EventHandler(this.timerTree_Tick);
             // 
             // residualChart
             // 
@@ -794,14 +795,14 @@
             // 
             // numericUpDown1
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(418, 157);
+            this.numericUpDown1.Location = new System.Drawing.Point(382, 157);
             this.numericUpDown1.Maximum = new decimal(new int[] {
             1000,
             0,
             0,
             0});
             this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(69, 22);
+            this.numericUpDown1.Size = new System.Drawing.Size(65, 22);
             this.numericUpDown1.TabIndex = 33;
             this.numericUpDown1.Value = new decimal(new int[] {
             60,
@@ -817,15 +818,27 @@
             this.label13.Location = new System.Drawing.Point(304, 159);
             this.label13.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(107, 17);
+            this.label13.Size = new System.Drawing.Size(71, 17);
             this.label13.TabIndex = 34;
-            this.label13.Text = "Chart history [s]";
+            this.label13.Text = "History [s]";
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(452, 156);
+            this.button1.Margin = new System.Windows.Forms.Padding(4);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(98, 26);
+            this.button1.TabIndex = 22;
+            this.button1.Text = "Clear charts";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // FrameGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1924, 862);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.label13);
             this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.tbDebugLog);
@@ -883,14 +896,12 @@
 
         private System.Windows.Forms.TextBox tbDebugLog;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Timer timerChart;
-        private System.Windows.Forms.TrackBar trackBarReference1;
+        private System.Windows.Forms.Timer timerCharts;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown numUpDownKp;
         private System.Windows.Forms.NumericUpDown numUpDownKi;
         private System.Windows.Forms.NumericUpDown numUpDownKd;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Label label_time;
         private System.Windows.Forms.Button button_update_pid;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.ListBox listBoxModules;
@@ -902,13 +913,11 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox textBoxName;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TreeView treeViewControllers;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.NumericUpDown numericUpDown_port_send;
         private System.Windows.Forms.NumericUpDown numericUpDown_port_recieve;
-        private System.Windows.Forms.TrackBar trackBarReference2;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button button_thisIP;
@@ -917,10 +926,6 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.NumericUpDown numUpDown_A1;
-        private System.Windows.Forms.NumericUpDown numUpDown_a1a;
-        private System.Windows.Forms.NumericUpDown numUpDown_A2;
-        private System.Windows.Forms.NumericUpDown numUpDown_a2a;
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripSplitButton toolStripSplitButton1;
@@ -928,12 +933,21 @@
         private System.Windows.Forms.ToolStripMenuItem saveChartToolStripMenuItem;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        private System.Windows.Forms.Timer timerTree;
+        private System.Windows.Forms.Timer timerUpdateGUI;
         public System.Windows.Forms.DataVisualization.Charting.Chart residualChart;
-        private System.Windows.Forms.NumericUpDown numUpDownRef2;
-        private System.Windows.Forms.NumericUpDown numUpDownRef1;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Button button1;
+        public System.Windows.Forms.TrackBar trackBarReference1;
+        public System.Windows.Forms.TrackBar trackBarReference2;
+        public System.Windows.Forms.NumericUpDown numUpDownRef2;
+        public System.Windows.Forms.NumericUpDown numUpDownRef1;
+        public System.Windows.Forms.TreeView treeViewControllers;
+        public System.Windows.Forms.Label label_time;
+        public System.Windows.Forms.NumericUpDown numUpDown_A1;
+        public System.Windows.Forms.NumericUpDown numUpDown_a1a;
+        public System.Windows.Forms.NumericUpDown numUpDown_A2;
+        public System.Windows.Forms.NumericUpDown numUpDown_a2a;
     }
 }
 

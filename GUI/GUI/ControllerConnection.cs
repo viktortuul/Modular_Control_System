@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-
 using Communication;
 using System.Diagnostics;
 
@@ -17,7 +16,7 @@ namespace GUI
         const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
 
         // chart settings
-        public static int n_steps = 1000;
+        public static int n_steps = 5000;
 
         // identity parameters
         public string name = "";
@@ -39,9 +38,10 @@ namespace GUI
         public Dictionary<string, DataContainer> recieved_packages = new Dictionary<string, DataContainer>();
         public Dictionary<string, DataContainer> references = new Dictionary<string, DataContainer>();
         public Dictionary<string, DataContainer> estimates = new Dictionary<string, DataContainer>();
-
+        
+        
         // initialize estimator
-        KalmanFilter filter = new KalmanFilter(new double[2, 1] { { 1 }, { 1 } }, 0.16 * 2.2, 0.16 * 2.1, 15, 100, 6.0);
+        KalmanFilter filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, 0.16 * 2.0, 0.16 * 2.5, 15.0, 100, 6.32);
 
         // controller parameters
         public PIDparameters ControllerParameters;
@@ -49,17 +49,17 @@ namespace GUI
         // main form access
         FrameGUI Main_form;
 
-        public ControllerConnection(FrameGUI f, string label_, PIDparameters ControllerParameters_, ConnectionParameters ConnectionParameters_)
+        public ControllerConnection(FrameGUI Main_form, string name, PIDparameters ControllerParameters, ConnectionParameters ConnectionParameters)
         {
             // main form access
-            Main_form = f;
+            this.Main_form = Main_form;
 
             // identity parameters
-            name = label_;
-            ConnectionParameters = ConnectionParameters_;
+            this.name = name;
+            this.ConnectionParameters = ConnectionParameters;
 
             // update controller parameters
-            ControllerParameters = ControllerParameters_;
+            this.ControllerParameters = ControllerParameters;
 
             // create a new thread for the listener
             Thread thread_listener = new Thread(() => Listener(ConnectionParameters.ip_recieve, ConnectionParameters.port_recieve));
@@ -74,8 +74,8 @@ namespace GUI
             references["r1"].InsertData(DateTime.UtcNow.ToString(FMT), "0"); references["r2"].InsertData(DateTime.UtcNow.ToString(FMT), "0");
             
             // add estimate keys
-            estimates.Add("y1_hat", new DataContainer(n_steps)); estimates.Add("y2_hat", new DataContainer(n_steps));
-            estimates["y1_hat"].InsertData(DateTime.UtcNow.ToString(FMT), "0"); estimates["y2_hat"].InsertData(DateTime.UtcNow.ToString(FMT), "0");
+            estimates.Add("yo1_hat", new DataContainer(n_steps)); estimates.Add("yc1_hat", new DataContainer(n_steps));
+            estimates["yo1_hat"].InsertData(DateTime.UtcNow.ToString(FMT), "0"); estimates["yc1_hat"].InsertData(DateTime.UtcNow.ToString(FMT), "0");
         }
 
         private void Listener(string IP, int port)
@@ -106,10 +106,6 @@ namespace GUI
                         if (key.Contains("yc"))
                         {
                             counter++;
-
-                            // add reference time-stamp
-                            references["r1"].CopyAndPushArray();
-                            references["r2"].CopyAndPushArray();
 
                             // flag that full communication is present
                             if (is_connected_to_process == false) is_connected_to_process = true;
@@ -175,6 +171,7 @@ namespace GUI
                 string key = subitem[0];
                 string value = subitem[1];
 
+
                 // detect the time (don't add it as a separate key)
                 if (key == "time")
                 {
@@ -186,20 +183,21 @@ namespace GUI
                 if (recieved_packages.ContainsKey(key) == false)
                 {
                     recieved_packages.Add(key, new DataContainer(n_steps));
-
-                    // flag the state yc1 as having a residual
-                    if (key == "yc1") recieved_packages[key].hasResidual = true;
+                    if (key == "yo1" || key == "yc1") recieved_packages[key].hasResidual = true; // flag the state yc1 as having a residual  
                 }
 
                 // store the value
                 recieved_packages[key].InsertData(time, value);
-
-                // calcuate residual
-                if (recieved_packages[key].hasResidual == true) recieved_packages[key].CalculateResidual(references["r1"].GetLastValue());
-
-                // update state estimator
-                if (key == "yc1") StateEstimate(time);
             }
+
+            // update state estimator and calculate residual
+            StateEstimate(time);
+            if (recieved_packages.ContainsKey("yo1")) recieved_packages["yo1"].CalculateResidual(estimates["yo1_hat"].GetLastValue());  
+            if (recieved_packages.ContainsKey("yc1")) recieved_packages["yc1"].CalculateResidual(estimates["yc1_hat"].GetLastValue());
+
+            // add reference time-stamp
+            references["r1"].CopyAndPushArray();
+            references["r2"].CopyAndPushArray();          
         } 
 
         private void StateEstimate(string time)
@@ -210,8 +208,8 @@ namespace GUI
             double[,] x = filter.Update(z, u);
 
             // store the value
-            estimates["y1_hat"].InsertData(time, x[0, 0].ToString());
-            estimates["y2_hat"].InsertData(time, x[1, 0].ToString());
+            estimates["yo1_hat"].InsertData(time, x[0, 0].ToString());
+            estimates["yc1_hat"].InsertData(time, x[1, 0].ToString());
         }
 
         public string GetStatus()
@@ -240,9 +238,11 @@ namespace GUI
     {
         public double Kp, Ki, Kd;
 
-        public PIDparameters(double Kp_, double Ki_, double Kd_)
+        public PIDparameters(double Kp, double Ki, double Kd)
         {
-            Kp = Kp_; Ki = Ki_; Kd = Kd_;
+            this.Kp = Kp;
+            this.Ki = Ki;
+            this.Kd = Kd;
         }
     }
 
@@ -251,10 +251,12 @@ namespace GUI
         public string ip_recieve, ip_send;
         public int port_recieve, port_send;
 
-        public ConnectionParameters(string ip_recieve_, string ip_send_, int port_recieve_, int port_send_)
+        public ConnectionParameters(string ip_recieve, string ip_send, int port_recieve, int port_send)
         {
-            ip_recieve = ip_recieve_; ip_send = ip_send_;
-            port_recieve = port_recieve_; port_send = port_send_;
+            this.ip_recieve = ip_recieve;
+            this.ip_send = ip_send;
+            this.port_recieve = port_recieve;
+            this.port_send = port_send;
         }
     }
 
@@ -280,13 +282,13 @@ namespace GUI
         }
 
         // instert a new time:value pair data point
-        public void InsertData(string time_, string value_)
+        public void InsertData(string time, string value)
         {
-            Array.Copy(time, 1, time, 0, time.Length - 1);
-            time[time.Length - 1] = time_;
+            Array.Copy(this.time, 1, this.time, 0, this.time.Length - 1);
+            this.time[this.time.Length - 1] = time;
 
-            Array.Copy(value, 1, value, 0, value.Length - 1);
-            value[value.Length - 1] = value_;
+            Array.Copy(this.value, 1, this.value, 0, this.value.Length - 1);
+            this.value[this.value.Length - 1] = value;
         }
 
         // calculate residual
