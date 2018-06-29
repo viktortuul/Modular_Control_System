@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -18,8 +14,7 @@ namespace Model_GUI
 {
     public partial class ModelGUI : Form
     {
-        // time format
-        const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
+        string CORRUPT_STRING = "";
 
         // chart settings
         public static int n_steps = 100;
@@ -38,14 +33,10 @@ namespace Model_GUI
         Perturbation Noise = new Perturbation();
         Perturbation Control = new Perturbation();
 
-        // drawing
-        Graphics g;
-        Pen pen_b = new Pen(Color.Black, 4);
-        Pen pen_r = new Pen(Color.Red, 3);
-        SolidBrush brush_b = new SolidBrush(Color.LightBlue);
-        Bitmap bm = new Bitmap(400, 800);
+        // initialize an empty plant class
+        Plant plant = new Plant();
 
-        public ModelGUI()
+    public ModelGUI()
         {
             InitializeComponent();
         }
@@ -53,32 +44,33 @@ namespace Model_GUI
         private void Form1_Load(object sender, EventArgs e)
         {
             // string[] args = Environment.GetCommandLineArgs();
-            string[] args = { "127.0.0.1", "127.0.0.1", "8400", "8300" };
+            string[] args = { "127.0.0.1", "8400", "8300", "dwt" };
 
             // parse the command line arguments
-            string ip_controller_send = args[0];
-            string ip_plant_recieve = args[1];
-            int port_controller_send = Convert.ToInt16(args[2]);
-            int port_plant_recieve = Convert.ToInt16(args[3]);
+            string IP_controller = args[0];
+            int port_controller_endpoint = Convert.ToInt16(args[1]);
+            int port_plant_recieve = Convert.ToInt16(args[2]);
+            string model_type = args[3];
 
-            // initialize model
-            DoubleWatertank watertank = new DoubleWatertank();
-            //QuadWatertank watertank = new QuadWatertank();
-
-            // store thge model in a container which generically send and access values 
-            Plant plant = new Plant(watertank);
+            // store the model in a container which generically send and access values 
+            switch (model_type)
+            {
+                case "dwt": plant = new Plant(new DoubleWatertank()); break;
+                case "qwt": plant = new Plant(new QuadWatertank()); break;
+                case "ipsiso": plant = new Plant(new InvertedPendulumSISO()); break;
+            }
 
             // create a thread for listening on the controller
-            Thread thread_listener = new Thread(() => Listener(ip_plant_recieve, port_plant_recieve, plant));
+            Thread thread_listener = new Thread(() => Listener(IP_controller, port_plant_recieve, plant));
             thread_listener.Start();
 
             // create a thread for communication with the controller
-            Thread thread_sender = new Thread(() => Sender(ip_controller_send, port_controller_send, plant));
+            Thread thread_sender = new Thread(() => Sender(IP_controller, port_controller_endpoint, plant));
             thread_sender.Start();
 
             // create a thread for the simulation
             double dt = 0.01; // simulation update rate
-            Thread thread_process = new Thread(() => process(plant, dt));
+            Thread thread_process = new Thread(() => Process(plant, dt));
             thread_process.Start();
 
             // folder and chart settings
@@ -88,53 +80,41 @@ namespace Model_GUI
             timerChart.Start();
         }
 
-        public void process(Plant plant, double dt_)
+        public void Process(Plant plant, double dt_)
         {
             int dt = Convert.ToInt16(1000 * dt_); // convert s to ms
-            DateTime nowTime = DateTime.Now;
 
             while (true)
             {
                 Thread.Sleep(dt);
-
                 // update and apply disturbance/noise/control perturbations
                 ApplyDisturbance(plant);
                 UpdatePerturbation(Noise);
                 UpdatePerturbation(Control);
-
-
-                // sample the current (true) states
-                if ((DateTime.Now - nowTime).TotalMilliseconds >= 100)
-                {
-                    nowTime = DateTime.Now;
-                    SampleStates(plant);
-                }
             }
         }
 
         public void Listener(string IP, int port, Plant plant)
         {
             // initialize a connection to the controller
-            Server server = new Server(IP, port);
+            Server listener = new Server(IP, port);
 
             while (true)
             {
                 Thread.Sleep(5);
                 try
                 {
-                    server.listen();
-                    parse_message(server.last_recieved);
+                    listener.listen();
+                    ParseMessage(listener.last_recieved);
 
                     // parse dictionary to proper input
                     double[] u = new double[package_last.Count];
+
                     int i = 0;
                     foreach (string key in package_last.Keys)
                     {
                         u[i] = Convert.ToDouble(package_last[key]) ;
-                        u[i] += Control.value[i + 1]; // APPLY CONTROL PERTURBATION
-
-                        //Console.WriteLine(key + ":" + u[i]);
-                        //Debug.WriteLine(Control.value[i]);
+                        u[i] += Control.value[i + 1]; // APPLY CONTROL PERTURBATION ########################################################
                         i++;
                     }
                     plant.set_u(u);
@@ -149,7 +129,7 @@ namespace Model_GUI
         public void Sender(string IP, int port, Plant plant)
         {
             // initialize a connection to the controller
-            Client client = new Client(IP, port);
+            Client sender = new Client(IP, port);
 
             while (true)
             {
@@ -157,32 +137,23 @@ namespace Model_GUI
 
                 // send measurements y      
                 string message = "";
-
-                message += Convert.ToString("time_" + DateTime.UtcNow.ToString(FMT) + "#");
+                message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Helpers.FMT) + "#");
 
                 // observed states
-                int counter = -1;
                 for (int i = 0; i < plant.get_yo().Length; i++)
-                {
-                    counter++;
-                    message += "yo" + (i + 1) + "_" + plant.get_yo()[i].ToString() + "#";
-                }
+                    message += "yo" + (i + 1) + "_" + plant.get_yo()[i].ToString() + "#";      
 
                 // controlled states
-                counter = -1;
                 for (int i = 0; i < plant.get_yc().Length; i++)
-                {
-                    counter++;
-                    message += "yc" + (i + 1) + "_" + (plant.get_yc()[i] + Noise.value[i + 1]).ToString() + "#"; // WITH MEASUREMENT NOISE
-                }
+                    message += "yc" + (i + 1) + "_" + (plant.get_yc()[i] + Noise.value[i + 1] + CORRUPT_STRING).ToString() + "#"; // WITH MEASUREMENT NOISE
 
-                message = message.Substring(0, message.LastIndexOf('#'));
+                message = message.Substring(0, message.LastIndexOf('#')); // remove the redundant delimiter
+                sender.send(message);
                 //Console.WriteLine("sent: " + message);
-                client.send(message);
             }
         }
 
-        public void parse_message(string message)
+        public void ParseMessage(string message)
         {
             string text = message;
             // split the message with the delimiter '#'
@@ -197,10 +168,8 @@ namespace Model_GUI
                 string key = subitem[0];
                 string value = subitem[1];
 
-                if (package_last.ContainsKey(key) == false)
-                {
-                    package_last.Add(key, value);
-                }
+                if (package_last.ContainsKey(key) == false) package_last.Add(key, value);
+                
                 package_last[key] = value;
             }
         }
@@ -209,21 +178,21 @@ namespace Model_GUI
         {
             labelDebug.Text = "time left: " + Math.Round(Disturbance.time_left, 1);
 
-            dataChart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
-            dataChart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
-            perturbationChart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
-            perturbationChart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
+            // update time axis minimum and maximum
+            Helpers.UpdateChartAxes(dataChart, chart_history);
+            Helpers.UpdateChartAxes(perturbationChart, chart_history);
+
+            // sample states
+            SampleStates(plant);
 
             // draw chart
             UpdateChart(dataChart, states);
             UpdateChart(perturbationChart, perturbations);
-            //UpdateChartDisturbances();
 
             // draw animation
-            if (package_last.ContainsKey("u1")) DrawTanks();
+            Helpers.DrawTanks(this);
 
             // update labels
-
             Helpers.UpdatePerturbationLabels(this, Disturbance, Noise, Control);
         }
 
@@ -238,10 +207,7 @@ namespace Model_GUI
                     plant.change_state(Disturbance.value);
                     Disturbance.Stop();
                 }
-                else
-                {
-                    plant.update_state(Disturbance.value);
-                }
+                else plant.update_state(Disturbance.value);
             }
             else plant.update_state(new double[] { 0, 0, 0, 0 });
 
@@ -263,15 +229,12 @@ namespace Model_GUI
             foreach (string key in keys)
             {
                 // if series does not exist, add it
-                if (chart_.Series.IndexOf(key) == -1)
-                {
-                    Helpers.AddChartSeries(key, chart_);
-                }
+                if (chart_.Series.IndexOf(key) == -1) Helpers.AddChartSeries(key, chart_);
 
                 int i = dict[key].time.Length - 1;
                 if (dict[key].time[i] != null)
                 {
-                    DateTime time = DateTime.ParseExact(dict[key].time[i], FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+                    DateTime time = DateTime.ParseExact(dict[key].time[i], Helpers.FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
                     chart_.Series[key].Points.AddXY(time.ToOADate(), Convert.ToDouble(dict[key].value[i]));
                 }
 
@@ -280,67 +243,41 @@ namespace Model_GUI
             }
         }
 
-        //private void UpdateChartDisturbances()
-        //{
-        //    // get all keys from the current connection
-        //    var keys = perturbations.Keys.ToArray();
-
-        //    // clear and update the graphs (for each key)
-        //    foreach (string key in keys)
-        //    {
-        //        // if series does not exist, add it
-        //        if (perturbationChart.Series.IndexOf(key) == -1)
-        //        {
-        //            Helpers.AddChartSeries(key, perturbationChart);
-        //        }
-
-        //        int i = perturbations[key].time.Length - 1;
-        //        if (perturbations[key].time[i] != null)
-        //        {
-        //            DateTime time = DateTime.ParseExact(perturbations[key].time[i], FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
-        //            perturbationChart.Series[key].Points.AddXY(time.ToOADate(), Convert.ToDouble(perturbations[key].value[i]));
-        //        }
-
-        //        // remove old data points
-        //        if (perturbationChart.Series[key].Points.Count > 1000 * 5) perturbationChart.Series[key].Points.RemoveAt(0);
-        //    }
-        //}
-
         public void SampleStates(Plant plant)
         {
             // observed states
             for (int i = 0; i < plant.get_yo().Length; i++)
             {
                 Helpers.CheckKey(states, "yo" + (i + 1), n_steps);
-                states["yo" + (i + 1)].InsertData(DateTime.UtcNow.ToString(FMT), plant.get_yo()[i].ToString());
+                states["yo" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Helpers.FMT), plant.get_yo()[i].ToString());
             }
 
             // controlled states
             for (int i = 0; i < plant.get_yc().Length; i++)
             {
                 Helpers.CheckKey(states, "yc" + (i + 1), n_steps);
-                states["yc" + (i + 1)].InsertData(DateTime.UtcNow.ToString(FMT), plant.get_yc()[i].ToString());
+                states["yc" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Helpers.FMT), plant.get_yc()[i].ToString());
             }
 
             // disturbances
             for (int i = 0; i < Disturbance.value.Length; i++)
             {
                 Helpers.CheckKey(perturbations, "dist." + (i + 1), n_steps);
-                perturbations["dist." + (i + 1)].InsertData(DateTime.UtcNow.ToString(FMT), Disturbance.value[i].ToString());
+                perturbations["dist." + (i + 1)].InsertData(DateTime.UtcNow.ToString(Helpers.FMT), Disturbance.value[i].ToString());
             }
 
             // noise
             for (int i = 0; i < Noise.value.Length; i++)
             {
                 Helpers.CheckKey(perturbations, "noise" + (i + 1), n_steps);
-                perturbations["noise" + (i + 1)].InsertData(DateTime.UtcNow.ToString(FMT), Noise.value[i].ToString());
+                perturbations["noise" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Helpers.FMT), Noise.value[i].ToString());
             }
 
             // control
             for (int i = 0; i < Control.value.Length; i++)
             {
                 Helpers.CheckKey(perturbations, "control" + (i + 1), n_steps);
-                perturbations["control" + (i + 1)].InsertData(DateTime.UtcNow.ToString(FMT), Control.value[i].ToString());
+                perturbations["control" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Helpers.FMT), Control.value[i].ToString());
             }
         }
 
@@ -372,10 +309,8 @@ namespace Model_GUI
                 }
 
                 double elapsed_time = (DateTime.Now - time_stamp).TotalMilliseconds;
-
                 time_elapsed += Convert.ToDouble(elapsed_time) / 1000;
                 time_left -= Convert.ToDouble(elapsed_time) / 1000;
-
                 time_stamp = DateTime.Now;
 
                 if (time_left <= 0) Stop();
@@ -388,134 +323,6 @@ namespace Model_GUI
                 value = new double[] { 0, 0, 0, 0 };
             }
         }
-
-        public class DataContainer
-        {
-            // time format
-            const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
-
-            // store the time:value pair in string arrays
-            public string[] time;
-            public string[] value;
-
-            // constructor
-            public DataContainer(int size)
-            {
-                time = new string[size];
-                value = new string[size];
-            }
-
-            // instert a new time:value pair data point
-            public void InsertData(string time_, string value_)
-            {
-                Array.Copy(time, 1, time, 0, time.Length - 1);
-                time[time.Length - 1] = time_;
-
-                Array.Copy(value, 1, value, 0, value.Length - 1);
-                value[value.Length - 1] = value_;
-            }
-
-            public string GetLastTime()
-            {
-                return time[time.Length - 1];
-            }
-            public string GetLastValue()
-            {
-                return value[value.Length - 1];
-            }
-        }
-
-        public void DrawTanks()
-        {
-            g = Graphics.FromImage(bm);
-            g.Clear(Color.White);
-
-            // map tank height in cm to pixels
-            double max_height_p = pictureBox1.Height / 2.5; // max height [pixels]
-            double max_inflow_width = 10;
-            double max_height_r = 25; // real max height [cm]
-            double cm2pix = max_height_p / max_height_r;
-
-            // extract signals
-            int u = Convert.ToInt16(Convert.ToDouble(package_last["u1"]));
-            int y1 = Convert.ToInt16(cm2pix * Convert.ToDouble(states["yo1"].GetLastValue()));
-            int y2 = Convert.ToInt16(cm2pix * Convert.ToDouble(states["yc1"].GetLastValue()));
-
-            //
-            double A1 = 15; //Convert.ToDouble(numUpDown_A1.Value);
-            double a1 = 0.16*2; //Convert.ToDouble(numUpDown_a1a.Value);
-            double A2 = 100; //Convert.ToDouble(numUpDown_A2.Value);
-            double a2 = 0.16; //Convert.ToDouble(numUpDown_a2a.Value);
-
-            // TANK 1 ----------------------------------------------------------------
-            Point T = new Point(75, Convert.ToInt16(pictureBox1.Height / 2));
-
-            // tank dimensions
-            double R1_ = Math.Sqrt(A1 / Math.PI); int R1 = Convert.ToInt16(R1_ * cm2pix);
-            double r1_ = Math.Sqrt(a1 / Math.PI); int r1 = Convert.ToInt16(r1_ * cm2pix);
-            double h1_ = 25; int h1 = Convert.ToInt16(h1_ * cm2pix);
-
-            // inlet
-            if (u > 0)
-            {
-                Rectangle water_in = new Rectangle(T.X - R1 + 5, T.Y - h1 - 50, Convert.ToInt16(max_inflow_width * (u / 7.5)), h1 + 50);
-                g.FillRectangle(brush_b, water_in);
-            }
-
-            // water 
-            Rectangle water1 = new Rectangle(T.X - R1, T.Y - y1, 2 * R1, y1);
-            g.FillRectangle(brush_b, water1);
-
-            if (y1 > 0)
-            {
-                Rectangle water_fall = new Rectangle(T.X - r1, T.Y, 2 * r1, 250);
-                g.FillRectangle(brush_b, water_fall);
-            }
-
-            // walls
-            Point w1_top = new Point(T.X - R1, T.Y - h1); Point w1_bot = new Point(T.X - R1, T.Y);
-            Point w2_top = new Point(T.X + R1, T.Y - h1); Point w2_bot = new Point(T.X + R1, T.Y);
-            Point wb1_l = new Point(T.X - R1, T.Y); Point wb1_r = new Point(T.X - r1, T.Y);
-            Point wb2_l = new Point(T.X + r1, T.Y); Point wb2_r = new Point(T.X + R1, T.Y);
-            g.DrawLine(pen_b, w1_top, w1_bot);
-            g.DrawLine(pen_b, w2_top, w2_bot);
-            g.DrawLine(pen_b, wb1_l, wb1_r);
-            g.DrawLine(pen_b, wb2_l, wb2_r);
-
-            // TANK 2 ----------------------------------------------------------------
-            T = new Point(T.X, Convert.ToInt16(pictureBox1.Height - 20));
-
-            // tank dimensions
-            double R2_ = Math.Sqrt(A2 / Math.PI); int R2 = Convert.ToInt16(R2_ * cm2pix);
-            double r2_ = Math.Sqrt(a2 / Math.PI); int r2 = Convert.ToInt16(r2_ * cm2pix);
-            double h2_ = 25; int h2 = Convert.ToInt16(h2_ * cm2pix);
-
-            // water 
-            Rectangle water2 = new Rectangle(T.X - R2, T.Y - y2, 2 * R2, y2);
-            g.FillRectangle(brush_b, water2);
-
-            if (y2 > 0)
-            {
-                Rectangle water_fall = new Rectangle(T.X - r2, T.Y, 2 * r2, 200);
-                g.FillRectangle(brush_b, water_fall);
-            }
-
-            // walls
-            w1_top = new Point(T.X - R2, T.Y - h2); w1_bot = new Point(T.X - R2, T.Y);
-            w2_top = new Point(T.X + R2, T.Y - h2); w2_bot = new Point(T.X + R2, T.Y);
-            wb1_l = new Point(T.X - R2, T.Y); wb1_r = new Point(T.X - r2, T.Y);
-            wb2_l = new Point(T.X + r2, T.Y); wb2_r = new Point(T.X + R2, T.Y);
-            g.DrawLine(pen_b, w1_top, w1_bot);
-            g.DrawLine(pen_b, w2_top, w2_bot);
-            g.DrawLine(pen_b, wb1_l, wb1_r);
-            g.DrawLine(pen_b, wb2_l, wb2_r);
-
-            pictureBox1.Image = bm;
-        }
-
-
-
-        
 
         private void InitialSettings()
         {
@@ -627,7 +434,15 @@ namespace Model_GUI
             Helpers.changeYScala(perturbationChart, "");
         }
 
+        private void button2_Click(object sender, EventArgs e)
+        {
+            CORRUPT_STRING = textBoxAppendCorrupt.Text;
+        }
 
+        private void button3_Click(object sender, EventArgs e)
+        {
+            CORRUPT_STRING = "";
+        }
     }
 }
 

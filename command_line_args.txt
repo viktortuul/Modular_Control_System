@@ -1,9 +1,9 @@
 # Controller
 
-							 GUI       CONT      GUI  CONT PLANT     CONT      PLANT CONT
-Start-Process Controller.exe 127.0.0.1,127.0.0.1,8100,8200,127.0.0.1,127.0.0.1,8300,8400
+							 GUI       GUI  CONT PLANT     PLANT CONT
+Start-Process Controller.exe 127.0.0.1,8100,8200,127.0.0.1,8300,8400
 
 
 # Plant					
-						CONT      PLANT     CONT PLANT
-Start-Process Model.exe 127.0.0.1,127.0.0.1,8400,8300
+						CONT      CONT PLANT PLANT TYPE
+Start-Process Model.exe 127.0.0.1,8400,8300,dwt

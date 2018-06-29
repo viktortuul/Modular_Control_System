@@ -29,13 +29,13 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title5 = new System.Windows.Forms.DataVisualization.Charting.Title();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameGUI));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title6 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.tbDebugLog = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.timerCharts = new System.Windows.Forms.Timer(this.components);
@@ -87,7 +87,7 @@
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.timerUpdateGUI = new System.Windows.Forms.Timer(this.components);
             this.residualChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDownHistory = new System.Windows.Forms.NumericUpDown();
             this.label13 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataChart)).BeginInit();
@@ -112,7 +112,7 @@
             this.groupBox5.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.residualChart)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownHistory)).BeginInit();
             this.SuspendLayout();
             // 
             // tbDebugLog
@@ -132,7 +132,7 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(1292, 128);
+            this.label1.Location = new System.Drawing.Point(1292, 134);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(71, 17);
@@ -148,25 +148,25 @@
             this.dataChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea1.Area3DStyle.Inclination = 0;
-            chartArea1.Area3DStyle.Rotation = 0;
-            chartArea1.Area3DStyle.WallWidth = 1;
-            chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea1.BorderColor = System.Drawing.Color.Bisque;
-            chartArea1.Name = "ChartArea1";
-            chartArea1.ShadowColor = System.Drawing.SystemColors.GradientInactiveCaption;
-            this.dataChart.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.dataChart.Legends.Add(legend1);
+            chartArea5.Area3DStyle.Inclination = 0;
+            chartArea5.Area3DStyle.Rotation = 0;
+            chartArea5.Area3DStyle.WallWidth = 1;
+            chartArea5.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea5.BorderColor = System.Drawing.Color.Bisque;
+            chartArea5.Name = "ChartArea1";
+            chartArea5.ShadowColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.dataChart.ChartAreas.Add(chartArea5);
+            legend5.Name = "Legend1";
+            this.dataChart.Legends.Add(legend5);
             this.dataChart.Location = new System.Drawing.Point(304, 155);
             this.dataChart.Margin = new System.Windows.Forms.Padding(4);
             this.dataChart.Name = "dataChart";
             this.dataChart.Size = new System.Drawing.Size(696, 470);
             this.dataChart.TabIndex = 2;
             this.dataChart.Text = "chart1";
-            title1.Name = "Title1";
-            title1.Text = "States";
-            this.dataChart.Titles.Add(title1);
+            title5.Name = "Title1";
+            title5.Text = "States";
+            this.dataChart.Titles.Add(title5);
             // 
             // trackBarReference1
             // 
@@ -286,7 +286,7 @@
             // label_time
             // 
             this.label_time.AutoSize = true;
-            this.label_time.Location = new System.Drawing.Point(1292, 12);
+            this.label_time.Location = new System.Drawing.Point(1081, 21);
             this.label_time.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label_time.Name = "label_time";
             this.label_time.Size = new System.Drawing.Size(72, 17);
@@ -402,6 +402,7 @@
             // 
             // textBox_ip_recieve
             // 
+            this.textBox_ip_recieve.Enabled = false;
             this.textBox_ip_recieve.Location = new System.Drawing.Point(159, 30);
             this.textBox_ip_recieve.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_ip_recieve.Name = "textBox_ip_recieve";
@@ -709,7 +710,7 @@
             this.groupBox5.Controls.Add(this.numUpDown_a1a);
             this.groupBox5.Controls.Add(this.label11);
             this.groupBox5.Controls.Add(this.numUpDown_A1);
-            this.groupBox5.Location = new System.Drawing.Point(1081, 13);
+            this.groupBox5.Location = new System.Drawing.Point(1323, -1);
             this.groupBox5.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox5.Name = "groupBox5";
             this.groupBox5.Padding = new System.Windows.Forms.Padding(4);
@@ -766,50 +767,50 @@
             // 
             // timerUpdateGUI
             // 
-            this.timerUpdateGUI.Interval = 1000;
+            this.timerUpdateGUI.Interval = 500;
             this.timerUpdateGUI.Tick += new System.EventHandler(this.timerTree_Tick);
             // 
             // residualChart
             // 
             this.residualChart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea2.Area3DStyle.Inclination = 0;
-            chartArea2.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
-            chartArea2.Area3DStyle.Rotation = 0;
-            chartArea2.Area3DStyle.WallWidth = 1;
-            chartArea2.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea2.Name = "ChartArea1";
-            chartArea2.ShadowColor = System.Drawing.Color.Gray;
-            this.residualChart.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.residualChart.Legends.Add(legend2);
+            chartArea6.Area3DStyle.Inclination = 0;
+            chartArea6.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
+            chartArea6.Area3DStyle.Rotation = 0;
+            chartArea6.Area3DStyle.WallWidth = 1;
+            chartArea6.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea6.Name = "ChartArea1";
+            chartArea6.ShadowColor = System.Drawing.Color.Gray;
+            this.residualChart.ChartAreas.Add(chartArea6);
+            legend6.Name = "Legend1";
+            this.residualChart.Legends.Add(legend6);
             this.residualChart.Location = new System.Drawing.Point(305, 633);
             this.residualChart.Margin = new System.Windows.Forms.Padding(4);
             this.residualChart.Name = "residualChart";
             this.residualChart.Size = new System.Drawing.Size(696, 168);
             this.residualChart.TabIndex = 32;
             this.residualChart.Text = "chart1";
-            title2.Name = "Title1";
-            title2.Text = "Residual";
-            this.residualChart.Titles.Add(title2);
+            title6.Name = "Title1";
+            title6.Text = "Residual";
+            this.residualChart.Titles.Add(title6);
             // 
-            // numericUpDown1
+            // numericUpDownHistory
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(382, 157);
-            this.numericUpDown1.Maximum = new decimal(new int[] {
+            this.numericUpDownHistory.Location = new System.Drawing.Point(382, 157);
+            this.numericUpDownHistory.Maximum = new decimal(new int[] {
             1000,
             0,
             0,
             0});
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(65, 22);
-            this.numericUpDown1.TabIndex = 33;
-            this.numericUpDown1.Value = new decimal(new int[] {
+            this.numericUpDownHistory.Name = "numericUpDownHistory";
+            this.numericUpDownHistory.Size = new System.Drawing.Size(65, 22);
+            this.numericUpDownHistory.TabIndex = 33;
+            this.numericUpDownHistory.Value = new decimal(new int[] {
             60,
             0,
             0,
             0});
-            this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
+            this.numericUpDownHistory.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
             // 
             // label13
             // 
@@ -840,7 +841,7 @@
             this.ClientSize = new System.Drawing.Size(1924, 862);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.label13);
-            this.Controls.Add(this.numericUpDown1);
+            this.Controls.Add(this.numericUpDownHistory);
             this.Controls.Add(this.tbDebugLog);
             this.Controls.Add(this.residualChart);
             this.Controls.Add(this.statusStrip1);
@@ -886,7 +887,7 @@
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.residualChart)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownHistory)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -935,7 +936,7 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.Timer timerUpdateGUI;
         public System.Windows.Forms.DataVisualization.Charting.Chart residualChart;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.NumericUpDown numericUpDownHistory;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Button button1;
         public System.Windows.Forms.TrackBar trackBarReference1;

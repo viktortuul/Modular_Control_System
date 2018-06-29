@@ -86,7 +86,7 @@
             this.label25 = new System.Windows.Forms.Label();
             this.labelControl = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.timerUpdateGUI = new System.Windows.Forms.Timer(this.components);
             this.label2 = new System.Windows.Forms.Label();
             this.numUpDownDisturbanceDuration = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
@@ -108,6 +108,11 @@
             this.checkBoxInstant = new System.Windows.Forms.CheckBox();
             this.numUpDownDisturbanceTimeConst = new System.Windows.Forms.NumericUpDown();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.buttonCorruptStart = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.label26 = new System.Windows.Forms.Label();
+            this.textBoxAppendCorrupt = new System.Windows.Forms.TextBox();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.perturbationChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -136,6 +141,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownDisturbanceAmplitude22)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownDisturbanceTimeConst)).BeginInit();
             this.groupBox1.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // labelDebug
@@ -770,11 +776,11 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // timer1
+            // timerUpdateGUI
             // 
-            this.timer1.Enabled = true;
-            this.timer1.Interval = 1000;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick_1);
+            this.timerUpdateGUI.Enabled = true;
+            this.timerUpdateGUI.Interval = 500;
+            this.timerUpdateGUI.Tick += new System.EventHandler(this.timer1_Tick_1);
             // 
             // label2
             // 
@@ -1034,11 +1040,62 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Disturbance settings";
             // 
+            // buttonCorruptStart
+            // 
+            this.buttonCorruptStart.Location = new System.Drawing.Point(45, 55);
+            this.buttonCorruptStart.Name = "buttonCorruptStart";
+            this.buttonCorruptStart.Size = new System.Drawing.Size(66, 23);
+            this.buttonCorruptStart.TabIndex = 31;
+            this.buttonCorruptStart.Text = "start";
+            this.buttonCorruptStart.UseVisualStyleBackColor = true;
+            this.buttonCorruptStart.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(117, 55);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(65, 23);
+            this.button3.TabIndex = 32;
+            this.button3.Text = "stop";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(7, 27);
+            this.label26.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(30, 17);
+            this.label26.TabIndex = 28;
+            this.label26.Text = "yc1";
+            // 
+            // textBoxAppendCorrupt
+            // 
+            this.textBoxAppendCorrupt.Location = new System.Drawing.Point(45, 27);
+            this.textBoxAppendCorrupt.Name = "textBoxAppendCorrupt";
+            this.textBoxAppendCorrupt.Size = new System.Drawing.Size(66, 22);
+            this.textBoxAppendCorrupt.TabIndex = 33;
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.label26);
+            this.groupBox4.Controls.Add(this.textBoxAppendCorrupt);
+            this.groupBox4.Controls.Add(this.buttonCorruptStart);
+            this.groupBox4.Controls.Add(this.button3);
+            this.groupBox4.Location = new System.Drawing.Point(1127, 254);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(236, 91);
+            this.groupBox4.TabIndex = 34;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Append to measurement signal";
+            // 
             // ModelGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1539, 908);
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.labelControl);
             this.Controls.Add(this.groupBox3);
@@ -1088,6 +1145,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownDisturbanceTimeConst)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1098,7 +1157,6 @@
         private System.Windows.Forms.Timer timerChart;
         private System.Windows.Forms.DataVisualization.Charting.Chart dataChart;
         private System.Windows.Forms.DataVisualization.Charting.Chart perturbationChart;
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label9;
@@ -1142,7 +1200,7 @@
         private System.Windows.Forms.NumericUpDown numUpDownControlDuration;
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Timer timerUpdateGUI;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.NumericUpDown numUpDownDisturbanceDuration;
         private System.Windows.Forms.Label label1;
@@ -1167,6 +1225,12 @@
         public System.Windows.Forms.Label labelDisturbance;
         public System.Windows.Forms.Label labelNoise;
         public System.Windows.Forms.Label labelControl;
+        private System.Windows.Forms.Button buttonCorruptStart;
+        private System.Windows.Forms.Button button3;
+        public System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.TextBox textBoxAppendCorrupt;
+        private System.Windows.Forms.GroupBox groupBox4;
     }
 }
 

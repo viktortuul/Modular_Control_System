@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-
 using System.Net.Sockets;
 using System.Net;
-using System.Xml.Linq;
 
 namespace Communication
 {
@@ -14,7 +9,7 @@ namespace Communication
     {
         UdpClient clientSocket = new UdpClient();
 
-        public Client(string IP, int port)
+        public Client(string IP, int port) // (ip address of the reciever; listenting port on the reciever machine)
         {
             clientSocket.Connect(IP, port);
         }
@@ -35,16 +30,12 @@ namespace Communication
     public class Server
     {
         public string last_recieved = "0";
-
         UdpClient listener;
-        IPAddress ip_address;
-        int port;
         IPEndPoint serverEP;
 
-        public Server(string ip_, int port_)
+        public Server(string ip_, int port) // (ip address of the sender; listenting port on this machine)
         {
-            ip_address = IPAddress.Parse(ip_); // convert to an ip address
-            port = port_;
+            IPAddress ip_address = IPAddress.Parse(ip_); 
             serverEP = new IPEndPoint(ip_address, port);
             listener = new UdpClient(port);
         }

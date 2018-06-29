@@ -16,9 +16,8 @@ namespace Controller
         public string[] time;
         public string[] value;
 
-
-        // new/old data flag
-        public bool data_up_to_date = true;
+        // constraints
+        double max_delay = 1; // [seconds] 
 
         // constructor
         public DataContainer(int size)
@@ -35,8 +34,6 @@ namespace Controller
             {
                 if (isMostRecent(time_) == true)
                 {
-                    data_up_to_date = true;
-
                     Array.Copy(time, 1, time, 0, time.Length - 1);
                     time[time.Length - 1] = time_;
 
@@ -45,7 +42,6 @@ namespace Controller
                 }
                 else
                 {
-                    data_up_to_date = false;
                     Console.WriteLine(DateTime.UtcNow.ToString() + " > ignoring measurement data (wrong order)");
                 }
             }
@@ -63,13 +59,27 @@ namespace Controller
             TimeSpan timeDiff = t_new - t_prev;
 
             if (timeDiff.TotalMilliseconds > 0)
-            {
                 return true;
+            else
+                return false;
+        }
+
+        public bool isUpToDate()
+        {
+            // compare timestamps
+            if (GetLastTime() != null)
+            {
+                DateTime t_now = DateTime.ParseExact(DateTime.UtcNow.ToString(FMT), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+                DateTime t_last = DateTime.ParseExact(GetLastTime(), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+                TimeSpan timeDiff = t_now - t_last;
+
+                if (timeDiff.TotalMilliseconds <= max_delay)
+                    return true;
+                else
+                    return false;
             }
             else
-            {
                 return false;
-            }
         }
 
         public string GetLastTime()

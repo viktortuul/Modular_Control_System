@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net.Sockets;
 using System.Threading;
 using Communication;
 using System.Globalization;
@@ -17,10 +14,7 @@ namespace Controller
 
         // data container size
         public static int n_steps = 100;
-
-        // data containers (dictionaries)
-        // static Dictionary<string, string> recieved_packages = new Dictionary<string, string>(); // contains control and measurement values
-
+  
         // data containers (dictionaries)
         static Dictionary<string, DataContainer> recieved_packages = new Dictionary<string, DataContainer>();
         static Dictionary<string, DataContainer> references = new Dictionary<string, DataContainer>();
@@ -29,36 +23,33 @@ namespace Controller
         private static List<PID> PIDList = new List<PID>();
 
         // state variables
-        static bool isListeningOnPlant = false;
+        static bool is_listening_on_plant = false;
 
         static void Main(string[] args)
         {
             // parse the command line arguments
-            string ip_gui_send = args[0];
-            string ip_gui_recieve = args[1];
-            int port_gui_send = Convert.ToInt16(args[2]);
-            int port_gui_recieve = Convert.ToInt16(args[3]);
-            string ip_plant_send = args[4];
-            string ip_plant_recieve = args[5];
-            int port_plant_send = Convert.ToInt16(args[6]);
-            int port_plant_recieve = Convert.ToInt16(args[7]);
+            string IP_GUI = args[0];
+            int port_GUI_endpoint = Convert.ToInt16(args[1]);
+            int port_GUI_recieve = Convert.ToInt16(args[2]);
+            string IP_plant = args[3];
+            int port_plant_endpoint = Convert.ToInt16(args[4]);
+            int port_plant_recieve = Convert.ToInt16(args[5]);
 
-            // create a thruead for sending to the GUI
-            Thread thread_send_GUI = new Thread(() => SendGUI(ip_gui_send, port_gui_send, PIDList));
+            // create a thread for sending to the GUI
+            Thread thread_send_GUI = new Thread(() => SendGUI(IP_GUI, port_GUI_endpoint, PIDList));
             thread_send_GUI.Start();
 
             // create a thread for listening on the GUI
-            Thread thread_listen_GUI = new Thread(() => ListenGUI(ip_gui_recieve, port_gui_recieve, PIDList));
+            Thread thread_listen_GUI = new Thread(() => ListenGUI(IP_GUI, port_GUI_recieve, PIDList));
             thread_listen_GUI.Start();
 
-            // create a thruead for sending to  the plant
-            Thread thread_send_plant = new Thread(() => SendPlant(ip_plant_send, port_plant_send, PIDList));
+            // create a thread for sending to the plant
+            Thread thread_send_plant = new Thread(() => SendPlant(IP_plant, port_plant_endpoint, PIDList));
             thread_send_plant.Start();
 
             // create a thread for listening on the plant
-            Thread thread_listen_plant = new Thread(() => ListenPlant(ip_plant_recieve, port_plant_recieve, PIDList));
+            Thread thread_listen_plant = new Thread(() => ListenPlant(IP_plant, port_plant_recieve, PIDList));
             thread_listen_plant.Start();
-
         }
 
         public static void SendGUI(string IP, int port, List<PID> PIDList)
@@ -69,7 +60,7 @@ namespace Controller
             while (true)
             {
                 Thread.Sleep(100);
-                if (isListeningOnPlant == true)
+                if (is_listening_on_plant == true)
                 {
                     // send time, u, and y
                     string message = ConstructMessageGUI(PIDList);
@@ -111,7 +102,7 @@ namespace Controller
             {
                 Thread.Sleep(10);
 
-                if (isListeningOnPlant == true)
+                if (is_listening_on_plant == true)
                 {
                     // send u to the plant
                     string message = ConstructMessagePlant(PIDList);
@@ -138,13 +129,12 @@ namespace Controller
                     // compute the new control signal for each controller
                     ComputeControlSignals(PIDList, "from_Plant");
 
-                    isListeningOnPlant = true;
+                    is_listening_on_plant = true;
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                 }
-
             }
         }
 
@@ -153,6 +143,7 @@ namespace Controller
             string message = "";
             message += Convert.ToString("time_" + DateTime.UtcNow.ToString(FMT));
 
+            // append control signals
             int index = 0;
             foreach (PID controller in PIDList)
             {
@@ -160,49 +151,37 @@ namespace Controller
                 message += "#u" + index + "_" + controller.get_u();
             }
 
+            // append measurements signals
             for (int i = 0; i < recieved_packages.Keys.Count(); i++)
-            {
-                try
-                {            
-                    var item = recieved_packages.ElementAt(i);
-                    string key = item.Key;
+            {   
+                var item = recieved_packages.ElementAt(i);
+                string key = item.Key;
 
-                    if (key.Contains("yo") || key.Contains("yc"))
-                        message += "#" + key + "_" + recieved_packages[key].GetLastValue();                 
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
+                if (key.Contains("y")) message += "#" + key + "_" + recieved_packages[key].GetLastValue();                 
             }
             return message;
         }
 
-        public static string ConstructMessagePlant(List<PID> PIDList_)
+        public static string ConstructMessagePlant(List<PID> PIDList)
         {
             string message = "";
 
             int index = 0;
-            foreach (PID controller in PIDList_)
+            foreach (PID controller in PIDList)
             {
                 index++;
                 message += "#u" + index + "_" + controller.get_u();
             }
-            try
-            {
-                message = message.Substring(1);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
+
+            // remove the first delimiter
+            if (message.Length > 0) message = message.Substring(1);
 
             return message;
         }
 
         public static void ParseMessage(string message)
         {
-            string time = "";
+            string time = ""; // denotes the time stamp
             string text = message;
 
             // split the message with the delimiter '#'
@@ -224,21 +203,37 @@ namespace Controller
                     continue;
                 }
 
+                // detect corrupt values
+                if (isDouble(value) == false)
+                {
+                    Console.WriteLine("Error: corrupt package  <" + key + "_" + value + ">");
+                    continue;
+                }
+
+                // if a new key recieved, add it
                 if (recieved_packages.ContainsKey(key) == false)
                 {
                     recieved_packages.Add(key, new DataContainer(n_steps));
 
                     // add controller and reference tracker
-                    if (key.Contains("yc"))
-                    {
-                        PIDList.Add(new PID(1, 1, 1));
-
-                        recieved_packages.Add("r" + key.Substring(2), new DataContainer(n_steps));
-                    }
+                    if (key.Contains("yc")) PIDList.Add(new PID());
                 }
 
                 // insert the recieved data to corresponding tag
                 recieved_packages[key].InsertData(time, value);
+            }
+        }
+
+        public static bool isDouble(String str)
+        {
+            try
+            {
+                Double.Parse(str);
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
 
@@ -248,17 +243,26 @@ namespace Controller
             foreach (PID controller in PIDList)
             {
                 index++;
-                double reference = Convert.ToDouble(recieved_packages["r" + index].GetLastValue());
-                double measurement = Convert.ToDouble(recieved_packages["yc" + index].GetLastValue());
 
-                // update control signal
-                if (isListeningOnPlant) controller.ComputeControlSignal(reference, measurement);
+                // check if corresponing reference value exist
+                if (recieved_packages.ContainsKey("r" + index) == false) continue;
 
-                // update controller parameters
-                if (mode == "from_GUI")
-                    controller.UpdateParameters(Convert.ToDouble(recieved_packages["Kp"].GetLastValue()),
-                                                Convert.ToDouble(recieved_packages["Ki"].GetLastValue()),
-                                                Convert.ToDouble(recieved_packages["Kd"].GetLastValue()));
+                // check if both the reference and last recieved measurement are up to date (else don't update the control signal) 
+                if (recieved_packages["yc" + index].isUpToDate())
+                {
+
+                    double reference = Convert.ToDouble(recieved_packages["r" + index].GetLastValue());
+                    double measurement = Convert.ToDouble(recieved_packages["yc" + index].GetLastValue());
+
+                    // update control signal
+                    if (is_listening_on_plant) controller.ComputeControlSignal(reference, measurement);
+
+                    // update controller parameters
+                    if (mode == "from_GUI") controller.UpdateParameters(Convert.ToDouble(recieved_packages["Kp"].GetLastValue()),
+                                                                        Convert.ToDouble(recieved_packages["Ki"].GetLastValue()),
+                                                                        Convert.ToDouble(recieved_packages["Kd"].GetLastValue()));
+                }
+
             }
         }
     }
@@ -279,7 +283,11 @@ namespace Controller
 
     public class PID
     {
+        // anti wind-up
         private bool anti_wind_up = true;
+
+        // flags
+        private bool parameters_assigned = false;
 
         // states
         private double I = 0; // error integral
@@ -291,58 +299,51 @@ namespace Controller
 
         // controller coefficients
         private double Kp; // proportional
-        private double Ki; // integrator
-        private double Kd; // derivator
+        private double Ki; // integral
+        private double Kd; // derivative
 
         // controller limitations
         private double u_max = 7.5;
         private double u_min = -7.5*0;
 
         // constructor
-        public PID(double Kp, double Ki, double Kd) 
-        {
-            this.Kp = Kp;
-            this.Ki = Ki;
-            this.Kd = Kd;
-        }
+        public PID() { }
 
         public void ComputeControlSignal(double r, double y)
         {
             // calculate the dime duration from the last update
             DateTime nowTime = DateTime.Now;
 
-            // calculte error
-            e = r - y;
-
-            if (update_last != null)
+            if (parameters_assigned)
             {
-                double dt = (nowTime - update_last).TotalSeconds;
- 
-                //integrator with anti wind-up
-                if (anti_wind_up == true)
+                // calculte error
+                e = r - y;
+
+                if (update_last != null)
                 {
-                    // only add intergral action if the control signal is not saturated
-                    if (u > u_min  && u < u_max)  I += dt * e;
+                    double dt = (nowTime - update_last).TotalSeconds;
+
+                    //integrator with anti wind-up (only add intergral action if the control signal is not saturated)
+                    if (anti_wind_up == true)
+                        if (u > u_min && u < u_max) I += dt * e;
+                    else
+                        I += dt * e;
+
+                    // derivator (with low pass)
+                    de = 1 / (dt + 1) * y - de_temp;
+                    de_temp = (y - de) / (dt + 1);
+
+                    // control signal
+                    u = Kp * e + Ki * I - Kd * de;
+
+                    ep = e; // update prior error
+
+                    // saturation
+                    if (u > u_max) u = u_max;
+                    if (u < u_min) u = u_min;
                 }
-                else
-                {
-                    I += dt * e;
-                }
-
-                // derivator (with low pass)
-                de = 1 / (dt + 1) * y - de_temp;
-                de_temp = (y - de) / (dt + 1);
-
-                // control signal
-                u = Kp * e + Ki * I - Kd * de;
-
-                ep = e; // update prior error
-
-                // saturation
-                if (u > u_max) u = u_max;
-                if (u < u_min) u = u_min;               
             }
-
+            
             // update prior time
             update_last = nowTime;
         }
@@ -352,6 +353,7 @@ namespace Controller
             this.Kp = Kp;
             this.Ki = Ki;
             this.Kd = Kd;
+            parameters_assigned = true;
         }
 
         public double get_u()

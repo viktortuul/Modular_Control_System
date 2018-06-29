@@ -12,8 +12,15 @@ namespace PhysicalProcesses
 
         DoubleWatertank dWT;
         QuadWatertank qWT;
+        InvertedPendulumSISO InvPenSISO;
+        InvertedPendulumMIMO InvPenMIMO;
 
         // identify what type of plant is considered
+        public Plant()
+        {
+            // empty constructor
+        }
+
         public Plant(DoubleWatertank watertank)
         {
             model_type = "DoubleWatertank";
@@ -26,6 +33,13 @@ namespace PhysicalProcesses
             qWT = watertank;
         }
 
+        public Plant(InvertedPendulumSISO invertedpendulum)
+        {
+            model_type = "InvertedPendulum";
+            InvPenSISO = invertedpendulum;
+        }
+
+
         // update the model states
         public void update_state(double[] disturbanceFlow)
         {
@@ -36,6 +50,9 @@ namespace PhysicalProcesses
                     break;
                 case "QuadWatertank":
                     qWT.update_states(disturbanceFlow);
+                    break;
+                case "InvertedPendulum":
+                    InvPenSISO.update_states(disturbanceFlow);
                     break;
             }
         }
@@ -51,6 +68,9 @@ namespace PhysicalProcesses
                 case "QuadWatertank":
                     qWT.change_states(disturbance);
                     break;
+                case "InvertedPendulum":
+                    InvPenSISO.change_states(disturbance);
+                    break;
             }
         }
 
@@ -63,6 +83,8 @@ namespace PhysicalProcesses
                     return dWT.get_yo();
                 case "QuadWatertank":
                     return qWT.get_yo();
+                case "InvertedPendulum":
+                    return InvPenSISO.get_yo();
                 default:
                     return new double[2];
             }
@@ -77,6 +99,8 @@ namespace PhysicalProcesses
                     return dWT.get_yc();
                 case "QuadWatertank":
                     return qWT.get_yc();
+                case "InvertedPendulum":
+                    return InvPenSISO.get_yc();
                 default:
                     return new double[2];
             }
@@ -92,6 +116,9 @@ namespace PhysicalProcesses
                     break;
                 case "QuadWatertank":
                     qWT.set_u(u_);
+                    break;
+                case "InvertedPendulum":
+                    InvPenSISO.set_u(u_);
                     break;
             }
         }
@@ -115,10 +142,10 @@ namespace PhysicalProcesses
 
         // operating actuator proportional constants [cm^3/(Vs)]
         double k = 6.32;
-     
+
         // outlet areas [cm^2]
-        double a1 = 0.16*2;
-        double a2 = 0.16*2.5;
+        double a1 = 0.16 * 2;
+        double a2 = 0.16 * 2.5;
 
         // cross section areas [cm^2]
         double A1 = 15.0;
@@ -282,7 +309,7 @@ namespace PhysicalProcesses
             h22 += disturbance[3]; // bottom right tank
         }
 
-            public double[] get_yo()
+        public double[] get_yo()
         {
             // apply measurement noise
             var r = new GaussianRandom();
@@ -304,6 +331,184 @@ namespace PhysicalProcesses
         {
             u1 = u_[0];
             u2 = u_[1];
+        }
+    }
+
+    public class InvertedPendulumSISO
+    {
+        // internal states
+        double x = 0; // cart position
+        double x_d = 0; // cart speed
+        double phi = 0; // stick angle
+        double phi_d = 0; // stick angular velocity
+
+        // signals
+        double F = 0; // control signal [N]
+
+        // parameters
+        double g = 9.81; // [m/s^2]
+        double M = 0.1; // cart mass [kg]
+        double m = 0.1; // stick mass [kg]
+        double b = 0.1; // friction of the cart [(N/m)/sec]
+        double I = 0.06; // inertia of the pendulum [kg*m^2]
+        double L = 10.0; // length to the pendulum's center of mass [m]
+
+        // time
+        private DateTime update_last = DateTime.Now; // time stamp of prior execution
+        double dt;
+
+        public InvertedPendulumSISO()
+        {
+        }
+
+        public void update_states(double[] disturbance_volume)
+        {
+            // calculate the dime duration from the last update
+            DateTime nowTime = DateTime.Now;
+
+            if (update_last != null)
+            {
+                dt = (nowTime - update_last).TotalSeconds;
+
+                // accelerations
+                double x_dd = -(I + m * Math.Pow(L, 2)) * b / (I * (M + m) + M * m * Math.Pow(L, 2)) * x_d +
+                              Math.Pow(m, 2) * g * Math.Pow(L, 2) / (I * (M + m) + M * m * Math.Pow(L, 2)) * phi +
+                              (I + m * Math.Pow(L, 2)) / (I * (M + m) + M * m * Math.Pow(L, 2)) * F;
+
+                double phi_dd = -m * L * b / (I * (M + m) + M * m * Math.Pow(L, 2)) * x_d +
+                              m * g * L * (M + m) / (I * (M + m) + M * m * Math.Pow(L, 2)) * phi +
+                              m * L / (I * (M + m) + M * m * Math.Pow(L, 2)) * F;
+
+                // update states
+                x_d += dt * x_dd;
+                x += dt * x_d;
+                phi_d += dt * phi_dd;
+                phi += dt * phi_d;
+            }
+
+            // update prior time
+            update_last = nowTime;
+        }
+
+        public void change_states(double[] disturbance)
+        {
+            x += disturbance[0];
+            x_d += disturbance[1];
+            phi += disturbance[2];
+            phi_d += disturbance[3];
+        }
+
+        public double[] get_yo()
+        {
+            // apply measurement noise
+            var r = new GaussianRandom();
+            double n1 = r.NextGaussian(0, 0.02);
+            double n2 = r.NextGaussian(0, 0.02);
+            double n3 = r.NextGaussian(0, 0.02);
+            return new double[] { 0 };
+            //return new double[] { x + n1, x_d + n2 , phi_d + n3};
+        }
+
+        public double[] get_yc()
+        {
+            // apply measurement noise
+            var r = new GaussianRandom();
+            double n1 = r.NextGaussian(0, 0.02);
+            return new double[] { phi + n1 };
+        }
+
+        public void set_u(double[] u_)
+        {
+            F = u_[0];
+        }
+    }
+
+    public class InvertedPendulumMIMO
+    {
+        // internal states
+        double x = 0; // cart position
+        double x_d = 0; // cart speed
+        double phi = 0; // stick angle
+        double phi_d = 0; // stick angular velocity
+
+        // signals
+        double F = 0; // control signal [N]
+
+        // parameters
+        double g = 9.81; // [m/s^2]
+        double M = 0.1; // cart mass [kg]
+        double m = 0.1; // stick mass [kg]
+        double b = 0.1; // friction of the cart [(N/m)/sec]
+        double I = 0.06; // inertia of the pendulum [kg*m^2]
+        double L = 10.0; // length to the pendulum's center of mass [m]
+
+        // time
+        private DateTime update_last = DateTime.Now; // time stamp of prior execution
+        double dt;
+
+        public InvertedPendulumMIMO()
+        {
+        }
+
+        public void update_states(double[] disturbance_volume)
+        {
+            // calculate the dime duration from the last update
+            DateTime nowTime = DateTime.Now;
+
+            if (update_last != null)
+            {
+                dt = (nowTime - update_last).TotalSeconds;
+
+                // accelerations
+                double x_dd = -(I + m * Math.Pow(L, 2)) * b / (I * (M + m) + M * m * Math.Pow(L, 2)) * x_d +
+                              Math.Pow(m, 2) * g * Math.Pow(L, 2) / (I * (M + m) + M * m * Math.Pow(L, 2)) * phi +
+                              (I + m * Math.Pow(L, 2)) / (I * (M + m) + M * m * Math.Pow(L, 2)) * F;
+
+                double phi_dd = -m * L * b / (I * (M + m) + M * m * Math.Pow(L, 2)) * x_d +
+                              m * g * L * (M + m) / (I * (M + m) + M * m * Math.Pow(L, 2)) * phi +
+                              m * L / (I * (M + m) + M * m * Math.Pow(L, 2)) * F;
+
+                // update states
+                x_d += dt * x_dd;
+                x += dt * x_d;
+                phi_d += dt * phi_dd;
+                phi += dt * phi_d;
+            }
+
+            // update prior time
+            update_last = nowTime;
+        }
+
+        public void change_states(double[] disturbance)
+        {
+            x += disturbance[0];
+            x_d += disturbance[1];
+            phi += disturbance[2];
+            phi_d += disturbance[3];
+        }
+
+        public double[] get_yo()
+        {
+            // apply measurement noise
+            var r = new GaussianRandom();
+            double n1 = r.NextGaussian(0, 0.02);
+            double n2 = r.NextGaussian(0, 0.02);
+            return new double[] { 0 };
+            //return new double[] { x_d + n2 , phi_d + n3};
+        }
+
+        public double[] get_yc()
+        {
+            // apply measurement noise
+            var r = new GaussianRandom();
+            double n1 = r.NextGaussian(0, 0.02);
+            double n2 = r.NextGaussian(0, 0.02);
+            return new double[] { x + n1, phi + n2 };
+        }
+
+        public void set_u(double[] u_)
+        {
+            F = u_[0];
         }
     }
 

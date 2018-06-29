@@ -11,8 +11,57 @@ using System.Globalization;
 
 namespace Model_GUI
 {
+    public class DataContainer
+    {
+        // store the time:value pair in string arrays
+        public string[] time;
+        public string[] value;
+
+        // constructor
+        public DataContainer(int size)
+        {
+            time = new string[size];
+            value = new string[size];
+        }
+
+        // instert a new time:value pair data point
+        public void InsertData(string time_, string value_)
+        {
+            Array.Copy(time, 1, time, 0, time.Length - 1);
+            time[time.Length - 1] = time_;
+
+            Array.Copy(value, 1, value, 0, value.Length - 1);
+            value[value.Length - 1] = value_;
+        }
+
+        public string GetLastTime()
+        {
+            return time[time.Length - 1];
+        }
+        public string GetLastValue()
+        {
+            return value[value.Length - 1];
+        }
+    }
+
     public static class Helpers
     {
+        // time format
+        public const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
+
+        // drawing
+        static Graphics g;
+        static Pen pen_b = new Pen(Color.Black, 4);
+        static Pen pen_r = new Pen(Color.Red, 3);
+        static SolidBrush brush_b = new SolidBrush(Color.LightBlue);
+        static Bitmap bm = new Bitmap(400, 800);
+
+        public static void UpdateChartAxes(Chart chart, int chart_history)
+        {
+            chart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
+            chart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
+        }
+
         public static void AddChartSeries(string key, object chart)
         {
             Chart chart_ = (Chart)chart;
@@ -91,10 +140,10 @@ namespace Model_GUI
         }
 
 
-        public static void CheckKey(Dictionary<string, ModelGUI.DataContainer> dict, string key, int n_steps)
+        public static void CheckKey(Dictionary<string, DataContainer> dict, string key, int n_steps)
         {
             // if the key doesn't exist, add it
-            if (dict.ContainsKey(key) == false) dict.Add(key, new ModelGUI.DataContainer(n_steps));
+            if (dict.ContainsKey(key) == false) dict.Add(key, new DataContainer(n_steps));
         }
 
         public static void UpdatePerturbationLabels(ModelGUI GUI, ModelGUI.Perturbation Disturbance, ModelGUI.Perturbation Noise, ModelGUI.Perturbation Control)
@@ -119,48 +168,94 @@ namespace Model_GUI
                                     Math.Round(Control.value[3], 1);
         }
 
-        //public static void AddChartSeries_d(string key)
-        //{
-        //    // add a new time series
-        //    if (perturbationChart.Series.IndexOf(key) == -1)
-        //    {
-        //        perturbationChart.Series.Add(key);
-        //        perturbationChart.Series[key].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-        //        perturbationChart.Series[key].BorderWidth = 2;
+        public static void DrawTanks(ModelGUI GUI)
+        {
+            g = Graphics.FromImage(bm);
+            g.Clear(Color.White);
 
-        //        switch (key)
-        //        {
-        //            case "u1":
-        //                perturbationChart.Series[key].Color = Color.Orange;
-        //                perturbationChart.Series[key].BorderWidth = 1;
-        //                break;
-        //            case "u2":
-        //                perturbationChart.Series[key].Color = Color.Magenta;
-        //                perturbationChart.Series[key].BorderWidth = 1;
-        //                break;
-        //            case "yo1":
-        //                perturbationChart.Series[key].Color = Color.Black;
-        //                perturbationChart.Series[key].BorderWidth = 2;
-        //                break;
-        //            case "yo2":
-        //                perturbationChart.Series[key].Color = Color.Gray;
-        //                perturbationChart.Series[key].BorderWidth = 2;
-        //                break;
-        //            case "yc1":
-        //                perturbationChart.Series[key].Color = Color.Blue;
-        //                perturbationChart.Series[key].BorderWidth = 3;
-        //                break;
-        //            case "yc2":
-        //                perturbationChart.Series[key].Color = Color.Green;
-        //                perturbationChart.Series[key].BorderWidth = 3;
-        //                break;
-        //            default:
-        //                break;
-        //        }
-        //        // set the x-axis type to DateTime
-        //        perturbationChart.Series[key].XValueType = ChartValueType.DateTime;
-        //    }
-        //}
+            // map tank height in cm to pixels
+            double max_height_p = GUI.pictureBox1.Height / 2.5; // max height [pixels]
+            double max_inflow_width = 10;
+            double max_height_r = 25; // real max height [cm]
+            double cm2pix = max_height_p / max_height_r;
+
+            // extract signals
+            int u = 0;
+            try { u = Convert.ToInt16(Convert.ToDouble(GUI.package_last["u1"])); } catch { };
+            int y1 = Convert.ToInt16(cm2pix * Convert.ToDouble(GUI.states["yo1"].GetLastValue()));
+            int y2 = Convert.ToInt16(cm2pix * Convert.ToDouble(GUI.states["yc1"].GetLastValue()));
+
+            //
+            double A1 = 15; //Convert.ToDouble(numUpDown_A1.Value);
+            double a1 = 0.16 * 2; //Convert.ToDouble(numUpDown_a1a.Value);
+            double A2 = 100; //Convert.ToDouble(numUpDown_A2.Value);
+            double a2 = 0.16; //Convert.ToDouble(numUpDown_a2a.Value);
+
+            // TANK 1 ----------------------------------------------------------------
+            Point T = new Point(75, Convert.ToInt16(GUI.pictureBox1.Height / 2));
+
+            // tank dimensions
+            double R1_ = Math.Sqrt(A1 / Math.PI); int R1 = Convert.ToInt16(R1_ * cm2pix);
+            double r1_ = Math.Sqrt(a1 / Math.PI); int r1 = Convert.ToInt16(r1_ * cm2pix);
+            double h1_ = 25; int h1 = Convert.ToInt16(h1_ * cm2pix);
+
+            // inlet
+            if (u > 0)
+            {
+                Rectangle water_in = new Rectangle(T.X - R1 + 5, T.Y - h1 - 50, Convert.ToInt16(max_inflow_width * (u / 7.5)), h1 + 50);
+                g.FillRectangle(brush_b, water_in);
+            }
+
+            // water 
+            Rectangle water1 = new Rectangle(T.X - R1, T.Y - y1, 2 * R1, y1);
+            g.FillRectangle(brush_b, water1);
+
+            if (y1 > 0)
+            {
+                Rectangle water_fall = new Rectangle(T.X - r1, T.Y, 2 * r1, 250);
+                g.FillRectangle(brush_b, water_fall);
+            }
+
+            // walls
+            Point w1_top = new Point(T.X - R1, T.Y - h1); Point w1_bot = new Point(T.X - R1, T.Y);
+            Point w2_top = new Point(T.X + R1, T.Y - h1); Point w2_bot = new Point(T.X + R1, T.Y);
+            Point wb1_l = new Point(T.X - R1, T.Y); Point wb1_r = new Point(T.X - r1, T.Y);
+            Point wb2_l = new Point(T.X + r1, T.Y); Point wb2_r = new Point(T.X + R1, T.Y);
+            g.DrawLine(pen_b, w1_top, w1_bot);
+            g.DrawLine(pen_b, w2_top, w2_bot);
+            g.DrawLine(pen_b, wb1_l, wb1_r);
+            g.DrawLine(pen_b, wb2_l, wb2_r);
+
+            // TANK 2 ----------------------------------------------------------------
+            T = new Point(T.X, Convert.ToInt16(GUI.pictureBox1.Height - 20));
+
+            // tank dimensions
+            double R2_ = Math.Sqrt(A2 / Math.PI); int R2 = Convert.ToInt16(R2_ * cm2pix);
+            double r2_ = Math.Sqrt(a2 / Math.PI); int r2 = Convert.ToInt16(r2_ * cm2pix);
+            double h2_ = 25; int h2 = Convert.ToInt16(h2_ * cm2pix);
+
+            // water 
+            Rectangle water2 = new Rectangle(T.X - R2, T.Y - y2, 2 * R2, y2);
+            g.FillRectangle(brush_b, water2);
+
+            if (y2 > 0)
+            {
+                Rectangle water_fall = new Rectangle(T.X - r2, T.Y, 2 * r2, 200);
+                g.FillRectangle(brush_b, water_fall);
+            }
+
+            // walls
+            w1_top = new Point(T.X - R2, T.Y - h2); w1_bot = new Point(T.X - R2, T.Y);
+            w2_top = new Point(T.X + R2, T.Y - h2); w2_bot = new Point(T.X + R2, T.Y);
+            wb1_l = new Point(T.X - R2, T.Y); wb1_r = new Point(T.X - r2, T.Y);
+            wb2_l = new Point(T.X + r2, T.Y); wb2_r = new Point(T.X + R2, T.Y);
+            g.DrawLine(pen_b, w1_top, w1_bot);
+            g.DrawLine(pen_b, w2_top, w2_bot);
+            g.DrawLine(pen_b, wb1_l, wb1_r);
+            g.DrawLine(pen_b, wb2_l, wb2_r);
+
+            GUI.pictureBox1.Image = bm;
+        }
 
     }
 }
