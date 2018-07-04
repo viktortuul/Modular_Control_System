@@ -11,8 +11,6 @@ namespace GUI
         // main form access
         FrameGUI Main_form;
 
-
-
         // identity parameters
         public string name = "";
         string status = "";

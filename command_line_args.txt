@@ -1,5 +1,4 @@
 # Controller
-
 							 GUI       GUI  CONT PLANT     PLANT CONT
 Start-Process Controller.exe 127.0.0.1,8100,8200,127.0.0.1,8300,8400
 

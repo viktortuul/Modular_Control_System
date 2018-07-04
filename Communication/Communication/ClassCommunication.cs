@@ -33,9 +33,13 @@ namespace Communication
         UdpClient listener;
         IPEndPoint serverEP;
 
-        public Server(string ip_, int port) // (ip address of the sender; listenting port on this machine)
+        public Server(string IP, int port) // (ip address of the sender; listenting port on this machine)
         {
-            IPAddress ip_address = IPAddress.Parse(ip_); 
+            IPAddress ip_address;
+
+            if (IP == "ANY") ip_address = IPAddress.Any;
+            else ip_address = IPAddress.Parse(IP);
+
             serverEP = new IPEndPoint(ip_address, port);
             listener = new UdpClient(port);
         }

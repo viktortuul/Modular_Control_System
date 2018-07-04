@@ -1,0 +1,4 @@
+CRATE (file://DESKTOP-N8O54R1/Users/Vikto/Google%20Drive/KTH/Arbete/CRATE)
+
+*) navigate to the directory in file explorer
+*) or browse to the Network tab in file explorer and find the folder
