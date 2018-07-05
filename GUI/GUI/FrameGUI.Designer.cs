@@ -29,13 +29,13 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title5 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameGUI));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title6 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.tbDebugLog = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.timerCharts = new System.Windows.Forms.Timer(this.components);
@@ -148,25 +148,25 @@
             this.dataChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea5.Area3DStyle.Inclination = 0;
-            chartArea5.Area3DStyle.Rotation = 0;
-            chartArea5.Area3DStyle.WallWidth = 1;
-            chartArea5.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea5.BorderColor = System.Drawing.Color.Bisque;
-            chartArea5.Name = "ChartArea1";
-            chartArea5.ShadowColor = System.Drawing.SystemColors.GradientInactiveCaption;
-            this.dataChart.ChartAreas.Add(chartArea5);
-            legend5.Name = "Legend1";
-            this.dataChart.Legends.Add(legend5);
+            chartArea1.Area3DStyle.Inclination = 0;
+            chartArea1.Area3DStyle.Rotation = 0;
+            chartArea1.Area3DStyle.WallWidth = 1;
+            chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea1.BorderColor = System.Drawing.Color.Bisque;
+            chartArea1.Name = "ChartArea1";
+            chartArea1.ShadowColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.dataChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.dataChart.Legends.Add(legend1);
             this.dataChart.Location = new System.Drawing.Point(304, 155);
             this.dataChart.Margin = new System.Windows.Forms.Padding(4);
             this.dataChart.Name = "dataChart";
             this.dataChart.Size = new System.Drawing.Size(696, 470);
             this.dataChart.TabIndex = 2;
             this.dataChart.Text = "chart1";
-            title5.Name = "Title1";
-            title5.Text = "States";
-            this.dataChart.Titles.Add(title5);
+            title1.Name = "Title1";
+            title1.Text = "States";
+            this.dataChart.Titles.Add(title1);
             // 
             // trackBarReference1
             // 
@@ -251,7 +251,7 @@
             this.numUpDownKd.Size = new System.Drawing.Size(65, 22);
             this.numUpDownKd.TabIndex = 9;
             this.numUpDownKd.Value = new decimal(new int[] {
-            3,
+            1,
             0,
             0,
             0});
@@ -774,25 +774,25 @@
             // 
             this.residualChart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea6.Area3DStyle.Inclination = 0;
-            chartArea6.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
-            chartArea6.Area3DStyle.Rotation = 0;
-            chartArea6.Area3DStyle.WallWidth = 1;
-            chartArea6.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea6.Name = "ChartArea1";
-            chartArea6.ShadowColor = System.Drawing.Color.Gray;
-            this.residualChart.ChartAreas.Add(chartArea6);
-            legend6.Name = "Legend1";
-            this.residualChart.Legends.Add(legend6);
+            chartArea2.Area3DStyle.Inclination = 0;
+            chartArea2.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
+            chartArea2.Area3DStyle.Rotation = 0;
+            chartArea2.Area3DStyle.WallWidth = 1;
+            chartArea2.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea2.Name = "ChartArea1";
+            chartArea2.ShadowColor = System.Drawing.Color.Gray;
+            this.residualChart.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.residualChart.Legends.Add(legend2);
             this.residualChart.Location = new System.Drawing.Point(305, 633);
             this.residualChart.Margin = new System.Windows.Forms.Padding(4);
             this.residualChart.Name = "residualChart";
             this.residualChart.Size = new System.Drawing.Size(696, 168);
             this.residualChart.TabIndex = 32;
             this.residualChart.Text = "chart1";
-            title6.Name = "Title1";
-            title6.Text = "Residual";
-            this.residualChart.Titles.Add(title6);
+            title2.Name = "Title1";
+            title2.Text = "Residual";
+            this.residualChart.Titles.Add(title2);
             // 
             // numericUpDownHistory
             // 

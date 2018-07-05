@@ -16,6 +16,7 @@ namespace GUI
         string status = "";
 
         // connection parameters
+        public EndPoint CanalEP;
         public ConnectionParameters ConnectionParameters;
         public bool is_recieving = false;
         public bool is_sending = false;
@@ -38,10 +39,13 @@ namespace GUI
         // initialize estimator
         KalmanFilter filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, 0.16 * 2.0, 0.16 * 2.5, 15.0, 100, 6.32);
 
-        public ControllerConnection(FrameGUI Main_form, string name, PIDparameters ControllerParameters, ConnectionParameters ConnectionParameters)
+        public ControllerConnection(FrameGUI Main_form, string name, PIDparameters ControllerParameters, EndPoint CanalEP, ConnectionParameters ConnectionParameters)
         {
             // main form access
             this.Main_form = Main_form;
+
+            // canal address
+            this.CanalEP = CanalEP;
 
             // identity parameters
             this.name = name;
@@ -51,12 +55,20 @@ namespace GUI
             this.ControllerParameters = ControllerParameters;
 
             // create a new thread for the listener
-            Thread thread_listener = new Thread(() => Listener(ConnectionParameters.ip_endpoint, ConnectionParameters.port_this));
+            Thread thread_listener = new Thread(() => Listener(CanalEP.ip, ConnectionParameters.port_this));
             thread_listener.Start();
 
             // create a new thread for the sender
-            Thread thread_sender = new Thread(() => Sender(ConnectionParameters.ip_endpoint, ConnectionParameters.port_endpoint));
-            thread_sender.Start();         
+            Thread thread_sender = new Thread(() => Sender(CanalEP.ip, CanalEP.port));
+            thread_sender.Start();
+
+            //// create a new thread for the listener
+            //Thread thread_listener = new Thread(() => Listener(ConnectionParameters.ip_endpoint, ConnectionParameters.port_this));
+            //thread_listener.Start();
+
+            //// create a new thread for the sender
+            //Thread thread_sender = new Thread(() => Sender(ConnectionParameters.ip_endpoint, ConnectionParameters.port_endpoint));
+            //thread_sender.Start();         
         }
 
         private void Listener(string IP, int port)
@@ -67,7 +79,7 @@ namespace GUI
             // listen for messages sent from a host to this specific IP:port
             while (true)
             {
-                Thread.Sleep(50);
+                Thread.Sleep(5);
                 try
                 {
                     // check if a new package is recieved
@@ -110,7 +122,7 @@ namespace GUI
 
                 // attatch reference values
                 string message = "";
-
+                message += Convert.ToString("EP_" + ConnectionParameters.ip_endpoint + ":" + ConnectionParameters.port_endpoint + "#"); // EP FOR CANAL
                 message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
 
                 for (int i = 1; i <= n_contr_states; i++)

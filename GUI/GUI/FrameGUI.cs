@@ -143,7 +143,7 @@ namespace GUI
                 numUpDownKi.Value = Convert.ToDecimal(connection_current.ControllerParameters.Ki);
                 numUpDownKd.Value = Convert.ToDecimal(connection_current.ControllerParameters.Kd);
                 textBox_ip_send.Text = connection_current.ConnectionParameters.ip_endpoint;
-                textBox_ip_recieve.Text = connection_current.ConnectionParameters.ip_this;
+                //textBox_ip_recieve.Text = connection_current.ConnectionParameters.ip_this;
                 numericUpDown_port_send.Text = connection_current.ConnectionParameters.port_endpoint.ToString();
                 numericUpDown_port_recieve.Text = connection_current.ConnectionParameters.port_this.ToString();
 
@@ -186,11 +186,12 @@ namespace GUI
             else
             {
                 // connection parameters
-                ConnectionParameters ConnParams = new ConnectionParameters(IP_this, IP_endpoint, port_this, port_endpoint);
+                ConnectionParameters ConnParams = new ConnectionParameters(port_this, IP_endpoint, port_endpoint);
+                EndPoint CanalEP = new EndPoint("127.0.0.1", 8111);
 
                 // create and add controller
                 PIDparameters ControllerParameters = new PIDparameters(Convert.ToDouble(numUpDownKp.Value), Convert.ToDouble(numUpDownKi.Value), Convert.ToDouble(numUpDownKd.Value));
-                ControllerConnection PID = new ControllerConnection(this, name, ControllerParameters, ConnParams);
+                ControllerConnection PID = new ControllerConnection(this, name, ControllerParameters, CanalEP, ConnParams);
                 connections.Add(PID);
                 connection_current = PID;
                 listBoxModules.Items.Add(name);

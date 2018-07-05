@@ -34,15 +34,26 @@ namespace GUI
 
     public struct ConnectionParameters
     {
-        public string ip_this, ip_endpoint;
+        public string ip_endpoint;
         public int port_this, port_endpoint;
 
-        public ConnectionParameters(string ip_this, string ip_endpoint, int port_this, int port_endpoint)
+        public ConnectionParameters(int port_this, string ip_endpoint, int port_endpoint)
         {
-            this.ip_this = ip_this;
             this.ip_endpoint = ip_endpoint;
             this.port_this = port_this;
             this.port_endpoint = port_endpoint;
+        }
+    }
+
+    public struct EndPoint
+    {
+        public string ip;
+        public int port;
+
+        public EndPoint(string ip, int port)
+        {
+            this.ip = ip;
+            this.port = port;
         }
     }
 

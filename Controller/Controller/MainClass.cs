@@ -25,31 +25,59 @@ namespace Controller
         // state variables
         static bool is_listening_on_plant = false;
 
+        // EP addresses
+        static string IP_GUI;
+        static int port_GUI_endpoint;
+        static string IP_plant;
+        static int port_plant_endpoint;
+
         static void Main(string[] args)
         {
             // parse the command line arguments
-            string IP_GUI = args[0];
-            int port_GUI_endpoint = Convert.ToInt16(args[1]);
+            IP_GUI = args[0];
+            port_GUI_endpoint = Convert.ToInt16(args[1]);
             int port_GUI_recieve = Convert.ToInt16(args[2]);
-            string IP_plant = args[3];
-            int port_plant_endpoint = Convert.ToInt16(args[4]);
+            IP_plant = args[3];
+            port_plant_endpoint = Convert.ToInt16(args[4]);
             int port_plant_recieve = Convert.ToInt16(args[5]);
 
+            // CANAL PARAMS
+            string IP_GUI_canal = "127.0.0.1";
+            int port_GUI_canal = 8111;
+            string IP_plant_canal = "127.0.0.1";
+            int port_plant_canal = 8222;
+
             // create a thread for sending to the GUI
-            Thread thread_send_GUI = new Thread(() => SendGUI(IP_GUI, port_GUI_endpoint, PIDList));
+            Thread thread_send_GUI = new Thread(() => SendGUI(IP_GUI_canal, port_GUI_canal, PIDList));
             thread_send_GUI.Start();
 
             // create a thread for listening on the GUI
-            Thread thread_listen_GUI = new Thread(() => ListenGUI(IP_GUI, port_GUI_recieve, PIDList));
+            Thread thread_listen_GUI = new Thread(() => ListenGUI(IP_GUI_canal, port_GUI_recieve, PIDList));
             thread_listen_GUI.Start();
 
             // create a thread for sending to the plant
-            Thread thread_send_plant = new Thread(() => SendPlant(IP_plant, port_plant_endpoint, PIDList));
+            Thread thread_send_plant = new Thread(() => SendPlant(IP_plant_canal, port_plant_canal, PIDList));
             thread_send_plant.Start();
 
             // create a thread for listening on the plant
-            Thread thread_listen_plant = new Thread(() => ListenPlant(IP_plant, port_plant_recieve, PIDList));
+            Thread thread_listen_plant = new Thread(() => ListenPlant(IP_plant_canal, port_plant_recieve, PIDList));
             thread_listen_plant.Start();
+
+            //// create a thread for sending to the GUI
+            //Thread thread_send_GUI = new Thread(() => SendGUI(IP_GUI, port_GUI_endpoint, PIDList));
+            //thread_send_GUI.Start();
+
+            //// create a thread for listening on the GUI
+            //Thread thread_listen_GUI = new Thread(() => ListenGUI(IP_GUI, port_GUI_recieve, PIDList));
+            //thread_listen_GUI.Start();
+
+            //// create a thread for sending to the plant
+            //Thread thread_send_plant = new Thread(() => SendPlant(IP_plant, port_plant_endpoint, PIDList));
+            //thread_send_plant.Start();
+
+            //// create a thread for listening on the plant
+            //Thread thread_listen_plant = new Thread(() => ListenPlant(IP_plant, port_plant_recieve, PIDList));
+            //thread_listen_plant.Start();
         }
 
         public static void SendGUI(string IP, int port, List<PID> PIDList)
@@ -100,7 +128,7 @@ namespace Controller
 
             while (true)
             {
-                Thread.Sleep(10);
+                Thread.Sleep(50);
 
                 if (is_listening_on_plant == true)
                 {
@@ -141,6 +169,7 @@ namespace Controller
         public static string ConstructMessageGUI(List<PID> PIDList)
         {
             string message = "";
+            message += Convert.ToString("EP_" + IP_GUI + ":" + port_GUI_endpoint + "#"); // EP FOR CANAL
             message += Convert.ToString("time_" + DateTime.UtcNow.ToString(FMT));
 
             // append control signals
@@ -159,12 +188,14 @@ namespace Controller
 
                 if (key.Contains("y")) message += "#" + key + "_" + recieved_packages[key].GetLastValue();                 
             }
+
             return message;
         }
 
         public static string ConstructMessagePlant(List<PID> PIDList)
         {
             string message = "";
+            message += Convert.ToString("EP_" + IP_plant + ":" + port_plant_endpoint); // EP FOR CANAL
 
             int index = 0;
             foreach (PID controller in PIDList)
@@ -174,8 +205,8 @@ namespace Controller
             }
 
             // remove the first delimiter
-            if (message.Length > 0) message = message.Substring(1);
-
+            if (message[0] == '#') message = message.Substring(1);
+            // Console.WriteLine(message);
             return message;
         }
 
@@ -247,10 +278,11 @@ namespace Controller
                 // check if corresponing reference value exist
                 if (recieved_packages.ContainsKey("r" + index) == false) continue;
 
+
                 // check if both the reference and last recieved measurement are up to date (else don't update the control signal) 
                 if (recieved_packages["yc" + index].isUpToDate())
                 {
-
+ 
                     double reference = Convert.ToDouble(recieved_packages["r" + index].GetLastValue());
                     double measurement = Convert.ToDouble(recieved_packages["yc" + index].GetLastValue());
 

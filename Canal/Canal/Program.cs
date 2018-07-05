@@ -5,18 +5,38 @@ using System.Text;
 using System.Threading.Tasks;
 using Communication;
 using System.Threading;
-
+using System.Reflection;
 
 namespace Canal
 {
     class Program
     {
-        static Bernoulli bernoulli = new Bernoulli(0.9);
+        // drop out models
+        static Bernoulli Bernoulli;
+        static MarkovChain Markov;
+        static Object DropOutModel = null;
 
         static void Main(string[] args)
         {
+            // parse the command line arguments
+            int port_recieve = Convert.ToInt16(args[0]); // listening port
+
+            if (args.Length == 2) // Bernoulli
+            {
+                double treshold = Convert.ToDouble(args[1]);
+                Bernoulli = new Bernoulli(treshold / 100);
+                DropOutModel = Bernoulli;
+            }
+            else if (args.Length == 3) // Markov
+            {
+                double P_pd = Convert.ToDouble(args[1]);
+                double P_dp = Convert.ToDouble(args[2]);
+                Markov = new MarkovChain(1, P_pd / 100, P_dp / 100);
+                DropOutModel = Markov;
+            }
+
             // create a new thread for the listener
-            Thread thread_listener = new Thread(() => Listener("ANY", 8000)); // listen on port 8000 (packages from any IP address)
+            Thread thread_listener = new Thread(() => Listener("ANY", port_recieve)); // listen on port 8000 (packages from any IP address)
             thread_listener.Start();
         }
 
@@ -27,8 +47,7 @@ namespace Canal
 
             while (true)
             {
-                Thread.Sleep(5);
-
+                Thread.Sleep(1);
                 try
                 {
                     Listener.listen();
@@ -39,21 +58,6 @@ namespace Canal
                     Console.WriteLine(ex.ToString());
                 }
             }
-        }
-
-        public static void SendMessage(string IP, int port, string message)
-        {
-            // initialize a sender
-            Client Sender = new Client(IP, port);
-
-            // send message (if it's alloed to pass)
-            if (bernoulli.Next() == true)
-            {
-                Sender.send(message);
-                Console.WriteLine("sent: " + message);
-            }
-            else
-                Console.WriteLine("message blocked");
         }
 
         public static void ParseMessage(string message)
@@ -76,58 +80,32 @@ namespace Canal
                 if (key == "EP")
                 {
                     // extract key and value
-                    string[] EP = item.Split(':');
+                    string[] EP = value.Split(':');
                     string IP = EP[0];
                     int Port = Convert.ToInt16(EP[1]);
-                    string submessage = message.Substring((key + "_" + EP).Length + 1); // remove the EP part
+                    string submessage = message.Substring((key + "_" + EP).Length); // remove the EP part
                     SendMessage(IP, Port, submessage);
+                    return; // no need to keep parsing the message
                 }
             }
         }
-    }
 
-
-    class Bernoulli
-    {
-        double treshold;
-        Random r = new Random();
-
-        public Bernoulli(double treshold)
+        public static void SendMessage(string IP, int port, string message)
         {
-            this.treshold = treshold;
-        }
+            // initialize a sender
+            Client Sender = new Client(IP, port);
 
-        public bool Next()
-        {
-            return (r.Next(0, 1) > treshold) ? true : false;
-        }
+            // drop out
+            MethodInfo isPass = DropOutModel.GetType().GetMethod("isPass");
+            bool pass = (bool)isPass.Invoke(DropOutModel, null);
 
-    }
-
-
-    class MarkovChain
-    {
-        int state; // 1:pass, 0:drop
-        double[] transition = new double[] { 0, 0 }; // state transition probabilities
-        Random r = new Random();
-
-        public MarkovChain(int state, double pass2drop, double drop2pass)
-        {
-            this.state = state;
-            transition[0] = drop2pass;
-            transition[1] = pass2drop;
-        }
-
-        public bool GetState()
-        {
-            Next();
-            return (state == 1) ? true : false;
-        }
-
-        public void Next()
-        {
-            double p = r.Next(0, 1);
-            if (p > transition[state]) state = (state + 1) % 2;
+            if (pass == true)
+            {
+                Sender.send(message);
+                Console.WriteLine("Pass: " + message);
+            }
+            else
+                Console.WriteLine("Drop - " + DropOutModel.ToString());
         }
     }
 }

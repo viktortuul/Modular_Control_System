@@ -36,7 +36,11 @@ namespace Model_GUI
         // initialize an empty plant class
         Plant plant = new Plant();
 
-    public ModelGUI()
+        // EP addresses
+        static string IP_controller;
+        static int port_controller_endpoint;
+
+        public ModelGUI()
         {
             InitializeComponent();
         }
@@ -47,10 +51,14 @@ namespace Model_GUI
             string[] args = { "127.0.0.1", "8400", "8300", "dwt" };
 
             // parse the command line arguments
-            string IP_controller = args[0];
-            int port_controller_endpoint = Convert.ToInt16(args[1]);
+            IP_controller = args[0];
+            port_controller_endpoint = Convert.ToInt16(args[1]);
             int port_plant_recieve = Convert.ToInt16(args[2]);
             string model_type = args[3];
+
+            // CANAL PARAMS
+            string IP_controller_canal = "127.0.0.1";
+            int port_controller_canal = 8222;
 
             // store the model in a container which generically send and access values 
             switch (model_type)
@@ -61,11 +69,11 @@ namespace Model_GUI
             }
 
             // create a thread for listening on the controller
-            Thread thread_listener = new Thread(() => Listener(IP_controller, port_plant_recieve, plant));
+            Thread thread_listener = new Thread(() => Listener(IP_controller_canal, port_plant_recieve, plant));
             thread_listener.Start();
 
             // create a thread for communication with the controller
-            Thread thread_sender = new Thread(() => Sender(IP_controller, port_controller_endpoint, plant));
+            Thread thread_sender = new Thread(() => Sender(IP_controller_canal, port_controller_canal, plant));
             thread_sender.Start();
 
             // create a thread for the simulation
@@ -137,6 +145,7 @@ namespace Model_GUI
 
                 // send measurements y      
                 string message = "";
+                message += Convert.ToString("EP_" + IP_controller + ":" + port_controller_endpoint + "#"); // EP FOR CANAL
                 message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Helpers.FMT) + "#");
 
                 // observed states

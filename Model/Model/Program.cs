@@ -14,14 +14,21 @@ namespace Model_Watertank
         // data containers (dictionaries)
         static Dictionary<string, string> package_last = new Dictionary<string, string>(); // recieved package <tag, value>
 
+        // EP addresses
+        static string IP_controller;
+        static int port_controller_endpoint;
+
         static void Main(string[] args)
         {
             // parse the command line arguments
-            string IP_controller = args[0];
-            int port_controller_endpoint = Convert.ToInt16(args[1]);
+            IP_controller = args[0];
+            port_controller_endpoint = Convert.ToInt16(args[1]);
             int port_plant_this = Convert.ToInt16(args[2]);
             string model_type = args[3];
 
+            // CANAL PARAMS
+            string IP_controller_canal = "127.0.0.1";
+            int port_controller_canal = 8222;
 
             // store the model in a container which generically send and access values 
             Plant plant = new Plant();
@@ -33,12 +40,20 @@ namespace Model_Watertank
             }
 
             // create a thread for listening on the controller
-            Thread thread_listen_controller = new Thread(() => Listener(IP_controller, port_plant_this, plant));
+            Thread thread_listen_controller = new Thread(() => Listener(IP_controller_canal, port_plant_this, plant));
             thread_listen_controller.Start();
 
             // create a thread for communication with the controller
-            Thread thread_send_controller = new Thread(() => Sender(IP_controller, port_controller_endpoint, plant));
+            Thread thread_send_controller = new Thread(() => Sender(IP_controller_canal, port_controller_canal, plant));
             thread_send_controller.Start();
+
+            //// create a thread for listening on the controller
+            //Thread thread_listen_controller = new Thread(() => Listener(IP_controller, port_plant_this, plant));
+            //thread_listen_controller.Start();
+
+            //// create a thread for communication with the controller
+            //Thread thread_send_controller = new Thread(() => Sender(IP_controller, port_controller_endpoint, plant));
+            //thread_send_controller.Start();
 
             // create a thread for the DoubleWatertank simulation
             double dt = 0.01; // model update rate
@@ -82,11 +97,11 @@ namespace Model_Watertank
 
             while (true)
             {
-                Thread.Sleep(10);
+                Thread.Sleep(50);
 
                 // send measurements y      
                 string message = "";
-
+                message += Convert.ToString("EP_" + IP_controller + ":" + port_controller_endpoint + "#"); // EP FOR CANAL
                 message += Convert.ToString("time_" + DateTime.UtcNow.ToString(FMT) + "#");
 
                 // observed states
