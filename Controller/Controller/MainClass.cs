@@ -41,6 +41,8 @@ namespace Controller
             port_plant_endpoint = Convert.ToInt16(args[4]);
             int port_plant_recieve = Convert.ToInt16(args[5]);
 
+            Console.WriteLine("Controller");
+
             // CANAL PARAMS
             string IP_GUI_canal = "127.0.0.1";
             int port_GUI_canal = 8111;
@@ -255,7 +257,7 @@ namespace Controller
             }
         }
 
-        public static bool isDouble(String str)
+        public static bool isDouble(string str)
         {
             try
             {

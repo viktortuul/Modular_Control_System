@@ -107,7 +107,7 @@ namespace Model_GUI
             }
         }
 
-        public static void changeYScala(object chart, string verbose)
+        public static void ChangeYScale(object chart, string verbose)
         {
             bool points_exist = false;
             double max = Double.MinValue;

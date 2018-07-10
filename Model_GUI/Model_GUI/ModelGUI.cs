@@ -9,6 +9,7 @@ using Communication;
 using PhysicalProcesses;
 using System.Globalization;
 using System.Diagnostics;
+using System.IO;
 
 namespace Model_GUI
 {
@@ -39,6 +40,9 @@ namespace Model_GUI
         // EP addresses
         static string IP_controller;
         static int port_controller_endpoint;
+
+        // folder setting for chart image save
+        public string folderName = "";
 
         public ModelGUI()
         {
@@ -86,6 +90,10 @@ namespace Model_GUI
 
             // start plotting
             timerChart.Start();
+
+            // application directory
+            folderName = Directory.GetCurrentDirectory();
+            toolStripStatusLabel1.Text = "Dir: " + folderName;
         }
 
         public void Process(Plant plant, double dt_)
@@ -439,8 +447,8 @@ namespace Model_GUI
         private void timer1_Tick_1(object sender, EventArgs e)
         {
             // scale y-axis for the charts
-            Helpers.changeYScala(dataChart, "");
-            Helpers.changeYScala(perturbationChart, "");
+            Helpers.ChangeYScale(dataChart, "");
+            Helpers.ChangeYScale(perturbationChart, "");
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -451,6 +459,12 @@ namespace Model_GUI
         private void button3_Click(object sender, EventArgs e)
         {
             CORRUPT_STRING = "";
+        }
+
+        private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
+        {
+            dataChart.SaveImage(folderName + "\\chart_model_main.png", ChartImageFormat.Png);
+            perturbationChart.SaveImage(folderName + "\\chart_model_disturbance.png", ChartImageFormat.Png);
         }
     }
 }
