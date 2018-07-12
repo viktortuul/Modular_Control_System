@@ -1,15 +1,22 @@
-# Controller
-							 GUI       GUI  THIS PLANT     PLANT CONT
-Start-Process Controller.exe 127.0.0.1,8100,8200,127.0.0.1,8300,8400
+# GUI 				
+Start-Process GUI.exe 
+Start-Process GUI.exe 127.0.0.1 8111
+					  CANAL1 CANAL1
 
+# Controller
+Start-Process Controller.exe 127.0.0.1,8100,8200,127.0.0.1,8300,8400
+Start-Process Controller.exe 127.0.0.1,8100,8200,127.0.0.1,8300,8400,127.0.0.1,8111,127.0.0.1,8222
+							 GUI       GUI  THIS PLANT    PLANT CONT CANAL1   CANAL1 CANAL2   CANAL2
+							 
 # Plant					
-						CONT      CONT THIS PLANT TYPE
 Start-Process Model.exe 127.0.0.1,8400,8300,dwt
+Start-Process Model.exe 127.0.0.1,8400,8300,dwt,127.0.0.1 8222
+						CONT      CONT THIS PLANT_TYPE CANAL2 CANAL2
 
 # Canal (Bernoulli)
-						CANAL PERCENT_PASS
 Start-Process Canal.exe 8111,<prob>
-
+						CANAL PERCENT_PASS
+						
 # Canal (Markov)
-						CANAL P_pd   P_dp
 Start-Process Canal.exe 8111,<prob1>,<prob2>
+						CANAL P_pd   P_dp

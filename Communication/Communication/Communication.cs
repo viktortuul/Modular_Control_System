@@ -13,7 +13,7 @@ namespace Communication
         {
             clientSocket.Connect(IP, port);
         }
-        public void send(string message)
+        public void Send(string message)
         {
             try
             {
@@ -44,11 +44,36 @@ namespace Communication
             listener = new UdpClient(port);
         }
 
-        public void listen()
+        public void Listen()
         {
             byte[] receivedBytes = listener.Receive(ref serverEP);
             last_recieved = Encoding.ASCII.GetString(receivedBytes);
         } 
+    }
+
+    public struct ConnectionParameters
+    {
+        public string IP;
+        public int Port, PortThis;
+
+        public ConnectionParameters(string IP, int Port, int PortThis)
+        {
+            this.IP = IP;
+            this.Port = Port;
+            this.PortThis = PortThis;
+        }
+    }
+
+    public struct AddressEndPoint
+    {
+        public string IP;
+        public int Port;
+
+        public AddressEndPoint(string IP, int Port)
+        {
+            this.IP = IP;
+            this.Port = Port;
+        }
     }
 
 }

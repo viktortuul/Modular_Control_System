@@ -6,17 +6,17 @@ using System.Diagnostics;
 
 namespace GUI
 {
-    public class ControllerConnection
+    public class CommunicationManager
     {
         // main form access
-        FrameGUI Main_form;
+        FrameGUI Main;
 
         // identity parameters
         public string name = "";
         string status = "";
 
         // connection parameters
-        public EndPoint CanalEP;
+        public AddressEndPoint CanalEP;
         public ConnectionParameters ConnectionParameters;
         public bool is_recieving = false;
         public bool is_sending = false;
@@ -37,12 +37,12 @@ namespace GUI
         public PIDparameters ControllerParameters;
 
         // initialize estimator
-        KalmanFilter filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, 0.16 * 2.0, 0.16 * 2.5, 15.0, 100, 6.32);
+        public KalmanFilter filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, 0.16 * 2.5, 0.16 * 2.0, 15.0, 30, 6.5);
 
-        public ControllerConnection(FrameGUI Main_form, string name, PIDparameters ControllerParameters, EndPoint CanalEP, ConnectionParameters ConnectionParameters)
+        public CommunicationManager(FrameGUI Main, string name, PIDparameters ControllerParameters, AddressEndPoint CanalEP, ConnectionParameters ConnectionParameters)
         {
             // main form access
-            this.Main_form = Main_form;
+            this.Main = Main;
 
             // canal address
             this.CanalEP = CanalEP;
@@ -54,27 +54,26 @@ namespace GUI
             // update controller parameters
             this.ControllerParameters = ControllerParameters;
 
+            // specify the endpoint
+            AddressEndPoint EP = new AddressEndPoint();
+            if (Main.usingCanal == true)
+                EP = new AddressEndPoint(CanalEP.IP, CanalEP.Port);
+            else
+                EP = new AddressEndPoint(ConnectionParameters.IP, ConnectionParameters.Port);
+            
             // create a new thread for the listener
-            Thread thread_listener = new Thread(() => Listener(CanalEP.ip, ConnectionParameters.port_this));
+            Thread thread_listener = new Thread(() => Listener(EP.IP, ConnectionParameters.PortThis));
             thread_listener.Start();
 
             // create a new thread for the sender
-            Thread thread_sender = new Thread(() => Sender(CanalEP.ip, CanalEP.port));
+            Thread thread_sender = new Thread(() => Sender(EP.IP, EP.Port));
             thread_sender.Start();
-
-            //// create a new thread for the listener
-            //Thread thread_listener = new Thread(() => Listener(ConnectionParameters.ip_endpoint, ConnectionParameters.port_this));
-            //thread_listener.Start();
-
-            //// create a new thread for the sender
-            //Thread thread_sender = new Thread(() => Sender(ConnectionParameters.ip_endpoint, ConnectionParameters.port_endpoint));
-            //thread_sender.Start();         
         }
 
         private void Listener(string IP, int port)
         {
             // initialize a connection to the controller
-            Server server = new Server(IP, port);
+            Server Listener = new Server(IP, port);
           
             // listen for messages sent from a host to this specific IP:port
             while (true)
@@ -83,11 +82,11 @@ namespace GUI
                 try
                 {
                     // check if a new package is recieved
-                    server.listen();
+                    Listener.Listen();
                     last_recieved_time = DateTime.UtcNow;
 
                     // parse the message which may contain u1, u2, yc1, yc2, yo1, yo2
-                    ParseMessage(server.last_recieved);
+                    ParseMessage(Listener.last_recieved);
 
                     // flag that the GUI is recieving packages from the controller
                     if (is_recieving == false) is_recieving = true;
@@ -101,11 +100,10 @@ namespace GUI
                             if (is_connected_to_process == false) is_connected_to_process = true;
                         }
                     }
-                    Helpers.ManageReferencesKeys(n_contr_states, references, Constants.n_steps);
                 }
                 catch (Exception ex)
                 {
-                    Main_form.log(Convert.ToString(ex));
+                    Main.log(Convert.ToString(ex));
                 }
             }
         }
@@ -113,7 +111,7 @@ namespace GUI
         private void Sender(string IP, int port)
         {
             // initialize a connection to the controller
-            Client client = new Client(IP, port);
+            Client Sender = new Client(IP, port);
 
             // send messages to a host on this specific IP:port
             while (true)
@@ -122,7 +120,7 @@ namespace GUI
 
                 // attatch reference values
                 string message = "";
-                message += Convert.ToString("EP_" + ConnectionParameters.ip_endpoint + ":" + ConnectionParameters.port_endpoint + "#"); // EP FOR CANAL
+                if (Main.usingCanal == true) message += Convert.ToString("EP_" + ConnectionParameters.IP + ":" + ConnectionParameters.Port + "#");
                 message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
 
                 for (int i = 1; i <= n_contr_states; i++)
@@ -135,9 +133,9 @@ namespace GUI
 
                 // if the first character is '#', then remove it
                 if (message.Substring(0, 1) == "#") message = message.Substring(1);
-                
+
                 // send message
-                client.send(message);
+                Sender.Send(message);
 
                 // flag that the GUI is sending packages to the controller
                 if (is_sending == false) is_sending = true;              
@@ -162,30 +160,27 @@ namespace GUI
                 string value = subitem[1];
 
                 // detect the time (don't add it as a separate key)
-                if (key == "time")
-                {
-                    time = value;
-                    continue;
-                }
-
-                // detect corrupt values
-                if (Helpers.isDouble(value) == false)
-                {
-                    Console.WriteLine("Error: corrupt package  <" + key + "_" + value + ">");
-                    continue;
-                }
+                if (key == "time") { time = value; continue; }
 
                 // if the key doesn't exist, add it
                 if (recieved_packages.ContainsKey(key) == false)
                 {
                     recieved_packages.Add(key, new DataContainer(Constants.n_steps));
-                    if (key == "yo1" || key == "yc1")
+
+                    // flag if it has a residual or not
+                    if (key == "yc1")
                     { 
                         recieved_packages[key].hasResidual = true; // flag the state yc1 as having a residual  
                         Helpers.ManageEstimatesKeys(key, estimates, Constants.n_steps);
+                        Helpers.ManageEstimatesKeys("yo1", estimates, Constants.n_steps); // also add an estimate data set
                     }
 
-                    if (key.Contains("yc")) n_contr_states += 1;
+                    // increment  the controlled states counter
+                    if (key.Contains("yc"))
+                    {
+                        n_contr_states += 1;
+                        Helpers.ManageReferencesKeys(n_contr_states, references, Constants.n_steps);
+                    }
                 }
 
                 // store the value
@@ -194,8 +189,8 @@ namespace GUI
 
             // update state estimator and calculate residual
             StateEstimate(time);
-            if (recieved_packages.ContainsKey("yo1")) recieved_packages["yo1"].CalculateResidual(estimates["yo1_hat"].GetLastValue());  
-            if (recieved_packages.ContainsKey("yc1")) recieved_packages["yc1"].CalculateResidual(estimates["yc1_hat"].GetLastValue());
+            //if (recieved_packages.ContainsKey("yo1")) recieved_packages["yo1"].CalculateResidual(estimates["yo1_hat"].GetLastValue());
+            if (recieved_packages.ContainsKey("yc1")) recieved_packages["yc1"].InsertResidual(filter.innovation.ToString());
 
             // add reference time-stamp
             if (references.ContainsKey("r1")) references["r1"].CopyAndPushArray();
@@ -210,8 +205,8 @@ namespace GUI
             double[,] x = filter.Update(z, u);
 
             // store the value
-            estimates["yo1_hat"].InsertData(time, x[0, 0].ToString());
-            estimates["yc1_hat"].InsertData(time, x[1, 0].ToString());
+            if (estimates.ContainsKey("yo1_hat")) estimates["yo1_hat"].InsertData(time, x[0, 0].ToString());
+            if (estimates.ContainsKey("yc1_hat")) estimates["yc1_hat"].InsertData(time, x[1, 0].ToString());
         }
 
         public string GetStatus()

@@ -7,16 +7,23 @@ using System.Diagnostics;
 
 namespace GUI
 {
-    class KalmanFilter
+    public class KalmanFilter
     {
+        // plant parameters
         private double a1, a2, A1, A2, k, g = 981, dt;
-        private double[,] x, G;
-        private double[,] P = new double[,] { { 2, 1 }, { 1, 1 } }; // state covariance
-        private double[,] R = new double[,] { { 2, 1 }, { 1, 1 } }; // process noise covariance
-        private double Q = 3; // measurement noise covariance
-        private double[,] H = new double[1, 2] { {0, 1} }; // measurement model jacobian
-        private double[,] I = new double[,] { { 1, 0 }, { 0, 1 } };
+        private double[,] x, G;                                     // states and jacobian
+        private double[,] P = new double[,] { { 1, 1 }, { 1, 1 } }; // state covariance
+        private double[,] R = new double[,] { { 1, 1 }, { 1, 1 } }; // process noise covariance
+        private double Q = 50;                                      // measurement noise covariance
+        private double[,] H = new double[1, 2] { {0, 1} };          // measurement model jacobian
+        private double[,] I = new double[,] { { 1, 0 }, { 0, 1 } }; // identity matrix
         private DateTime update_last = DateTime.Now;
+
+        // anomaly detector parameters
+        public string security_status = "Low";
+        public double innovation = 0;
+        public double security_metric = 0;
+        private double delta = 0.2;
 
         public KalmanFilter(double[,] x, double a1, double a2, double A1, double A2, double k)
         {
@@ -59,16 +66,26 @@ namespace GUI
             // measurement update
             x[0, 0] += dt * K[0, 0] * (z - x[1, 0]);
             x[1, 0] += dt * K[1, 0] * (z - x[1, 0]);
-            P = Matrix.Multiply(Matrix.Subtract(I, Matrix.Multiply(K, H)), P);
+            innovation = z - x[1, 0];
 
-            //Debug.WriteLine("x1: " + x[0,0] + " x2: " + x[1,0]);
-            //Debug.WriteLine("inno :" + (z - x[1, 0]));
-            //Debug.WriteLine("K: " + K[0, 0] + "; " + K[1, 0]);
+            P = Matrix.Multiply(Matrix.Subtract(I, Matrix.Multiply(K, H)), P);
 
             // update prior time
             update_last = nowTime;
 
+            UpdateAnomalyDetector();
+
             return x;
+        }
+
+        private void UpdateAnomalyDetector()
+        {
+            security_metric += Math.Abs(innovation) - delta;
+            if (security_metric < 0) security_metric = 0;
+
+            if (security_metric < 10) security_status = "High";
+            if (security_metric < 5) security_status = "Medium";
+            if (security_metric < 2) security_status = "Low";
         }
 
         private double[,] get_G(double[,] x)

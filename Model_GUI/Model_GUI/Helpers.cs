@@ -11,6 +11,15 @@ using System.Globalization;
 
 namespace Model_GUI
 {
+    public struct Constants
+    {
+        // time format
+        public const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
+
+        // chart settings
+        public const int n_steps = 5000;
+    }
+
     public class DataContainer
     {
         // store the time:value pair in string arrays
@@ -46,9 +55,6 @@ namespace Model_GUI
 
     public static class Helpers
     {
-        // time format
-        public const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
-
         // drawing
         static Graphics g;
         static Pen pen_b = new Pen(Color.Black, 4);
@@ -70,7 +76,7 @@ namespace Model_GUI
             if (chart_.Series.IndexOf(key) == -1)
             {
                 chart_.Series.Add(key);
-                chart_.Series[key].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+                chart_.Series[key].ChartType = SeriesChartType.Line;
                 chart_.Series[key].BorderWidth = 2;
 
                 switch (key)

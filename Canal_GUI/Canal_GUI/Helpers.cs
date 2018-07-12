@@ -8,12 +8,17 @@ using System.Drawing;
 
 namespace Canal_GUI
 {
-    class Helpers
+    public struct Constants
     {
         // time format
         public const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
 
+        // chart settings
+        public const int n_steps = 5000;
+    }
 
+    static class Helpers
+    {
         public static bool isDouble(string str)
         {
             try
@@ -71,6 +76,30 @@ namespace Canal_GUI
             if (dict.ContainsKey(key) == false) dict.Add(key, new DataContainer(n_steps));
         }
 
+        public static void ManageNumericalUpdowns(MainForm Main)
+        {
+            if (Main.rbBias.Checked == true)
+            {
+                Main.nudTimeConst.Enabled = false;
+                Main.nudFrequency.Enabled = false;
+            }
+            else if (Main.rbTransientIncrease.Checked == true)
+            {
+                Main.nudTimeConst.Enabled = true;
+                Main.nudFrequency.Enabled = false;
+            }
+            else if (Main.rbTransientDecrease.Checked == true)
+            {
+                Main.nudTimeConst.Enabled = true;
+                Main.nudFrequency.Enabled = false;
+            }
+            else if (Main.rbSinusoid.Checked == true)
+            {
+                Main.nudTimeConst.Enabled = false;
+                Main.nudFrequency.Enabled = true;
+            }
+        }
+
         public static void AddChartSeries(string key, object chart)
         {
             Chart chart_ = (Chart)chart;
@@ -79,41 +108,29 @@ namespace Canal_GUI
             if (chart_.Series.IndexOf(key) == -1)
             {
                 chart_.Series.Add(key);
-                chart_.Series[key].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+                chart_.Series[key].ChartType = SeriesChartType.Line;
                 chart_.Series[key].BorderWidth = 2;
 
-                switch (key)
-                {
-                    case "u1":
-                        chart_.Series[key].Color = Color.Orange;
-                        chart_.Series[key].BorderWidth = 1;
-                        break;
-                    case "u2":
-                        chart_.Series[key].Color = Color.Magenta;
-                        chart_.Series[key].BorderWidth = 1;
-                        break;
-                    case "yo1":
-                        chart_.Series[key].Color = Color.Black;
-                        chart_.Series[key].BorderWidth = 2;
-                        break;
-                    case "yo2":
-                        chart_.Series[key].Color = Color.Gray;
-                        chart_.Series[key].BorderWidth = 2;
-                        break;
-                    case "yc1":
-                        chart_.Series[key].Color = Color.Blue;
-                        chart_.Series[key].BorderWidth = 3;
-                        break;
-                    case "yc2":
-                        chart_.Series[key].Color = Color.Green;
-                        chart_.Series[key].BorderWidth = 3;
-                        break;
-                    default:
-                        break;
-                }
+                if (key == "u1") chart_.Series[key].Color = Color.Orange;
+                else if (key == "u2") chart_.Series[key].Color = Color.Magenta;
+                else if (key == "yo1") chart_.Series[key].Color = Color.Black;
+                else if (key == "yo2") chart_.Series[key].Color = Color.Gray;
+                else if (key == "yc1") chart_.Series[key].Color = Color.Blue;
+                else if (key == "yc2") chart_.Series[key].Color = Color.Green;
+
                 // set the x-axis type to DateTime
                 chart_.Series[key].XValueType = ChartValueType.DateTime;
             }
+        }
+
+        public static void InitialChartSettings(MainForm Main)
+        {
+            Main.perturbationChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
+            Main.perturbationChart.ChartAreas["ChartArea1"].AxisY.Title = "";
+            Main.perturbationChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
+            Main.perturbationChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
+            Main.perturbationChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
+            Main.perturbationChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
         }
     }
 

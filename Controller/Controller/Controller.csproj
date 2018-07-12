@@ -48,7 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataContainer.cs" />
-    <Compile Include="MainClass.cs" />
+    <Compile Include="Controller.cs" />
+    <Compile Include="Helpers.cs" />
+    <Compile Include="PID.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

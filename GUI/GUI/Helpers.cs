@@ -32,89 +32,6 @@ namespace GUI
         }
     }
 
-    public struct ConnectionParameters
-    {
-        public string ip_endpoint;
-        public int port_this, port_endpoint;
-
-        public ConnectionParameters(int port_this, string ip_endpoint, int port_endpoint)
-        {
-            this.ip_endpoint = ip_endpoint;
-            this.port_this = port_this;
-            this.port_endpoint = port_endpoint;
-        }
-    }
-
-    public struct EndPoint
-    {
-        public string ip;
-        public int port;
-
-        public EndPoint(string ip, int port)
-        {
-            this.ip = ip;
-            this.port = port;
-        }
-    }
-
-    public class DataContainer
-    {
-        // time format
-        const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
-
-        // store the time:value pair in string arrays
-        public string[] time;
-        public string[] value;
-        public string[] residual;
-
-        // residual setting
-        public bool hasResidual = false;
-
-        // constructor
-        public DataContainer(int size)
-        {
-            time = new string[size];
-            value = new string[size];
-            residual = new string[size];
-        }
-
-        // instert a new time:value pair data point
-        public void InsertData(string time, string value)
-        {
-            Array.Copy(this.time, 1, this.time, 0, this.time.Length - 1);
-            this.time[this.time.Length - 1] = time;
-
-            Array.Copy(this.value, 1, this.value, 0, this.value.Length - 1);
-            this.value[this.value.Length - 1] = value;
-        }
-
-        // calculate residual
-        public void CalculateResidual(string value)
-        {
-            double resid = Convert.ToDouble(GetLastValue()) - Convert.ToDouble(value);
-            Array.Copy(residual, 1, residual, 0, residual.Length - 1);
-            residual[residual.Length - 1] = resid.ToString();
-        }
-
-        public string GetLastTime()
-        {
-            return time[time.Length - 1];
-        }
-        public string GetLastValue()
-        {
-            return value[value.Length - 1];
-        }
-
-        public void CopyAndPushArray()
-        {
-            Array.Copy(time, 1, time, 0, time.Length - 1);
-            time[time.Length - 1] = DateTime.UtcNow.ToString(FMT);
-
-            Array.Copy(value, 1, value, 0, value.Length - 1);
-            value[value.Length - 1] = value[value.Length - 2];
-        }
-    }
-
     public static class Helpers
     {
         // drawing settings
@@ -151,7 +68,7 @@ namespace GUI
         {
             // add estimate keys
             estimates.Add(key + "_hat", new DataContainer(n_steps)); 
-            estimates[key + "_hat"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), "0");
+            //estimates[key + "_hat"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), "0");
         }
 
         public static bool isDouble(String str)
@@ -161,10 +78,7 @@ namespace GUI
                 Double.Parse(str);
                 return true;
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
         }
 
         public static void AddChartSeries(string key, object chart)
@@ -175,8 +89,8 @@ namespace GUI
             if (chart_.Series.IndexOf(key) == -1)
             {
                 chart_.Series.Add(key);
-                chart_.Series[key].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-                chart_.Series[key].BorderWidth = 2;
+                chart_.Series[key].ChartType = SeriesChartType.Line;
+                chart_.Series[key].BorderWidth = 1;
 
                 switch (key)
                 {
@@ -200,12 +114,20 @@ namespace GUI
                         chart_.Series[key].Color = Color.Black;
                         chart_.Series[key].BorderWidth = 2;
                         break;
+                    case "yo1_hat":
+                        chart_.Series[key].Color = Color.Black;
+                        chart_.Series[key].BorderWidth = 2;
+                        break;
                     case "yo2":
                         chart_.Series[key].Color = Color.Gray;
                         chart_.Series[key].BorderWidth = 2;
                         break;
                     case "yc1":
-                        chart_.Series[key].Color = Color.Blue;
+                        chart_.Series[key].Color = Color.SteelBlue;
+                        chart_.Series[key].BorderWidth = 2;
+                        break;
+                    case "yc1_hat":
+                        chart_.Series[key].Color = Color.MediumBlue;
                         chart_.Series[key].BorderWidth = 3;
                         break;
                     case "yc2":
@@ -254,7 +176,7 @@ namespace GUI
             }
         }
 
-        public static void UpdateTree(FrameGUI GUI, ControllerConnection controller)
+        public static void UpdateTree(FrameGUI GUI, CommunicationManager controller)
         {
             // update tree
             GUI.treeViewControllers.Nodes[controller.name].Text = controller.name + " (" + controller.GetStatus() + ")";
@@ -269,7 +191,7 @@ namespace GUI
             chart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
         }
 
-        public static void UpdateTimeLabels(FrameGUI GUI, ControllerConnection connection, string FMT)
+        public static void UpdateTimeLabels(FrameGUI GUI, CommunicationManager connection, string FMT)
         {
             try
             {
@@ -283,7 +205,7 @@ namespace GUI
             catch { }
         }
 
-        public static void DrawTanks(FrameGUI GUI, ControllerConnection connection)
+        public static void DrawTanks(FrameGUI GUI, CommunicationManager connection)
         {
             g = Graphics.FromImage(bm);
             g.Clear(Color.White);
@@ -294,10 +216,14 @@ namespace GUI
             double max_height_r = 25; // real max height [cm]
             double cm2pix = max_height_p / max_height_r;
 
+            // if there are no estimates, there is nothing to animate 
+            if (connection.estimates.ContainsKey("yo1_hat") == false) return;
+            if (connection.estimates.ContainsKey("yc1_hat") == false) return;
+
             // extract signals
             int u = Convert.ToInt16(Convert.ToDouble(connection.recieved_packages["u1"].GetLastValue()));
-            int y1 = Convert.ToInt16(cm2pix * Convert.ToDouble(connection.recieved_packages["yo1"].GetLastValue()));
-            int y2 = Convert.ToInt16(cm2pix * Convert.ToDouble(connection.recieved_packages["yc1"].GetLastValue()));
+            int y1 = Convert.ToInt16(cm2pix * Convert.ToDouble(connection.estimates["yo1_hat"].GetLastValue()));
+            int y2 = Convert.ToInt16(cm2pix * Convert.ToDouble(connection.estimates["yc1_hat"].GetLastValue()));
 
             int reference = 0;
 
@@ -404,18 +330,18 @@ namespace GUI
                 }
             }
 
-            if (points_exist == true)
+            if (points_exist == true && (max > min))
             {
                 if (verbose == "data_chart")
                 {
-                    tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Ceiling(max);
-                    tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Floor(min);
+                    tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Max(Math.Ceiling(max), 0);
+                    tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Min(Math.Floor(min), 0);
                     tmpChart.ChartAreas["ChartArea1"].AxisY.Interval = 1;
                 }
                 else if (verbose == "residual_chart")
                 {
-                    tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Ceiling(max * 10) / 10;
-                    tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Floor(min * 10) / 10;
+                    tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Max(Math.Ceiling(max * 10) / 10, 0);
+                    tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Min(Math.Floor(min * 10) / 10, 0);
                 }
             }
         }

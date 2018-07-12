@@ -50,7 +50,7 @@ namespace Canal
                 Thread.Sleep(1);
                 try
                 {
-                    Listener.listen();
+                    Listener.Listen();
                     ParseMessage(Listener.last_recieved);
                 }
                 catch (Exception ex)
@@ -101,7 +101,7 @@ namespace Canal
 
             if (pass == true)
             {
-                Sender.send(message);
+                Sender.Send(message);
                 Console.WriteLine("Pass: " + message);
             }
             else

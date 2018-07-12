@@ -18,7 +18,6 @@ namespace Model_GUI
         string CORRUPT_STRING = "";
 
         // chart settings
-        public static int n_steps = 100;
         public int chart_history = 60;
 
         // data containers (dictionaries)
@@ -37,12 +36,13 @@ namespace Model_GUI
         // initialize an empty plant class
         Plant plant = new Plant();
 
-        // EP addresses
-        static string IP_controller;
-        static int port_controller_endpoint;
-
         // folder setting for chart image save
         public string folderName = "";
+
+        // canal flag
+        public bool using_canal = false;
+        ConnectionParameters EP_Controller = new ConnectionParameters();
+        AddressEndPoint EP = new AddressEndPoint();
 
         public ModelGUI()
         {
@@ -51,18 +51,21 @@ namespace Model_GUI
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            // string[] args = Environment.GetCommandLineArgs();
-            string[] args = { "127.0.0.1", "8400", "8300", "dwt" };
+            string[] args = Environment.GetCommandLineArgs();
 
-            // parse the command line arguments
-            IP_controller = args[0];
-            port_controller_endpoint = Convert.ToInt16(args[1]);
-            int port_plant_recieve = Convert.ToInt16(args[2]);
-            string model_type = args[3];
+            EP_Controller = new ConnectionParameters(args[1], Convert.ToInt16(args[2]), Convert.ToInt16(args[3]));
+            string model_type = args[4];
 
-            // CANAL PARAMS
-            string IP_controller_canal = "127.0.0.1";
-            int port_controller_canal = 8222;
+            if (args.Length == 7)
+            {
+                EP = new AddressEndPoint(args[5], Convert.ToInt16(args[6]));
+                using_canal = true;
+            }
+            else if (args.Length == 5)
+            {
+                EP = new AddressEndPoint(EP_Controller.IP, EP_Controller.Port);
+            }
+
 
             // store the model in a container which generically send and access values 
             switch (model_type)
@@ -73,11 +76,11 @@ namespace Model_GUI
             }
 
             // create a thread for listening on the controller
-            Thread thread_listener = new Thread(() => Listener(IP_controller_canal, port_plant_recieve, plant));
+            Thread thread_listener = new Thread(() => Listener(EP.IP, EP_Controller.PortThis, plant));
             thread_listener.Start();
 
             // create a thread for communication with the controller
-            Thread thread_sender = new Thread(() => Sender(IP_controller_canal, port_controller_canal, plant));
+            Thread thread_sender = new Thread(() => Sender(EP.IP, EP.Port, plant));
             thread_sender.Start();
 
             // create a thread for the simulation
@@ -120,7 +123,7 @@ namespace Model_GUI
                 Thread.Sleep(5);
                 try
                 {
-                    listener.listen();
+                    listener.Listen();
                     ParseMessage(listener.last_recieved);
 
                     // parse dictionary to proper input
@@ -153,19 +156,19 @@ namespace Model_GUI
 
                 // send measurements y      
                 string message = "";
-                message += Convert.ToString("EP_" + IP_controller + ":" + port_controller_endpoint + "#"); // EP FOR CANAL
-                message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Helpers.FMT) + "#");
+                if (using_canal == true) message += Convert.ToString("EP_" + EP_Controller.IP + ":" + EP_Controller.Port + "#");
+                message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
 
                 // observed states
-                for (int i = 0; i < plant.get_yo().Length; i++)
-                    message += "yo" + (i + 1) + "_" + plant.get_yo()[i].ToString() + "#";      
+                //for (int i = 0; i < plant.get_yo().Length; i++)
+                //    message += "yo" + (i + 1) + "_" + plant.get_yo()[i].ToString() + "#";      
 
                 // controlled states
                 for (int i = 0; i < plant.get_yc().Length; i++)
                     message += "yc" + (i + 1) + "_" + (plant.get_yc()[i] + Noise.value[i + 1] + CORRUPT_STRING).ToString() + "#"; // WITH MEASUREMENT NOISE
 
                 message = message.Substring(0, message.LastIndexOf('#')); // remove the redundant delimiter
-                sender.send(message);
+                sender.Send(message);
                 //Console.WriteLine("sent: " + message);
             }
         }
@@ -251,12 +254,12 @@ namespace Model_GUI
                 int i = dict[key].time.Length - 1;
                 if (dict[key].time[i] != null)
                 {
-                    DateTime time = DateTime.ParseExact(dict[key].time[i], Helpers.FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+                    DateTime time = DateTime.ParseExact(dict[key].time[i], Constants.FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
                     chart_.Series[key].Points.AddXY(time.ToOADate(), Convert.ToDouble(dict[key].value[i]));
                 }
 
                 // remove old data points
-                if (chart_.Series[key].Points.Count > 1000 * 5) chart_.Series[key].Points.RemoveAt(0);
+                if (chart_.Series[key].Points.Count > Constants.n_steps) chart_.Series[key].Points.RemoveAt(0);
             }
         }
 
@@ -265,36 +268,36 @@ namespace Model_GUI
             // observed states
             for (int i = 0; i < plant.get_yo().Length; i++)
             {
-                Helpers.CheckKey(states, "yo" + (i + 1), n_steps);
-                states["yo" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Helpers.FMT), plant.get_yo()[i].ToString());
+                Helpers.CheckKey(states, "yo" + (i + 1), Constants.n_steps);
+                states["yo" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), plant.get_yo()[i].ToString());
             }
 
             // controlled states
             for (int i = 0; i < plant.get_yc().Length; i++)
             {
-                Helpers.CheckKey(states, "yc" + (i + 1), n_steps);
-                states["yc" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Helpers.FMT), plant.get_yc()[i].ToString());
+                Helpers.CheckKey(states, "yc" + (i + 1), Constants.n_steps);
+                states["yc" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), plant.get_yc()[i].ToString());
             }
 
             // disturbances
             for (int i = 0; i < Disturbance.value.Length; i++)
             {
-                Helpers.CheckKey(perturbations, "dist." + (i + 1), n_steps);
-                perturbations["dist." + (i + 1)].InsertData(DateTime.UtcNow.ToString(Helpers.FMT), Disturbance.value[i].ToString());
+                Helpers.CheckKey(perturbations, "dist." + (i + 1), Constants.n_steps);
+                perturbations["dist." + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Disturbance.value[i].ToString());
             }
 
             // noise
             for (int i = 0; i < Noise.value.Length; i++)
             {
-                Helpers.CheckKey(perturbations, "noise" + (i + 1), n_steps);
-                perturbations["noise" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Helpers.FMT), Noise.value[i].ToString());
+                Helpers.CheckKey(perturbations, "noise" + (i + 1), Constants.n_steps);
+                perturbations["noise" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Noise.value[i].ToString());
             }
 
             // control
             for (int i = 0; i < Control.value.Length; i++)
             {
-                Helpers.CheckKey(perturbations, "control" + (i + 1), n_steps);
-                perturbations["control" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Helpers.FMT), Control.value[i].ToString());
+                Helpers.CheckKey(perturbations, "control" + (i + 1), Constants.n_steps);
+                perturbations["control" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Control.value[i].ToString());
             }
         }
 
@@ -345,14 +348,14 @@ namespace Model_GUI
         {
             // chart settings
             dataChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
-            dataChart.ChartAreas["ChartArea1"].AxisY.Title = "Magnitude";
+            dataChart.ChartAreas["ChartArea1"].AxisY.Title = "";
             dataChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
             dataChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
             dataChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
             dataChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
 
             perturbationChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
-            perturbationChart.ChartAreas["ChartArea1"].AxisY.Title = "Magnitude";
+            perturbationChart.ChartAreas["ChartArea1"].AxisY.Title = "";
             perturbationChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
             perturbationChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
             perturbationChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;

@@ -141,15 +141,15 @@ namespace PhysicalProcesses
         double g = 9.81 * 100;
 
         // operating actuator proportional constants [cm^3/(Vs)]
-        double k = 6.32;
+        double k = 6.5;
 
         // outlet areas [cm^2]
-        double a1 = 0.16 * 2;
-        double a2 = 0.16 * 2.5;
+        double a1 = 0.16 * 2.5;
+        double a2 = 0.16 * 2;
 
         // cross section areas [cm^2]
         double A1 = 15.0;
-        double A2 = 100.0;
+        double A2 = 30.0;
 
         double dt;
 
@@ -198,7 +198,7 @@ namespace PhysicalProcesses
         {
             // apply measurement noise
             var r = new GaussianRandom();
-            double n = r.NextGaussian(0, 0.02);
+            double n = r.NextGaussian(0, 0.1);
             return new double[] { h1 + n };
         }
 
@@ -206,7 +206,7 @@ namespace PhysicalProcesses
         {
             // apply measurement noise
             var r = new GaussianRandom();
-            double n = r.NextGaussian(0, 0.02);
+            double n = r.NextGaussian(0, 0.1);
             return new double[] { h2 + n };
         }
 
@@ -313,8 +313,8 @@ namespace PhysicalProcesses
         {
             // apply measurement noise
             var r = new GaussianRandom();
-            double n1 = r.NextGaussian(0, 0.02);
-            double n2 = r.NextGaussian(0, 0.02);
+            double n1 = r.NextGaussian(0, 0.1);
+            double n2 = r.NextGaussian(0, 0.1);
             return new double[] { h11 + n1, h12 + n2 };
         }
 
@@ -322,8 +322,8 @@ namespace PhysicalProcesses
         {
             // apply measurement noise
             var r = new GaussianRandom();
-            double n1 = r.NextGaussian(0, 0.02);
-            double n2 = r.NextGaussian(0, 0.02);
+            double n1 = r.NextGaussian(0, 0.1);
+            double n2 = r.NextGaussian(0, 0.1);
             return new double[] { h21 + n1, h22 + n2 };
         }
 
@@ -402,9 +402,9 @@ namespace PhysicalProcesses
         {
             // apply measurement noise
             var r = new GaussianRandom();
-            double n1 = r.NextGaussian(0, 0.02);
-            double n2 = r.NextGaussian(0, 0.02);
-            double n3 = r.NextGaussian(0, 0.02);
+            double n1 = r.NextGaussian(0, 0.1);
+            double n2 = r.NextGaussian(0, 0.1);
+            double n3 = r.NextGaussian(0, 0.1);
             return new double[] { 0 };
             //return new double[] { x + n1, x_d + n2 , phi_d + n3};
         }
@@ -413,7 +413,7 @@ namespace PhysicalProcesses
         {
             // apply measurement noise
             var r = new GaussianRandom();
-            double n1 = r.NextGaussian(0, 0.02);
+            double n1 = r.NextGaussian(0, 0.1);
             return new double[] { phi + n1 };
         }
 
@@ -491,8 +491,8 @@ namespace PhysicalProcesses
         {
             // apply measurement noise
             var r = new GaussianRandom();
-            double n1 = r.NextGaussian(0, 0.02);
-            double n2 = r.NextGaussian(0, 0.02);
+            double n1 = r.NextGaussian(0, 0.1);
+            double n2 = r.NextGaussian(0, 0.1);
             return new double[] { 0 };
             //return new double[] { x_d + n2 , phi_d + n3};
         }
@@ -501,8 +501,8 @@ namespace PhysicalProcesses
         {
             // apply measurement noise
             var r = new GaussianRandom();
-            double n1 = r.NextGaussian(0, 0.02);
-            double n2 = r.NextGaussian(0, 0.02);
+            double n1 = r.NextGaussian(0, 0.1);
+            double n2 = r.NextGaussian(0, 0.1);
             return new double[] { x + n1, phi + n2 };
         }
 

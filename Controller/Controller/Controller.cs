@@ -7,7 +7,7 @@ using System.Globalization;
 
 namespace Controller
 {
-    public class MainClass
+    public class Controller
     {
         // time format
         const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
@@ -23,78 +23,66 @@ namespace Controller
         private static List<PID> PIDList = new List<PID>();
 
         // state variables
-        static bool is_listening_on_plant = false;
+        static bool listening_on_plant = false;
 
-        // EP addresses
-        static string IP_GUI;
-        static int port_GUI_endpoint;
-        static string IP_plant;
-        static int port_plant_endpoint;
+        // canal flag
+        static public bool usingCanal = false;
+        static ConnectionParameters connGUI = new ConnectionParameters();
+        static ConnectionParameters connPlant = new ConnectionParameters();
+        static AddressEndPoint GUI_EP = new AddressEndPoint();
+        static AddressEndPoint Plant_EP = new AddressEndPoint();
 
         static void Main(string[] args)
         {
-            // parse the command line arguments
-            IP_GUI = args[0];
-            port_GUI_endpoint = Convert.ToInt16(args[1]);
-            int port_GUI_recieve = Convert.ToInt16(args[2]);
-            IP_plant = args[3];
-            port_plant_endpoint = Convert.ToInt16(args[4]);
-            int port_plant_recieve = Convert.ToInt16(args[5]);
-
             Console.WriteLine("Controller");
 
-            // CANAL PARAMS
-            string IP_GUI_canal = "127.0.0.1";
-            int port_GUI_canal = 8111;
-            string IP_plant_canal = "127.0.0.1";
-            int port_plant_canal = 8222;
+            // parse the command line arguments
+            connGUI = new ConnectionParameters(args[0], Convert.ToInt16(args[1]), Convert.ToInt16(args[2]));
+            connPlant = new ConnectionParameters(args[3], Convert.ToInt16(args[4]), Convert.ToInt16(args[5]));
+
+            Console.WriteLine(args.Length.ToString());
+            if (args.Length == 6)
+            {
+                GUI_EP = new AddressEndPoint(connGUI.IP, connGUI.Port);
+                Plant_EP = new AddressEndPoint(connPlant.IP, connPlant.Port);
+            }
+            else if (args.Length == 10)
+            {
+                GUI_EP = new AddressEndPoint(args[6], Convert.ToInt16(args[7]));
+                Plant_EP = new AddressEndPoint(args[8], Convert.ToInt16(args[9]));
+                usingCanal = true;
+            }
 
             // create a thread for sending to the GUI
-            Thread thread_send_GUI = new Thread(() => SendGUI(IP_GUI_canal, port_GUI_canal, PIDList));
+            Thread thread_send_GUI = new Thread(() => SendGUI(GUI_EP.IP, GUI_EP.Port, PIDList));
             thread_send_GUI.Start();
 
             // create a thread for listening on the GUI
-            Thread thread_listen_GUI = new Thread(() => ListenGUI(IP_GUI_canal, port_GUI_recieve, PIDList));
+            Thread thread_listen_GUI = new Thread(() => ListenGUI(GUI_EP.IP, connGUI.PortThis, PIDList));
             thread_listen_GUI.Start();
 
             // create a thread for sending to the plant
-            Thread thread_send_plant = new Thread(() => SendPlant(IP_plant_canal, port_plant_canal, PIDList));
+            Thread thread_send_plant = new Thread(() => SendPlant(Plant_EP.IP, Plant_EP.Port, PIDList));
             thread_send_plant.Start();
 
             // create a thread for listening on the plant
-            Thread thread_listen_plant = new Thread(() => ListenPlant(IP_plant_canal, port_plant_recieve, PIDList));
+            Thread thread_listen_plant = new Thread(() => ListenPlant(Plant_EP.IP, connPlant.PortThis, PIDList));
             thread_listen_plant.Start();
-
-            //// create a thread for sending to the GUI
-            //Thread thread_send_GUI = new Thread(() => SendGUI(IP_GUI, port_GUI_endpoint, PIDList));
-            //thread_send_GUI.Start();
-
-            //// create a thread for listening on the GUI
-            //Thread thread_listen_GUI = new Thread(() => ListenGUI(IP_GUI, port_GUI_recieve, PIDList));
-            //thread_listen_GUI.Start();
-
-            //// create a thread for sending to the plant
-            //Thread thread_send_plant = new Thread(() => SendPlant(IP_plant, port_plant_endpoint, PIDList));
-            //thread_send_plant.Start();
-
-            //// create a thread for listening on the plant
-            //Thread thread_listen_plant = new Thread(() => ListenPlant(IP_plant, port_plant_recieve, PIDList));
-            //thread_listen_plant.Start();
         }
 
         public static void SendGUI(string IP, int port, List<PID> PIDList)
         {
             // initialize a connection to the GUI
-            Client Sender = new Client(IP, port);
+            Client sender = new Client(IP, port);
 
             while (true)
             {
                 Thread.Sleep(100);
-                if (is_listening_on_plant == true)
+                if (listening_on_plant == true)
                 {
                     // send time, u, and y
                     string message = ConstructMessageGUI(PIDList);
-                    Sender.send(message);
+                    sender.Send(message);
                 }
             }
         }
@@ -102,7 +90,7 @@ namespace Controller
         public static void ListenGUI(string IP, int port, List<PID> PIDList)
         {
             // initialize a connection to the GUI
-            Server Listener = new Server(IP, port);
+            Server listener = new Server(IP, port);
 
             while (true)
             {
@@ -110,8 +98,8 @@ namespace Controller
                 // send y and u (and recieve data)
                 try
                 {
-                    Listener.listen();
-                    ParseMessage(Listener.last_recieved);
+                    listener.Listen();
+                    ParseMessage(listener.last_recieved);
 
                     // compute the new control signal for each controller (with updated r)
                     ComputeControlSignals(PIDList, "from_GUI");
@@ -132,13 +120,11 @@ namespace Controller
             {
                 Thread.Sleep(50);
 
-                if (is_listening_on_plant == true)
+                if (listening_on_plant == true)
                 {
                     // send u to the plant
                     string message = ConstructMessagePlant(PIDList);
-
-                    Sender.send(message);
-                    //Console.WriteLine("sent plant: " + message);
+                    Sender.Send(message);
                 }
             }
         }
@@ -146,20 +132,20 @@ namespace Controller
         public static void ListenPlant(string IP, int port, List<PID> PIDList)
         {
             // initialize a connection to the plant
-            Server Listerner = new Server(IP, port);
+            Server listener = new Server(IP, port);
 
             while (true)
             {
                 Thread.Sleep(5);
                 try
                 {
-                    Listerner.listen();
-                    ParseMessage(Listerner.last_recieved);
+                    listener.Listen();
+                    ParseMessage(listener.last_recieved);
 
                     // compute the new control signal for each controller
                     ComputeControlSignals(PIDList, "from_Plant");
 
-                    is_listening_on_plant = true;
+                    listening_on_plant = true;
                 }
                 catch (Exception ex)
                 {
@@ -171,7 +157,7 @@ namespace Controller
         public static string ConstructMessageGUI(List<PID> PIDList)
         {
             string message = "";
-            message += Convert.ToString("EP_" + IP_GUI + ":" + port_GUI_endpoint + "#"); // EP FOR CANAL
+            if (usingCanal == true) message += Convert.ToString("EP_" + connGUI.IP + ":" + connGUI.Port + "#");
             message += Convert.ToString("time_" + DateTime.UtcNow.ToString(FMT));
 
             // append control signals
@@ -197,7 +183,7 @@ namespace Controller
         public static string ConstructMessagePlant(List<PID> PIDList)
         {
             string message = "";
-            message += Convert.ToString("EP_" + IP_plant + ":" + port_plant_endpoint); // EP FOR CANAL
+            if (usingCanal == true) message += Convert.ToString("EP_" + connPlant.IP + ":" + connPlant.Port);
 
             int index = 0;
             foreach (PID controller in PIDList)
@@ -264,10 +250,7 @@ namespace Controller
                 Double.Parse(str);
                 return true;
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
         }
 
         private static void ComputeControlSignals(List<PID> PIDList, string mode)
@@ -289,7 +272,7 @@ namespace Controller
                     double measurement = Convert.ToDouble(recieved_packages["yc" + index].GetLastValue());
 
                     // update control signal
-                    if (is_listening_on_plant) controller.ComputeControlSignal(reference, measurement);
+                    if (listening_on_plant) controller.ComputeControlSignal(reference, measurement);
 
                     // update controller parameters
                     if (mode == "from_GUI") controller.UpdateParameters(Convert.ToDouble(recieved_packages["Kp"].GetLastValue()),
@@ -298,101 +281,6 @@ namespace Controller
                 }
 
             }
-        }
-    }
-
-
-    public struct PIDparameters
-    {
-        public double Kp, Ki, Kd;
-        
-        public PIDparameters(double Kp, double Ki, double Kd)
-        {
-            this.Kp = Kp;
-            this.Ki = Ki;
-            this.Kd = Kd;
-        }
-    }
-
-
-    public class PID
-    {
-        // anti wind-up
-        private bool anti_wind_up = true;
-
-        // flags
-        private bool parameters_assigned = false;
-
-        // states
-        private double I = 0; // error integral
-        private double e = 0, ep = 0; // current and prior error
-        private double de = 0; // error derivative
-        private double de_temp = 0; // error derivative holder
-        private double u = 0; // control signal
-        private DateTime update_last = DateTime.Now; // time stamp of prior execution
-
-        // controller coefficients
-        private double Kp; // proportional
-        private double Ki; // integral
-        private double Kd; // derivative
-
-        // controller limitations
-        private double u_max = 7.5;
-        private double u_min = -7.5*0;
-
-        // constructor
-        public PID() { }
-
-        public void ComputeControlSignal(double r, double y)
-        {
-            // calculate the dime duration from the last update
-            DateTime nowTime = DateTime.Now;
-
-            if (parameters_assigned)
-            {
-                // calculte error
-                e = r - y;
-
-                if (update_last != null)
-                {
-                    double dt = (nowTime - update_last).TotalSeconds;
-
-                    //integrator with anti wind-up (only add intergral action if the control signal is not saturated)
-                    if (anti_wind_up == true)
-                        if (u > u_min && u < u_max) I += dt * e;
-                    else
-                        I += dt * e;
-
-                    // derivator (with low pass)
-                    de = 1 / (dt + 1) * y - de_temp;
-                    de_temp = (y - de) / (dt + 1);
-
-                    // control signal
-                    u = Kp * e + Ki * I - Kd * de;
-
-                    ep = e; // update prior error
-
-                    // saturation
-                    if (u > u_max) u = u_max;
-                    if (u < u_min) u = u_min;
-                }
-            }
-            
-            // update prior time
-            update_last = nowTime;
-        }
-
-        public void UpdateParameters(double Kp, double Ki, double Kd)
-        {
-            this.Kp = Kp;
-            this.Ki = Ki;
-            this.Kd = Kd;
-            parameters_assigned = true;
-        }
-
-        public double get_u()
-        {
-            return u;
         }
     }
 }

@@ -16,12 +16,18 @@ using System.IO;
 
 namespace Canal_GUI
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
-        bool thread_started = false; 
-
-        // attack model
+        // attack model container
         public Dictionary<string, Attack> attack_container = new Dictionary<string, Attack>();
+        string selected_tag = "";
+
+        // data containers (dictionaries)
+        public Dictionary<string, DataContainer> perturbations = new Dictionary<string, DataContainer>();
+
+        // chart settings
+        public static int n_steps = 100;
+        public int chart_history = 60;
 
         // drop out models
         Bernoulli Bernoulli;
@@ -33,30 +39,27 @@ namespace Canal_GUI
 
         // initialize thread 
         Thread thread_listener;
-
-        // chart settings
-        public static int n_steps = 100;
-        public int chart_history = 60;
-
-        // data containers (dictionaries)
-        public Dictionary<string, DataContainer> perturbations = new Dictionary<string, DataContainer>();
+        bool thread_started = false;
 
         // folder setting for chart image save
         public string folderName = "";
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            // read command line arguments
             string[] args = Environment.GetCommandLineArgs();
             port_recieve = Convert.ToInt16(args[1]);
 
+            // start listening on corresponding port
             tbCanalPort.Text = port_recieve.ToString();
             StartListener();
 
+            // choose drop out model depending on the number of arguments
             if (args.Length == 3)
             {
                 nudBernoulliPass.Value = Convert.ToInt16(args[2]);
@@ -68,22 +71,22 @@ namespace Canal_GUI
                 nudStayDrop.Value = Convert.ToInt16(args[3]);
                 rbMarkov.Checked = true;
             }
-            UpdateDroupOutModel();
 
-            timerChart.Start();
-            initialSettings();
+            UpdateDroupOutModel();
 
             // application directory
             folderName = Directory.GetCurrentDirectory();
-            toolStripStatusLabel1.Text = "Dir: " + folderName;
+            toolStripLabel.Text = "Dir: " + folderName;
 
-            ManageNumericalUpdowns();
+            Helpers.InitialChartSettings(this);
+            Helpers.ManageNumericalUpdowns(this);
+
+            timerChart.Start();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnAddAttackModel_Click(object sender, EventArgs e)
         {
             string target_tag = tbTargetTag.Text;
-
 
             // initalize the attack object
             string type = "";
@@ -100,44 +103,19 @@ namespace Canal_GUI
 
             if (attack_container.ContainsKey(target_tag) || target_tag == "") // update attack settings
             {
-                string tag = checkedListBox1.SelectedItem.ToString();
-                attack_container[tag].UpdateModel(tbTargetIP.Text, tbTargetPort.Text, allIPs, allPorts, type, duration, amplitude, time_constant, frequency);
+                attack_container[selected_tag].UpdateModel(tbTargetIP.Text, tbTargetPort.Text, allIPs, allPorts, type, duration, amplitude, time_constant, frequency);
             }
             else // new attack model
             {
                 Attack attack = new Attack(tbTargetIP.Text, tbTargetPort.Text, allIPs, allPorts, tbTargetTag.Text, type, duration, amplitude, time_constant, frequency);
                 attack_container.Add(target_tag, attack);
-                checkedListBox1.Items.Add(target_tag);
-                checkedListBox1.SelectedIndex = checkedListBox1.Items.Count - 1;
+                clbAttackModels.Items.Add(target_tag);
+                clbAttackModels.SelectedIndex = clbAttackModels.Items.Count - 1;
+                selected_tag = clbAttackModels.SelectedItem.ToString();
                 Helpers.CheckKey(perturbations, target_tag, n_steps);
             }
 
             tbTargetTag.Text = "";
-        }
-
-        private void UpdateDroupOutModel()
-        {
-            // update dropout models
-            double treshold = Convert.ToDouble(nudBernoulliPass.Value);
-            Bernoulli = new Bernoulli(treshold / 100);
-
-            double P_pd = Convert.ToDouble(100 - nudStayPass.Value);
-            double P_dp = Convert.ToDouble(100 - nudStayDrop.Value);
-            Markov = new MarkovChain(1, P_pd / 100, P_dp / 100);
-
-            if (rbBernoulli.Checked == true) DropOutModel = Bernoulli;
-            if (rbMarkov.Checked == true) DropOutModel = Markov;
-        }
-
-
-        private void button1_Click_1(object sender, EventArgs e)
-        {
-            UpdateDroupOutModel();
-        }
-
-        private void button1_Click_2(object sender, EventArgs e)
-        {
-            StartListener();
         }
 
         public void StartListener()
@@ -164,7 +142,7 @@ namespace Canal_GUI
                 Thread.Sleep(1);
                 try
                 {
-                    Listener.listen();
+                    Listener.Listen();
                     ParseMessage(Listener.last_recieved);
                 }
                 catch (Exception ex)
@@ -201,7 +179,6 @@ namespace Canal_GUI
                     string[] EP = value.Split(':');
                     EP_IP = EP[0];
                     EP_Port = EP[1];
-                    //string submessage = message.Substring((key + "_" + EP).Length); // remove the EP part
                 }
                 else
                 {
@@ -209,7 +186,6 @@ namespace Canal_GUI
                     if (attack_container.ContainsKey(key) && Helpers.isDouble(value) == true)
                         value = attack_container[key].IntegrityAttack(EP_IP, EP_Port, key, value);
 
-                    //if (attack != null && Helpers.isDouble(value) == true) value = attack.IntegrityAttack(EP_IP, EP_Port, key, value);
                     reconstruction += "#" + key + "_" + value;
                 }
             }
@@ -223,38 +199,71 @@ namespace Canal_GUI
             // initialize a sender
             Client Sender = new Client(IP, port);
 
-            // drop out
+            // check if pass or drop
             MethodInfo isPass = DropOutModel.GetType().GetMethod("isPass");
             bool pass = (bool)isPass.Invoke(DropOutModel, null);
 
-            if (pass == true)
+            if (pass == true) Sender.Send(message);
+        }
+
+        private void UpdateDroupOutModel()
+        {
+            // update dropout models
+            double treshold = Convert.ToDouble(nudBernoulliPass.Value);
+            Bernoulli = new Bernoulli(treshold / 100);
+
+            double P_pd = Convert.ToDouble(100 - nudStayPass.Value);
+            double P_dp = Convert.ToDouble(100 - nudStayDrop.Value);
+            Markov = new MarkovChain(1, P_pd / 100, P_dp / 100);
+
+            // assign beronoulli or markov as the current drop out model
+            if (rbBernoulli.Checked == true) DropOutModel = Bernoulli;
+            if (rbMarkov.Checked == true) DropOutModel = Markov;
+        }
+
+        private void btnAttack_Click(object sender, EventArgs e)
+        {
+            foreach (string item in clbAttackModels.CheckedItems)
             {
-                Sender.send(message);
-                Console.WriteLine("Pass: " + message);
+                string key = item.ToString();
+                attack_container[key].Start();
             }
-            else
-                Console.WriteLine("Drop - " + DropOutModel.ToString());
+
+            timerStatus.Start();
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void clbAttackModels_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // kill all threads when the form closes
-            Environment.Exit(0);
-        }
+            selected_tag = clbAttackModels.SelectedItem.ToString();
 
-        private void timerStatus_Tick(object sender, EventArgs e)
-        {
-            //labelStatus.Text = "Time left[s]: " + Math.Round(attack.time_left, 1) + Environment.NewLine +
-                               //"Perturbation: " + Math.Round(attack.value, 1);
+            // numerical up-downs
+            nudDuration.Value = Convert.ToDecimal(attack_container[selected_tag].duration);
+            nudAmplitude.Value = Convert.ToDecimal(attack_container[selected_tag].amplitude);
+            nudTimeConst.Value = Convert.ToDecimal(attack_container[selected_tag].time_const);
+            nudFrequency.Value = Convert.ToDecimal(attack_container[selected_tag].frequency);
+
+            // check boxes
+            cbAllIPs.Checked = attack_container[selected_tag].all_IPs;
+            cbAllPorts.Checked = attack_container[selected_tag].all_ports;
+
+            // radio buttons
+            if (attack_container[selected_tag].type == "bias") rbBias.Checked = true;
+            if (attack_container[selected_tag].type == "transientD") rbTransientDecrease.Checked = true;
+            if (attack_container[selected_tag].type == "transientI") rbTransientIncrease.Checked = true;
+            if (attack_container[selected_tag].type == "sinusoid") rbSinusoid.Checked = true;
         }
 
         private void timerChart_Tick(object sender, EventArgs e)
         {
-            foreach (string item in checkedListBox1.Items)
+            // add data-points
+            foreach (string item in clbAttackModels.Items)
             {
                 string key = item.ToString();
-                perturbations[key].InsertData(DateTime.UtcNow.ToString(Helpers.FMT), attack_container[key].value.ToString());
+                perturbations[key].InsertData(DateTime.UtcNow.ToString(Constants.FMT), attack_container[key].value.ToString());
             }
+
+            // scale y-axis for the chart
+            Helpers.ChangeYScale(perturbationChart, "data_chart");
 
             // update time axis minimum and maximum
             Helpers.UpdateChartAxes(perturbationChart, chart_history);
@@ -279,23 +288,29 @@ namespace Canal_GUI
                 int i = dict[key].time.Length - 1;
                 if (dict[key].time[i] != null)
                 {
-                    DateTime time = DateTime.ParseExact(dict[key].time[i], Helpers.FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+                    DateTime time = DateTime.ParseExact(dict[key].time[i], Constants.FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
                     chart_.Series[key].Points.AddXY(time.ToOADate(), Convert.ToDouble(dict[key].value[i]));
                 }
 
                 // remove old data points
-                if (chart_.Series[key].Points.Count > 1000 * 5) chart_.Series[key].Points.RemoveAt(0);
+                if (chart_.Series[key].Points.Count > Constants.n_steps) chart_.Series[key].Points.RemoveAt(0);
             }
         }
 
-        public void initialSettings()
+        private void timerStatus_Tick(object sender, EventArgs e)
         {
-            perturbationChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
-            perturbationChart.ChartAreas["ChartArea1"].AxisY.Title = "Magnitude";
-            perturbationChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
-            perturbationChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
-            perturbationChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
-            perturbationChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
+            labelStatus.Text = "Time left[s]: " + Math.Round(attack_container[selected_tag].time_left, 1) + Environment.NewLine +
+            "Perturbation: " + Math.Round(attack_container[selected_tag].value, 1);
+        }
+
+        private void btnUpdateDropoutModel_Click_1(object sender, EventArgs e)
+        {
+            UpdateDroupOutModel();
+        }
+
+        private void btnStartListener_Click_2(object sender, EventArgs e)
+        {
+            StartListener();
         }
 
         private void toolStripDropDownButton1_Click(object sender, EventArgs e)
@@ -303,83 +318,30 @@ namespace Canal_GUI
             perturbationChart.SaveImage(folderName + "\\chart_canal_attack.png", ChartImageFormat.Png);
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            foreach (string item in checkedListBox1.CheckedItems)
-            {
-                string key = item.ToString();
-                attack_container[key].Start();
-            }
-
-            timerStatus.Start();
-        }
-
-        private void checkedListBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            string tag = checkedListBox1.SelectedItem.ToString();
-
-            // numerical up-downs
-            nudDuration.Value = Convert.ToDecimal(attack_container[tag].duration);
-            nudAmplitude.Value = Convert.ToDecimal(attack_container[tag].amplitude);
-            nudTimeConst.Value = Convert.ToDecimal(attack_container[tag].time_const);
-            nudFrequency.Value = Convert.ToDecimal(attack_container[tag].frequency);
-
-            // check boxes
-            cbAllIPs.Checked = attack_container[tag].all_IPs;
-            cbAllPorts.Checked = attack_container[tag].all_ports;
-
-            // radio buttons
-            if (attack_container[tag].type == "bias") rbBias.Checked = true;
-            if (attack_container[tag].type == "transientD") rbTransientDecrease.Checked = true;
-            if (attack_container[tag].type == "transientI") rbTransientIncrease.Checked = true;
-            if (attack_container[tag].type == "sinusoid") rbSinusoid.Checked = true;
-        }
-
-        private void ManageNumericalUpdowns()
-        {
-            if (rbBias.Checked == true)
-            {
-                nudTimeConst.Enabled = false;
-                nudFrequency.Enabled = false;
-            }
-            else if (rbTransientIncrease.Checked == true)
-            {
-                nudTimeConst.Enabled = true;
-                nudFrequency.Enabled = false;
-            }
-            else if (rbTransientDecrease.Checked == true)
-            {
-                nudTimeConst.Enabled = true;
-                nudFrequency.Enabled = false;
-            }
-            else if (rbSinusoid.Checked == true)
-            {
-                nudTimeConst.Enabled = false;
-                nudFrequency.Enabled = true;
-            }
-
-        }
-
         private void rbTransientDecrease_CheckedChanged(object sender, EventArgs e)
         {
-            ManageNumericalUpdowns();
+            Helpers.ManageNumericalUpdowns(this);
         }
 
         private void rbBias_CheckedChanged(object sender, EventArgs e)
         {
-            ManageNumericalUpdowns();
+            Helpers.ManageNumericalUpdowns(this);
         }
 
         private void rbTransientIncrease_CheckedChanged(object sender, EventArgs e)
         {
-            ManageNumericalUpdowns();
+            Helpers.ManageNumericalUpdowns(this);
         }
 
         private void rbSinusoid_CheckedChanged(object sender, EventArgs e)
         {
-            ManageNumericalUpdowns();
+            Helpers.ManageNumericalUpdowns(this);
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // kill all threads when the form closes
+            Environment.Exit(0);
         }
     }
-
-    
 }

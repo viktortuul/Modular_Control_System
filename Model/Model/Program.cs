@@ -72,7 +72,7 @@ namespace Model_Watertank
                 Thread.Sleep(5);
                 try
                 {
-                    listener.listen();
+                    listener.Listen();
                     ParseMessage(listener.last_recieved);
 
                     // parse dictionary to proper input
@@ -113,7 +113,7 @@ namespace Model_Watertank
                     message += "yc" + (i + 1) + "_" + plant.get_yc()[i].ToString() + "#";
                 
                 message = message.Substring(0, message.LastIndexOf('#')); // remove the last delimiter '#'
-                sender.send(message);
+                sender.Send(message);
             }
         }
 

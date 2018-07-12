@@ -67,7 +67,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ControllerConnection.cs" />
+    <Compile Include="CommunicationManager.cs" />
+    <Compile Include="DataContainer.cs" />
     <Compile Include="FrameGUI.cs">
       <SubType>Form</SubType>
     </Compile>
