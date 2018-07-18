@@ -78,7 +78,7 @@ namespace GUI
             // listen for messages sent from a host to this specific IP:port
             while (true)
             {
-                Thread.Sleep(5);
+                Thread.Sleep(1);
                 try
                 {
                     // check if a new package is recieved
@@ -189,8 +189,6 @@ namespace GUI
 
             // update state estimator and calculate residual
             StateEstimate(time);
-            //if (recieved_packages.ContainsKey("yo1")) recieved_packages["yo1"].CalculateResidual(estimates["yo1_hat"].GetLastValue());
-            if (recieved_packages.ContainsKey("yc1")) recieved_packages["yc1"].InsertResidual(filter.innovation.ToString());
 
             // add reference time-stamp
             if (references.ContainsKey("r1")) references["r1"].CopyAndPushArray();
@@ -207,6 +205,9 @@ namespace GUI
             // store the value
             if (estimates.ContainsKey("yo1_hat")) estimates["yo1_hat"].InsertData(time, x[0, 0].ToString());
             if (estimates.ContainsKey("yc1_hat")) estimates["yc1_hat"].InsertData(time, x[1, 0].ToString());
+
+            // store the residual
+            if (recieved_packages.ContainsKey("yc1")) recieved_packages["yc1"].InsertResidual(filter.innovation.ToString());
         }
 
         public string GetStatus()

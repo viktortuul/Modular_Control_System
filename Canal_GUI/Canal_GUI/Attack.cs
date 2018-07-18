@@ -8,6 +8,9 @@ namespace Canal_GUI
 {
     public class Attack
     {
+        // state
+        public bool running = false;
+
         // target EP and tag
         public string target_IP;
         public string target_port;
@@ -21,11 +24,13 @@ namespace Canal_GUI
         public string type;
 
         // attack parameters
+        public bool add_value;
         public double duration;
-        public double frequency;
+        public double amplitude_attack;
         public double time_const;
-        public double amplitude;
-        public double value;
+        public double frequency;
+        public double[] time_series;
+        public double value_attack;
 
         // attack variables
         public double time_left;
@@ -33,7 +38,7 @@ namespace Canal_GUI
 
         DateTime time_stamp;
 
-        public Attack(string target_IP, string target_port, bool all_IPs, bool all_ports, string target_tag, string type, double duration, double amplitude, double time_const, double frequency)
+        public Attack(string target_IP, string target_port, bool all_IPs, bool all_ports, string target_tag, string type, bool add_value, double duration, double amplitude, double time_const, double frequency, double[] time_series)
         {
             this.target_IP = target_IP;
             this.target_port = target_port;
@@ -42,12 +47,14 @@ namespace Canal_GUI
             this.target_tag = target_tag;
             this.type = type;
             this.duration = duration;
-            this.amplitude = amplitude;
+            this.amplitude_attack = amplitude;
             this.time_const = time_const;
             this.frequency = frequency;
+            this.time_series = time_series;
+            this.add_value = add_value;
         }
 
-        public void UpdateModel(string target_IP, string target_port, bool all_IPs, bool all_ports, string type, double duration, double amplitude, double time_const, double frequency)
+        public void UpdateModel(string target_IP, string target_port, bool all_IPs, bool all_ports, string type, bool add_value, double duration, double amplitude, double time_const, double frequency, double[] time_series)
         {
             this.target_IP = target_IP;
             this.target_port = target_port;
@@ -55,17 +62,25 @@ namespace Canal_GUI
             this.all_ports = all_ports;
             this.type = type;
             this.duration = duration;
-            this.amplitude = amplitude;
+            this.amplitude_attack = amplitude;
             this.time_const = time_const;
             this.frequency = frequency;
+            this.time_series = time_series;
+            this.add_value = add_value;
         }
 
         public void Next()
         {
-            if (type == "bias") value = amplitude;
-            else if (type == "transientD") value = amplitude * Math.Exp(-time_elapsed / time_const);
-            else if (type == "transientI") value = amplitude - amplitude * Math.Exp(-time_elapsed / time_const);
-            else if(type == "sinusoid") value = amplitude * Math.Sin(frequency * time_elapsed * 2 * Math.PI);
+            // attack value depending on attack type
+            if (type == "bias") value_attack = amplitude_attack;
+            else if (type == "transientD") value_attack = amplitude_attack * Math.Exp(-time_elapsed / time_const);
+            else if (type == "transientI") value_attack = amplitude_attack - amplitude_attack * Math.Exp(-time_elapsed / time_const);
+            else if (type == "sinusoid") value_attack = amplitude_attack * Math.Sin(frequency * time_elapsed * 2 * Math.PI);
+            else if (type == "manual")
+            {
+                int idx = Math.Min(Convert.ToInt32((time_elapsed / duration) * (time_series.Length - 1)), time_series.Length - 1);
+                value_attack = time_series[idx];
+            }
 
             double elapsed_time = (DateTime.Now - time_stamp).TotalMilliseconds;
             time_elapsed += Convert.ToDouble(elapsed_time) / 1000;
@@ -80,40 +95,49 @@ namespace Canal_GUI
             time_stamp = DateTime.Now;
             time_left = duration;
             time_elapsed = 0;
+            running = true;
         }
 
         public void Stop()
         {
             time_elapsed = 0;
             time_left = 0;
-            value = 0;
+            value_attack = 0;
+            running = false;
         }
 
-        public double ApplyPerturbation()
+        public double ApplyPerturbation(string state)
         {
-            Next();
-            return value;
+            double result = 0;
+            if (add_value == true) result = Convert.ToDouble(state) + value_attack;
+            else if (add_value == false) result = value_attack;
+
+            return result;
         }
 
         public string IntegrityAttack(string IP, string Port, string key, string value)
         {
             double result = Convert.ToDouble(value);
 
-            if (all_IPs == true && all_ports == true)
-            {
-                if (key == target_tag) result = Convert.ToDouble(value) + ApplyPerturbation();
-            }
-            else if (all_IPs == true && all_ports == false)
-            {
-                if (Port == target_port && key == target_tag) result = Convert.ToDouble(value) + ApplyPerturbation();
-            }
-            else if (all_IPs == false && all_ports == true)
-            {
-                if (IP == target_IP && key == target_tag) result = Convert.ToDouble(value) + ApplyPerturbation();
-            }
-            else if (all_IPs == false && all_ports == false)
-            {
-                if (IP == target_IP && Port == target_port && key == target_tag) result = Convert.ToDouble(value) + ApplyPerturbation();
+            Next();
+            if (running == true)
+            { 
+                if (all_IPs == true && all_ports == true)
+                {
+                    if (key == target_tag) result = ApplyPerturbation(value);
+                }
+                else if (all_IPs == true && all_ports == false)
+                {
+                    if (Port == target_port && key == target_tag) result = ApplyPerturbation(value);
+                }
+                else if (all_IPs == false && all_ports == true)
+                {
+                    if (IP == target_IP && key == target_tag) result = ApplyPerturbation(value);
+                }
+                else if (all_IPs == false && all_ports == false)
+                {
+                    if (IP == target_IP && Port == target_port && key == target_tag) result = ApplyPerturbation(value);
+                }
             }
 
             return result.ToString();

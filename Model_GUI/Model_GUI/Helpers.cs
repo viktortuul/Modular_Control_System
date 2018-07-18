@@ -62,6 +62,7 @@ namespace Model_GUI
         static SolidBrush brush_b = new SolidBrush(Color.LightBlue);
         static Bitmap bm = new Bitmap(400, 800);
 
+
         public static void UpdateChartAxes(Chart chart, int chart_history)
         {
             chart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
@@ -99,11 +100,11 @@ namespace Model_GUI
                         break;
                     case "yc1":
                         chart_.Series[key].Color = Color.Blue;
-                        chart_.Series[key].BorderWidth = 3;
+                        chart_.Series[key].BorderWidth = 2;
                         break;
                     case "yc2":
                         chart_.Series[key].Color = Color.Green;
-                        chart_.Series[key].BorderWidth = 3;
+                        chart_.Series[key].BorderWidth = 2;
                         break;
                     default:
                         break;
@@ -137,12 +138,14 @@ namespace Model_GUI
                 }
             }
 
-            if (points_exist == true)
+            if (points_exist == true && (max > min))
             {
-                tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Ceiling(max);
-                tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Floor(min);
-                tmpChart.ChartAreas["ChartArea1"].AxisY.Interval = 1;
+  
+                tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Max(Math.Ceiling(max), 0);
+                tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Min(Math.Floor(min), 0);
+                tmpChart.ChartAreas["ChartArea1"].AxisY.Interval = 1;            
             }
+
         }
 
 
@@ -198,7 +201,8 @@ namespace Model_GUI
             double a2 = 0.16; //Convert.ToDouble(numUpDown_a2a.Value);
 
             // TANK 1 ----------------------------------------------------------------
-            Point T = new Point(75, Convert.ToInt16(GUI.pictureBox1.Height / 2));
+            Point T1 = new Point(75, Convert.ToInt16(GUI.pictureBox1.Height / 2));
+            Point T2 = new Point(T1.X, Convert.ToInt16(GUI.pictureBox1.Height - 20));
 
             // tank dimensions
             double R1_ = Math.Sqrt(A1 / Math.PI); int R1 = Convert.ToInt16(R1_ * cm2pix);
@@ -208,32 +212,32 @@ namespace Model_GUI
             // inlet
             if (u > 0)
             {
-                Rectangle water_in = new Rectangle(T.X - R1 + 5, T.Y - h1 - 50, Convert.ToInt16(max_inflow_width * (u / 7.5)), h1 + 50);
+                Rectangle water_in = new Rectangle(T1.X - R1 + 5, T1.Y - h1 - 50, Convert.ToInt16(max_inflow_width * (u / 7.5)), h1 + 50);
                 g.FillRectangle(brush_b, water_in);
             }
 
             // water 
-            Rectangle water1 = new Rectangle(T.X - R1, T.Y - y1, 2 * R1, y1);
+            Rectangle water1 = new Rectangle(T1.X - R1, T1.Y - y1, 2 * R1, y1);
             g.FillRectangle(brush_b, water1);
 
-            if (y1 > 0)
+            if (y1 > 5)
             {
-                Rectangle water_fall = new Rectangle(T.X - r1, T.Y, 2 * r1, 250);
+                Rectangle water_fall = new Rectangle(T1.X - r1, T1.Y, 2 * r1, T2.Y - T1.Y);
                 g.FillRectangle(brush_b, water_fall);
             }
 
             // walls
-            Point w1_top = new Point(T.X - R1, T.Y - h1); Point w1_bot = new Point(T.X - R1, T.Y);
-            Point w2_top = new Point(T.X + R1, T.Y - h1); Point w2_bot = new Point(T.X + R1, T.Y);
-            Point wb1_l = new Point(T.X - R1, T.Y); Point wb1_r = new Point(T.X - r1, T.Y);
-            Point wb2_l = new Point(T.X + r1, T.Y); Point wb2_r = new Point(T.X + R1, T.Y);
+            Point w1_top = new Point(T1.X - R1, T1.Y - h1); Point w1_bot = new Point(T1.X - R1, T1.Y);
+            Point w2_top = new Point(T1.X + R1, T1.Y - h1); Point w2_bot = new Point(T1.X + R1, T1.Y);
+            Point wb1_l = new Point(T1.X - R1, T1.Y); Point wb1_r = new Point(T1.X - r1, T1.Y);
+            Point wb2_l = new Point(T1.X + r1, T1.Y); Point wb2_r = new Point(T1.X + R1, T1.Y);
             g.DrawLine(pen_b, w1_top, w1_bot);
             g.DrawLine(pen_b, w2_top, w2_bot);
             g.DrawLine(pen_b, wb1_l, wb1_r);
             g.DrawLine(pen_b, wb2_l, wb2_r);
 
             // TANK 2 ----------------------------------------------------------------
-            T = new Point(T.X, Convert.ToInt16(GUI.pictureBox1.Height - 20));
+
 
             // tank dimensions
             double R2_ = Math.Sqrt(A2 / Math.PI); int R2 = Convert.ToInt16(R2_ * cm2pix);
@@ -241,20 +245,20 @@ namespace Model_GUI
             double h2_ = 25; int h2 = Convert.ToInt16(h2_ * cm2pix);
 
             // water 
-            Rectangle water2 = new Rectangle(T.X - R2, T.Y - y2, 2 * R2, y2);
+            Rectangle water2 = new Rectangle(T2.X - R2, T2.Y - y2, 2 * R2, y2);
             g.FillRectangle(brush_b, water2);
 
-            if (y2 > 0)
+            if (y2 > 5)
             {
-                Rectangle water_fall = new Rectangle(T.X - r2, T.Y, 2 * r2, 200);
+                Rectangle water_fall = new Rectangle(T2.X - r2, T2.Y, 2 * r2, 200);
                 g.FillRectangle(brush_b, water_fall);
             }
 
             // walls
-            w1_top = new Point(T.X - R2, T.Y - h2); w1_bot = new Point(T.X - R2, T.Y);
-            w2_top = new Point(T.X + R2, T.Y - h2); w2_bot = new Point(T.X + R2, T.Y);
-            wb1_l = new Point(T.X - R2, T.Y); wb1_r = new Point(T.X - r2, T.Y);
-            wb2_l = new Point(T.X + r2, T.Y); wb2_r = new Point(T.X + R2, T.Y);
+            w1_top = new Point(T2.X - R2, T2.Y - h2); w1_bot = new Point(T2.X - R2, T2.Y);
+            w2_top = new Point(T2.X + R2, T2.Y - h2); w2_bot = new Point(T2.X + R2, T2.Y);
+            wb1_l = new Point(T2.X - R2, T2.Y); wb1_r = new Point(T2.X - r2, T2.Y);
+            wb2_l = new Point(T2.X + r2, T2.Y); wb2_r = new Point(T2.X + R2, T2.Y);
             g.DrawLine(pen_b, w1_top, w1_bot);
             g.DrawLine(pen_b, w2_top, w2_bot);
             g.DrawLine(pen_b, wb1_l, wb1_r);

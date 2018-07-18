@@ -165,11 +165,17 @@ namespace Model_GUI
 
                 // controlled states
                 for (int i = 0; i < plant.get_yc().Length; i++)
-                    message += "yc" + (i + 1) + "_" + (plant.get_yc()[i] + Noise.value[i + 1] + CORRUPT_STRING).ToString() + "#"; // WITH MEASUREMENT NOISE
+                {
+                    // apply measurement noise
+                    var r = new GaussianRandom();
+                    double n = r.NextGaussian(0, 0.1);
+
+                    message += "yc" + (i + 1) + "_" + (plant.get_yc()[i] + n + Noise.value[i + 1] + CORRUPT_STRING).ToString() + "#"; // WITH MEASUREMENT NOISE
+                }
+                    
 
                 message = message.Substring(0, message.LastIndexOf('#')); // remove the redundant delimiter
                 sender.Send(message);
-                //Console.WriteLine("sent: " + message);
             }
         }
 
@@ -194,13 +200,9 @@ namespace Model_GUI
             }
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void timerChart_Tick(object sender, EventArgs e)
         {
             labelDebug.Text = "time left: " + Math.Round(Disturbance.time_left, 1);
-
-            // update time axis minimum and maximum
-            Helpers.UpdateChartAxes(dataChart, chart_history);
-            Helpers.UpdateChartAxes(perturbationChart, chart_history);
 
             // sample states
             SampleStates(plant);
@@ -208,6 +210,10 @@ namespace Model_GUI
             // draw chart
             UpdateChart(dataChart, states);
             UpdateChart(perturbationChart, perturbations);
+
+            // update time axis minimum and maximum
+            Helpers.UpdateChartAxes(dataChart, chart_history);
+            Helpers.UpdateChartAxes(perturbationChart, chart_history);
 
             // draw animation
             Helpers.DrawTanks(this);
@@ -447,7 +453,7 @@ namespace Model_GUI
             foreach (var series in perturbationChart.Series) series.Points.Clear();
         }
 
-        private void timer1_Tick_1(object sender, EventArgs e)
+        private void timerUpdateGUI_Tick_1(object sender, EventArgs e)
         {
             // scale y-axis for the charts
             Helpers.ChangeYScale(dataChart, "");
@@ -468,6 +474,15 @@ namespace Model_GUI
         {
             dataChart.SaveImage(folderName + "\\chart_model_main.png", ChartImageFormat.Png);
             perturbationChart.SaveImage(folderName + "\\chart_model_disturbance.png", ChartImageFormat.Png);
+        }
+
+        private void ModelGUI_Resize(object sender, EventArgs e)
+        {
+            int y_start = dataChart.Location.Y;
+            int height_total = groupBox5.Height - y_start;
+            dataChart.Height = height_total / 2 - y_start;
+            perturbationChart.Location = new Point(3, + y_start + height_total / 2);
+            perturbationChart.Height = height_total / 2 - y_start;
         }
     }
 }

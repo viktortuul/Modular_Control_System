@@ -9,12 +9,6 @@ namespace Controller
 {
     public class Controller
     {
-        // time format
-        const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
-
-        // data container size
-        public static int n_steps = 100;
-  
         // data containers (dictionaries)
         static Dictionary<string, DataContainer> recieved_packages = new Dictionary<string, DataContainer>();
         static Dictionary<string, DataContainer> references = new Dictionary<string, DataContainer>();
@@ -26,51 +20,52 @@ namespace Controller
         static bool listening_on_plant = false;
 
         // canal flag
-        static public bool usingCanal = false;
-        static ConnectionParameters connGUI = new ConnectionParameters();
-        static ConnectionParameters connPlant = new ConnectionParameters();
-        static AddressEndPoint GUI_EP = new AddressEndPoint();
-        static AddressEndPoint Plant_EP = new AddressEndPoint();
+        static public bool using_canal = false;
+
+        // GUI and Plant endpoints
+        static ConnectionParameters EP_GUI = new ConnectionParameters();
+        static ConnectionParameters EP_Plant = new ConnectionParameters();
+
+        // transmission route (either GUI/plant or Canal EP's)
+        static AddressEndPoint EP_Send_GUI = new AddressEndPoint();
+        static AddressEndPoint EP_Send_Plant = new AddressEndPoint();
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Controller");
-
             // parse the command line arguments
-            connGUI = new ConnectionParameters(args[0], Convert.ToInt16(args[1]), Convert.ToInt16(args[2]));
-            connPlant = new ConnectionParameters(args[3], Convert.ToInt16(args[4]), Convert.ToInt16(args[5]));
+            EP_GUI = new ConnectionParameters(args[0], Convert.ToInt16(args[1]), Convert.ToInt16(args[2]));
+            EP_Plant = new ConnectionParameters(args[3], Convert.ToInt16(args[4]), Convert.ToInt16(args[5]));
 
-            Console.WriteLine(args.Length.ToString());
             if (args.Length == 6)
             {
-                GUI_EP = new AddressEndPoint(connGUI.IP, connGUI.Port);
-                Plant_EP = new AddressEndPoint(connPlant.IP, connPlant.Port);
+                EP_Send_GUI = new AddressEndPoint(EP_GUI.IP, EP_GUI.Port);
+                EP_Send_Plant = new AddressEndPoint(EP_Plant.IP, EP_Plant.Port);
             }
             else if (args.Length == 10)
             {
-                GUI_EP = new AddressEndPoint(args[6], Convert.ToInt16(args[7]));
-                Plant_EP = new AddressEndPoint(args[8], Convert.ToInt16(args[9]));
-                usingCanal = true;
+                EP_Send_GUI = new AddressEndPoint(args[6], Convert.ToInt16(args[7]));
+                EP_Send_Plant = new AddressEndPoint(args[8], Convert.ToInt16(args[9]));
+                using_canal = true;
             }
 
             // create a thread for sending to the GUI
-            Thread thread_send_GUI = new Thread(() => SendGUI(GUI_EP.IP, GUI_EP.Port, PIDList));
+            Thread thread_send_GUI = new Thread(() => SenderGUI(EP_Send_GUI.IP, EP_Send_GUI.Port, PIDList));
             thread_send_GUI.Start();
 
             // create a thread for listening on the GUI
-            Thread thread_listen_GUI = new Thread(() => ListenGUI(GUI_EP.IP, connGUI.PortThis, PIDList));
+            Thread thread_listen_GUI = new Thread(() => ListenerGUI(EP_Send_GUI.IP, EP_GUI.PortThis, PIDList));
             thread_listen_GUI.Start();
 
             // create a thread for sending to the plant
-            Thread thread_send_plant = new Thread(() => SendPlant(Plant_EP.IP, Plant_EP.Port, PIDList));
+            Thread thread_send_plant = new Thread(() => SenderPlant(EP_Send_Plant.IP, EP_Send_Plant.Port, PIDList));
             thread_send_plant.Start();
 
             // create a thread for listening on the plant
-            Thread thread_listen_plant = new Thread(() => ListenPlant(Plant_EP.IP, connPlant.PortThis, PIDList));
+            Thread thread_listen_plant = new Thread(() => ListenerPlant(EP_Send_Plant.IP, EP_Plant.PortThis, PIDList));
             thread_listen_plant.Start();
         }
 
-        public static void SendGUI(string IP, int port, List<PID> PIDList)
+        public static void SenderGUI(string IP, int port, List<PID> PIDList)
         {
             // initialize a connection to the GUI
             Client sender = new Client(IP, port);
@@ -87,7 +82,7 @@ namespace Controller
             }
         }
 
-        public static void ListenGUI(string IP, int port, List<PID> PIDList)
+        public static void ListenerGUI(string IP, int port, List<PID> PIDList)
         {
             // initialize a connection to the GUI
             Server listener = new Server(IP, port);
@@ -111,7 +106,7 @@ namespace Controller
             }
         }
 
-        static public void SendPlant(string IP, int port, List<PID> PIDList)
+        static public void SenderPlant(string IP, int port, List<PID> PIDList)
         {
             // initialize a connection to the plant
             Client Sender = new Client(IP, port);
@@ -129,7 +124,7 @@ namespace Controller
             }
         }
 
-        public static void ListenPlant(string IP, int port, List<PID> PIDList)
+        public static void ListenerPlant(string IP, int port, List<PID> PIDList)
         {
             // initialize a connection to the plant
             Server listener = new Server(IP, port);
@@ -157,8 +152,8 @@ namespace Controller
         public static string ConstructMessageGUI(List<PID> PIDList)
         {
             string message = "";
-            if (usingCanal == true) message += Convert.ToString("EP_" + connGUI.IP + ":" + connGUI.Port + "#");
-            message += Convert.ToString("time_" + DateTime.UtcNow.ToString(FMT));
+            if (using_canal == true) message += Convert.ToString("EP_" + EP_GUI.IP + ":" + EP_GUI.Port + "#");
+            message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT));
 
             // append control signals
             int index = 0;
@@ -183,7 +178,7 @@ namespace Controller
         public static string ConstructMessagePlant(List<PID> PIDList)
         {
             string message = "";
-            if (usingCanal == true) message += Convert.ToString("EP_" + connPlant.IP + ":" + connPlant.Port);
+            if (using_canal == true) message += Convert.ToString("EP_" + EP_Plant.IP + ":" + EP_Plant.Port);
 
             int index = 0;
             foreach (PID controller in PIDList)
@@ -232,7 +227,7 @@ namespace Controller
                 // if a new key recieved, add it
                 if (recieved_packages.ContainsKey(key) == false)
                 {
-                    recieved_packages.Add(key, new DataContainer(n_steps));
+                    recieved_packages.Add(key, new DataContainer(Constants.n_steps));
 
                     // add controller and reference tracker
                     if (key.Contains("yc")) PIDList.Add(new PID());

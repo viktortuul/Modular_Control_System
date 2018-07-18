@@ -19,6 +19,18 @@ namespace Canal_GUI
 
     static class Helpers
     {
+        public static double[] DecodeTimeSeries(string text)
+        {
+            string[] strings = text.Split('\t');
+            double[] time_series = new double[strings.Length];
+
+            for (int i = 0; i < strings.Length - 1; i++)
+            {
+                time_series[i] = Convert.ToDouble(strings[i]);
+            }
+            return time_series;
+        }
+
         public static bool isDouble(string str)
         {
             try
@@ -32,6 +44,47 @@ namespace Canal_GUI
             }
         }
 
+        public static void CheckKey(Dictionary<string, DataContainer> dict, string key, int n_steps)
+        {
+            // if the key doesn't exist, add it
+            if (dict.ContainsKey(key) == false) dict.Add(key, new DataContainer(n_steps));
+        }
+
+        public static void ManageNumericalUpdowns(MainForm Main)
+        {
+            if (Main.rbBias.Checked == true)
+            {
+                Main.nudAmplitude.Enabled = true;
+                Main.nudTimeConst.Enabled = false;
+                Main.nudFrequency.Enabled = false;
+            }
+            else if (Main.rbTransientIncrease.Checked == true)
+            {
+                Main.nudTimeConst.Enabled = true;
+                Main.nudFrequency.Enabled = false;
+            }
+            else if (Main.rbTransientDecrease.Checked == true)
+            {
+                Main.nudTimeConst.Enabled = true;
+                Main.nudFrequency.Enabled = false;
+            }
+            else if (Main.rbSinusoid.Checked == true)
+            {
+                Main.nudTimeConst.Enabled = false;
+                Main.nudFrequency.Enabled = true;
+            }
+            else if (Main.rbManual.Checked == true)
+            {
+                Main.nudDuration.Enabled = true;
+                Main.nudAmplitude.Enabled = false;
+                Main.nudTimeConst.Enabled = false;
+                Main.nudFrequency.Enabled = false;
+            }
+        }
+    }
+
+    static class Charting
+    {
         public static void UpdateChartAxes(Chart chart, int chart_history)
         {
             chart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
@@ -67,36 +120,6 @@ namespace Canal_GUI
                 tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Ceiling(max);
                 tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Floor(min);
                 tmpChart.ChartAreas["ChartArea1"].AxisY.Interval = 1;
-            }
-        }
-
-        public static void CheckKey(Dictionary<string, DataContainer> dict, string key, int n_steps)
-        {
-            // if the key doesn't exist, add it
-            if (dict.ContainsKey(key) == false) dict.Add(key, new DataContainer(n_steps));
-        }
-
-        public static void ManageNumericalUpdowns(MainForm Main)
-        {
-            if (Main.rbBias.Checked == true)
-            {
-                Main.nudTimeConst.Enabled = false;
-                Main.nudFrequency.Enabled = false;
-            }
-            else if (Main.rbTransientIncrease.Checked == true)
-            {
-                Main.nudTimeConst.Enabled = true;
-                Main.nudFrequency.Enabled = false;
-            }
-            else if (Main.rbTransientDecrease.Checked == true)
-            {
-                Main.nudTimeConst.Enabled = true;
-                Main.nudFrequency.Enabled = false;
-            }
-            else if (Main.rbSinusoid.Checked == true)
-            {
-                Main.nudTimeConst.Enabled = false;
-                Main.nudFrequency.Enabled = true;
             }
         }
 

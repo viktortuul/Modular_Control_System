@@ -10,6 +10,15 @@ namespace Controller
     {
     }
 
+    public struct Constants
+    {
+        // time format
+        public const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
+
+        // chart settings
+        public const int n_steps = 100;
+    }
+
     public struct PIDparameters
     {
         public double Kp, Ki, Kd;

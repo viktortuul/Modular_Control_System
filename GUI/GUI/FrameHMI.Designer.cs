@@ -98,6 +98,7 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.securityChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.labelSecurity = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarReference1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownKp)).BeginInit();
@@ -131,12 +132,12 @@
             // 
             this.tbDebugLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tbDebugLog.Location = new System.Drawing.Point(1292, 155);
+            this.tbDebugLog.Location = new System.Drawing.Point(1313, 194);
             this.tbDebugLog.Margin = new System.Windows.Forms.Padding(4);
             this.tbDebugLog.Multiline = true;
             this.tbDebugLog.Name = "tbDebugLog";
             this.tbDebugLog.ReadOnly = true;
-            this.tbDebugLog.Size = new System.Drawing.Size(182, 646);
+            this.tbDebugLog.Size = new System.Drawing.Size(183, 498);
             this.tbDebugLog.TabIndex = 0;
             // 
             // label1
@@ -144,7 +145,7 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(1292, 134);
+            this.label1.Location = new System.Drawing.Point(1314, 175);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(71, 17);
@@ -170,10 +171,10 @@
             this.dataChart.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
             this.dataChart.Legends.Add(legend1);
-            this.dataChart.Location = new System.Drawing.Point(2, 6);
+            this.dataChart.Location = new System.Drawing.Point(3, 6);
             this.dataChart.Margin = new System.Windows.Forms.Padding(4);
             this.dataChart.Name = "dataChart";
-            this.dataChart.Size = new System.Drawing.Size(681, 591);
+            this.dataChart.Size = new System.Drawing.Size(701, 481);
             this.dataChart.TabIndex = 2;
             this.dataChart.Text = "chart1";
             title1.Name = "Title1";
@@ -216,7 +217,7 @@
             this.numUpDownKp.Size = new System.Drawing.Size(65, 22);
             this.numUpDownKp.TabIndex = 7;
             this.numUpDownKp.Value = new decimal(new int[] {
-            2,
+            1,
             0,
             0,
             0});
@@ -242,7 +243,7 @@
             this.numUpDownKi.Size = new System.Drawing.Size(65, 22);
             this.numUpDownKi.TabIndex = 8;
             this.numUpDownKi.Value = new decimal(new int[] {
-            1,
+            2,
             0,
             0,
             65536});
@@ -271,7 +272,7 @@
             this.groupBox1.Controls.Add(this.numUpDownKd);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.numUpDownKp);
-            this.groupBox1.Location = new System.Drawing.Point(662, 13);
+            this.groupBox1.Location = new System.Drawing.Point(661, 14);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
@@ -312,18 +313,18 @@
             this.groupBox2.Controls.Add(this.btnAllowConnection);
             this.groupBox2.Controls.Add(this.textBox_ip_send);
             this.groupBox2.Controls.Add(this.label4);
-            this.groupBox2.Location = new System.Drawing.Point(304, 13);
+            this.groupBox2.Location = new System.Drawing.Point(304, 14);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox2.Size = new System.Drawing.Size(350, 121);
+            this.groupBox2.Size = new System.Drawing.Size(349, 121);
             this.groupBox2.TabIndex = 12;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "New controller module";
             // 
             // btnThisIP
             // 
-            this.btnThisIP.Location = new System.Drawing.Point(95, 29);
+            this.btnThisIP.Location = new System.Drawing.Point(95, 30);
             this.btnThisIP.Margin = new System.Windows.Forms.Padding(4);
             this.btnThisIP.Name = "btnThisIP";
             this.btnThisIP.Size = new System.Drawing.Size(59, 25);
@@ -390,7 +391,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(11, 93);
+            this.label5.Location = new System.Drawing.Point(11, 94);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(45, 17);
@@ -413,13 +414,13 @@
             this.textBox_ip_recieve.Location = new System.Drawing.Point(159, 30);
             this.textBox_ip_recieve.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_ip_recieve.Name = "textBox_ip_recieve";
-            this.textBox_ip_recieve.Size = new System.Drawing.Size(102, 22);
+            this.textBox_ip_recieve.Size = new System.Drawing.Size(103, 22);
             this.textBox_ip_recieve.TabIndex = 8;
             this.textBox_ip_recieve.Text = "127.0.0.1";
             // 
             // btnAllowConnection
             // 
-            this.btnAllowConnection.Location = new System.Drawing.Point(159, 83);
+            this.btnAllowConnection.Location = new System.Drawing.Point(159, 82);
             this.btnAllowConnection.Margin = new System.Windows.Forms.Padding(4);
             this.btnAllowConnection.Name = "btnAllowConnection";
             this.btnAllowConnection.Size = new System.Drawing.Size(176, 31);
@@ -430,10 +431,10 @@
             // 
             // textBox_ip_send
             // 
-            this.textBox_ip_send.Location = new System.Drawing.Point(159, 56);
+            this.textBox_ip_send.Location = new System.Drawing.Point(159, 57);
             this.textBox_ip_send.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_ip_send.Name = "textBox_ip_send";
-            this.textBox_ip_send.Size = new System.Drawing.Size(102, 22);
+            this.textBox_ip_send.Size = new System.Drawing.Size(103, 22);
             this.textBox_ip_send.TabIndex = 2;
             this.textBox_ip_send.Text = "127.0.0.1";
             // 
@@ -465,7 +466,7 @@
             this.treeViewControllers.Location = new System.Drawing.Point(5, 207);
             this.treeViewControllers.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.treeViewControllers.Name = "treeViewControllers";
-            this.treeViewControllers.Size = new System.Drawing.Size(273, 578);
+            this.treeViewControllers.Size = new System.Drawing.Size(273, 468);
             this.treeViewControllers.TabIndex = 16;
             // 
             // label6
@@ -490,7 +491,7 @@
             this.groupBox3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.groupBox3.Size = new System.Drawing.Size(285, 789);
+            this.groupBox3.Size = new System.Drawing.Size(285, 679);
             this.groupBox3.TabIndex = 18;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Controller modules overview";
@@ -523,11 +524,11 @@
             this.groupBox4.Controls.Add(this.label9);
             this.groupBox4.Controls.Add(this.trackBarReference2);
             this.groupBox4.Controls.Add(this.trackBarReference1);
-            this.groupBox4.Location = new System.Drawing.Point(806, 13);
+            this.groupBox4.Location = new System.Drawing.Point(805, 14);
             this.groupBox4.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox4.Size = new System.Drawing.Size(270, 121);
+            this.groupBox4.Size = new System.Drawing.Size(269, 121);
             this.groupBox4.TabIndex = 20;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Reference values";
@@ -536,6 +537,7 @@
             // 
             this.numUpDownRef2.Enabled = false;
             this.numUpDownRef2.Location = new System.Drawing.Point(213, 63);
+            this.numUpDownRef2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.numUpDownRef2.Name = "numUpDownRef2";
             this.numUpDownRef2.Size = new System.Drawing.Size(47, 22);
             this.numUpDownRef2.TabIndex = 23;
@@ -545,6 +547,7 @@
             // 
             this.numUpDownRef1.Enabled = false;
             this.numUpDownRef1.Location = new System.Drawing.Point(213, 22);
+            this.numUpDownRef1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.numUpDownRef1.Name = "numUpDownRef1";
             this.numUpDownRef1.Size = new System.Drawing.Size(47, 22);
             this.numUpDownRef1.TabIndex = 22;
@@ -564,10 +567,10 @@
             this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox1.Location = new System.Drawing.Point(1009, 155);
+            this.pictureBox1.Location = new System.Drawing.Point(1030, 194);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(275, 646);
+            this.pictureBox1.Size = new System.Drawing.Size(275, 497);
             this.pictureBox1.TabIndex = 23;
             this.pictureBox1.TabStop = false;
             // 
@@ -732,10 +735,10 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripSplitButton1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 836);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 726);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 19, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(1924, 26);
+            this.statusStrip1.Size = new System.Drawing.Size(1511, 26);
             this.statusStrip1.TabIndex = 31;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -792,10 +795,10 @@
             this.residualChart.ChartAreas.Add(chartArea2);
             legend2.Name = "Legend1";
             this.residualChart.Legends.Add(legend2);
-            this.residualChart.Location = new System.Drawing.Point(5, 35);
+            this.residualChart.Location = new System.Drawing.Point(5, 34);
             this.residualChart.Margin = new System.Windows.Forms.Padding(4);
             this.residualChart.Name = "residualChart";
-            this.residualChart.Size = new System.Drawing.Size(680, 265);
+            this.residualChart.Size = new System.Drawing.Size(700, 265);
             this.residualChart.TabIndex = 32;
             this.residualChart.Text = "chart1";
             title2.Name = "Title1";
@@ -805,6 +808,7 @@
             // nudHistory
             // 
             this.nudHistory.Location = new System.Drawing.Point(377, 143);
+            this.nudHistory.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.nudHistory.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -836,7 +840,7 @@
             this.btnClearCharts.Location = new System.Drawing.Point(440, 140);
             this.btnClearCharts.Margin = new System.Windows.Forms.Padding(4);
             this.btnClearCharts.Name = "btnClearCharts";
-            this.btnClearCharts.Size = new System.Drawing.Size(98, 26);
+            this.btnClearCharts.Size = new System.Drawing.Size(99, 26);
             this.btnClearCharts.TabIndex = 22;
             this.btnClearCharts.Text = "Clear charts";
             this.btnClearCharts.UseVisualStyleBackColor = true;
@@ -849,19 +853,21 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Location = new System.Drawing.Point(304, 168);
+            this.tabControl1.Location = new System.Drawing.Point(304, 167);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(698, 633);
+            this.tabControl1.Size = new System.Drawing.Size(719, 523);
             this.tabControl1.TabIndex = 35;
             // 
             // tabPage1
             // 
             this.tabPage1.Controls.Add(this.dataChart);
             this.tabPage1.Location = new System.Drawing.Point(4, 25);
+            this.tabPage1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(690, 604);
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.tabPage1.Size = new System.Drawing.Size(711, 494);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Control";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -872,9 +878,10 @@
             this.tabPage2.Controls.Add(this.residualChart);
             this.tabPage2.Controls.Add(this.labelSecurity);
             this.tabPage2.Location = new System.Drawing.Point(4, 25);
+            this.tabPage2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(690, 604);
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.tabPage2.Size = new System.Drawing.Size(711, 494);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Anomaly detector";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -890,8 +897,9 @@
             legend3.Name = "Legend1";
             this.securityChart.Legends.Add(legend3);
             this.securityChart.Location = new System.Drawing.Point(5, 305);
+            this.securityChart.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.securityChart.Name = "securityChart";
-            this.securityChart.Size = new System.Drawing.Size(680, 293);
+            this.securityChart.Size = new System.Drawing.Size(700, 293);
             this.securityChart.TabIndex = 1;
             this.securityChart.Text = "chart1";
             title3.Name = "Title1";
@@ -901,17 +909,30 @@
             // labelSecurity
             // 
             this.labelSecurity.AutoSize = true;
-            this.labelSecurity.Location = new System.Drawing.Point(3, 3);
+            this.labelSecurity.Location = new System.Drawing.Point(3, 2);
             this.labelSecurity.Name = "labelSecurity";
             this.labelSecurity.Size = new System.Drawing.Size(117, 34);
             this.labelSecurity.TabIndex = 0;
             this.labelSecurity.Text = "Security metric: 0\r\nStatus: Low";
             // 
+            // label14
+            // 
+            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(1030, 175);
+            this.label14.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(70, 17);
+            this.label14.TabIndex = 36;
+            this.label14.Text = "Animation";
+            // 
             // FrameGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1924, 862);
+            this.ClientSize = new System.Drawing.Size(1511, 752);
+            this.Controls.Add(this.label14);
             this.Controls.Add(this.nudHistory);
             this.Controls.Add(this.btnClearCharts);
             this.Controls.Add(this.label13);
@@ -928,7 +949,7 @@
             this.Controls.Add(this.label1);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FrameGUI";
-            this.Text = "GUI";
+            this.Text = "Human Machine Interface";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Resize += new System.EventHandler(this.FrameGUI_Resize);
@@ -977,26 +998,19 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Timer timerCharts;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.NumericUpDown numUpDownKp;
-        private System.Windows.Forms.NumericUpDown numUpDownKi;
-        private System.Windows.Forms.NumericUpDown numUpDownKd;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button button_update_pid;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.ListBox listBoxModules;
-        private System.Windows.Forms.TextBox textBox_ip_send;
         private System.Windows.Forms.Label label4;
         public System.Windows.Forms.DataVisualization.Charting.Chart dataChart;
         private System.Windows.Forms.Button btnAllowConnection;
-        private System.Windows.Forms.TextBox textBox_ip_recieve;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox textBoxName;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.NumericUpDown numericUpDown_port_send;
-        private System.Windows.Forms.NumericUpDown numericUpDown_port_recieve;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button btnThisIP;
@@ -1032,6 +1046,14 @@
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Label labelSecurity;
         private System.Windows.Forms.DataVisualization.Charting.Chart securityChart;
+        private System.Windows.Forms.Label label14;
+        public System.Windows.Forms.NumericUpDown numUpDownKp;
+        public System.Windows.Forms.NumericUpDown numUpDownKi;
+        public System.Windows.Forms.NumericUpDown numUpDownKd;
+        public System.Windows.Forms.TextBox textBox_ip_recieve;
+        public System.Windows.Forms.NumericUpDown numericUpDown_port_send;
+        public System.Windows.Forms.NumericUpDown numericUpDown_port_recieve;
+        public System.Windows.Forms.TextBox textBox_ip_send;
     }
 }
 

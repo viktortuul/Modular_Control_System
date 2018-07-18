@@ -29,18 +29,19 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.rbManual = new System.Windows.Forms.RadioButton();
             this.rbTransientIncrease = new System.Windows.Forms.RadioButton();
             this.rbSinusoid = new System.Windows.Forms.RadioButton();
             this.rbTransientDecrease = new System.Windows.Forms.RadioButton();
             this.rbBias = new System.Windows.Forms.RadioButton();
-            this.btnAddAttackModel = new System.Windows.Forms.Button();
+            this.btnAddUpdateAttackModel = new System.Windows.Forms.Button();
             this.tbTargetTag = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.tbTargetPort = new System.Windows.Forms.TextBox();
@@ -62,6 +63,13 @@
             this.tbCanalPort = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.rbSetValue = new System.Windows.Forms.RadioButton();
+            this.rbAddValue = new System.Windows.Forms.RadioButton();
+            this.button1 = new System.Windows.Forms.Button();
+            this.label12 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.btnAttack = new System.Windows.Forms.Button();
             this.clbAttackModels = new System.Windows.Forms.CheckedListBox();
@@ -91,6 +99,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudStayPass)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudBernoulliPass)).BeginInit();
             this.tabPage1.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.perturbationChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudFrequency)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudTimeConst)).BeginInit();
@@ -102,7 +111,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(168, 118);
+            this.label5.Location = new System.Drawing.Point(179, 159);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(70, 17);
@@ -112,7 +121,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(168, 90);
+            this.label4.Location = new System.Drawing.Point(179, 137);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(81, 17);
@@ -121,24 +130,37 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.rbManual);
             this.groupBox2.Controls.Add(this.rbTransientIncrease);
             this.groupBox2.Controls.Add(this.rbSinusoid);
             this.groupBox2.Controls.Add(this.rbTransientDecrease);
             this.groupBox2.Controls.Add(this.rbBias);
-            this.groupBox2.Location = new System.Drawing.Point(8, 79);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox2.Location = new System.Drawing.Point(8, 62);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.groupBox2.Size = new System.Drawing.Size(152, 134);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox2.Size = new System.Drawing.Size(163, 150);
             this.groupBox2.TabIndex = 7;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Attack type";
+            this.groupBox2.Text = "Attack characteristic";
+            // 
+            // rbManual
+            // 
+            this.rbManual.AutoSize = true;
+            this.rbManual.Location = new System.Drawing.Point(8, 114);
+            this.rbManual.Margin = new System.Windows.Forms.Padding(4);
+            this.rbManual.Name = "rbManual";
+            this.rbManual.Size = new System.Drawing.Size(75, 21);
+            this.rbManual.TabIndex = 4;
+            this.rbManual.Text = "Manual";
+            this.rbManual.UseVisualStyleBackColor = true;
+            this.rbManual.CheckedChanged += new System.EventHandler(this.rbManual_CheckedChanged);
             // 
             // rbTransientIncrease
             // 
             this.rbTransientIncrease.AutoSize = true;
-            this.rbTransientIncrease.Location = new System.Drawing.Point(8, 74);
-            this.rbTransientIncrease.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rbTransientIncrease.Location = new System.Drawing.Point(8, 69);
+            this.rbTransientIncrease.Margin = new System.Windows.Forms.Padding(4);
             this.rbTransientIncrease.Name = "rbTransientIncrease";
             this.rbTransientIncrease.Size = new System.Drawing.Size(130, 21);
             this.rbTransientIncrease.TabIndex = 3;
@@ -149,8 +171,8 @@
             // rbSinusoid
             // 
             this.rbSinusoid.AutoSize = true;
-            this.rbSinusoid.Location = new System.Drawing.Point(8, 98);
-            this.rbSinusoid.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rbSinusoid.Location = new System.Drawing.Point(8, 92);
+            this.rbSinusoid.Margin = new System.Windows.Forms.Padding(4);
             this.rbSinusoid.Name = "rbSinusoid";
             this.rbSinusoid.Size = new System.Drawing.Size(83, 21);
             this.rbSinusoid.TabIndex = 2;
@@ -161,8 +183,8 @@
             // rbTransientDecrease
             // 
             this.rbTransientDecrease.AutoSize = true;
-            this.rbTransientDecrease.Location = new System.Drawing.Point(8, 48);
-            this.rbTransientDecrease.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rbTransientDecrease.Location = new System.Drawing.Point(8, 45);
+            this.rbTransientDecrease.Margin = new System.Windows.Forms.Padding(4);
             this.rbTransientDecrease.Name = "rbTransientDecrease";
             this.rbTransientDecrease.Size = new System.Drawing.Size(137, 21);
             this.rbTransientDecrease.TabIndex = 1;
@@ -175,7 +197,7 @@
             this.rbBias.AutoSize = true;
             this.rbBias.Checked = true;
             this.rbBias.Location = new System.Drawing.Point(8, 23);
-            this.rbBias.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rbBias.Margin = new System.Windows.Forms.Padding(4);
             this.rbBias.Name = "rbBias";
             this.rbBias.Size = new System.Drawing.Size(56, 21);
             this.rbBias.TabIndex = 0;
@@ -184,21 +206,21 @@
             this.rbBias.UseVisualStyleBackColor = true;
             this.rbBias.CheckedChanged += new System.EventHandler(this.rbBias_CheckedChanged);
             // 
-            // btnAddAttackModel
+            // btnAddUpdateAttackModel
             // 
-            this.btnAddAttackModel.Location = new System.Drawing.Point(352, 170);
-            this.btnAddAttackModel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.btnAddAttackModel.Name = "btnAddAttackModel";
-            this.btnAddAttackModel.Size = new System.Drawing.Size(95, 28);
-            this.btnAddAttackModel.TabIndex = 6;
-            this.btnAddAttackModel.Text = "Add/Update attack model";
-            this.btnAddAttackModel.UseVisualStyleBackColor = true;
-            this.btnAddAttackModel.Click += new System.EventHandler(this.btnAddAttackModel_Click);
+            this.btnAddUpdateAttackModel.Location = new System.Drawing.Point(369, 195);
+            this.btnAddUpdateAttackModel.Margin = new System.Windows.Forms.Padding(4);
+            this.btnAddUpdateAttackModel.Name = "btnAddUpdateAttackModel";
+            this.btnAddUpdateAttackModel.Size = new System.Drawing.Size(95, 28);
+            this.btnAddUpdateAttackModel.TabIndex = 6;
+            this.btnAddUpdateAttackModel.Text = "Add/Update attack model";
+            this.btnAddUpdateAttackModel.UseVisualStyleBackColor = true;
+            this.btnAddUpdateAttackModel.Click += new System.EventHandler(this.btnAddUpdateAttackModel_Click);
             // 
             // tbTargetTag
             // 
             this.tbTargetTag.Location = new System.Drawing.Point(108, 33);
-            this.tbTargetTag.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tbTargetTag.Margin = new System.Windows.Forms.Padding(4);
             this.tbTargetTag.Name = "tbTargetTag";
             this.tbTargetTag.Size = new System.Drawing.Size(51, 22);
             this.tbTargetTag.TabIndex = 5;
@@ -216,7 +238,7 @@
             // tbTargetPort
             // 
             this.tbTargetPort.Location = new System.Drawing.Point(203, 6);
-            this.tbTargetPort.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tbTargetPort.Margin = new System.Windows.Forms.Padding(4);
             this.tbTargetPort.Name = "tbTargetPort";
             this.tbTargetPort.Size = new System.Drawing.Size(57, 22);
             this.tbTargetPort.TabIndex = 3;
@@ -225,7 +247,7 @@
             // tbTargetIP
             // 
             this.tbTargetIP.Location = new System.Drawing.Point(108, 6);
-            this.tbTargetIP.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tbTargetIP.Margin = new System.Windows.Forms.Padding(4);
             this.tbTargetIP.Name = "tbTargetIP";
             this.tbTargetIP.Size = new System.Drawing.Size(92, 22);
             this.tbTargetIP.TabIndex = 2;
@@ -243,11 +265,14 @@
             // 
             // tabControl1
             // 
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Location = new System.Drawing.Point(8, 7);
-            this.tabControl1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(4);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(1144, 645);
@@ -260,9 +285,9 @@
             this.tabPage2.Controls.Add(this.tbCanalPort);
             this.tabPage2.Controls.Add(this.label6);
             this.tabPage2.Location = new System.Drawing.Point(4, 25);
-            this.tabPage2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabPage2.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(4);
             this.tabPage2.Size = new System.Drawing.Size(1136, 616);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Canal settings";
@@ -271,7 +296,7 @@
             // btnStartListener
             // 
             this.btnStartListener.Location = new System.Drawing.Point(172, 10);
-            this.btnStartListener.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnStartListener.Margin = new System.Windows.Forms.Padding(4);
             this.btnStartListener.Name = "btnStartListener";
             this.btnStartListener.Size = new System.Drawing.Size(100, 28);
             this.btnStartListener.TabIndex = 10;
@@ -291,9 +316,9 @@
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.rbBernoulli);
             this.groupBox1.Location = new System.Drawing.Point(9, 49);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
             this.groupBox1.Size = new System.Drawing.Size(257, 160);
             this.groupBox1.TabIndex = 8;
             this.groupBox1.TabStop = false;
@@ -302,7 +327,7 @@
             // nudStayDrop
             // 
             this.nudStayDrop.Location = new System.Drawing.Point(184, 87);
-            this.nudStayDrop.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.nudStayDrop.Margin = new System.Windows.Forms.Padding(4);
             this.nudStayDrop.Name = "nudStayDrop";
             this.nudStayDrop.Size = new System.Drawing.Size(55, 22);
             this.nudStayDrop.TabIndex = 7;
@@ -315,7 +340,7 @@
             // btnUpdateDropoutModel
             // 
             this.btnUpdateDropoutModel.Location = new System.Drawing.Point(116, 119);
-            this.btnUpdateDropoutModel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnUpdateDropoutModel.Margin = new System.Windows.Forms.Padding(4);
             this.btnUpdateDropoutModel.Name = "btnUpdateDropoutModel";
             this.btnUpdateDropoutModel.Size = new System.Drawing.Size(123, 28);
             this.btnUpdateDropoutModel.TabIndex = 9;
@@ -336,7 +361,7 @@
             // nudStayPass
             // 
             this.nudStayPass.Location = new System.Drawing.Point(184, 62);
-            this.nudStayPass.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.nudStayPass.Margin = new System.Windows.Forms.Padding(4);
             this.nudStayPass.Name = "nudStayPass";
             this.nudStayPass.Size = new System.Drawing.Size(55, 22);
             this.nudStayPass.TabIndex = 5;
@@ -350,7 +375,7 @@
             // 
             this.rbMarkov.AutoSize = true;
             this.rbMarkov.Location = new System.Drawing.Point(8, 62);
-            this.rbMarkov.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rbMarkov.Margin = new System.Windows.Forms.Padding(4);
             this.rbMarkov.Name = "rbMarkov";
             this.rbMarkov.Size = new System.Drawing.Size(79, 21);
             this.rbMarkov.TabIndex = 1;
@@ -370,7 +395,7 @@
             // nudBernoulliPass
             // 
             this.nudBernoulliPass.Location = new System.Drawing.Point(184, 23);
-            this.nudBernoulliPass.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.nudBernoulliPass.Margin = new System.Windows.Forms.Padding(4);
             this.nudBernoulliPass.Name = "nudBernoulliPass";
             this.nudBernoulliPass.Size = new System.Drawing.Size(55, 22);
             this.nudBernoulliPass.TabIndex = 3;
@@ -395,7 +420,7 @@
             this.rbBernoulli.AutoSize = true;
             this.rbBernoulli.Checked = true;
             this.rbBernoulli.Location = new System.Drawing.Point(8, 23);
-            this.rbBernoulli.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rbBernoulli.Margin = new System.Windows.Forms.Padding(4);
             this.rbBernoulli.Name = "rbBernoulli";
             this.rbBernoulli.Size = new System.Drawing.Size(84, 21);
             this.rbBernoulli.TabIndex = 0;
@@ -406,7 +431,7 @@
             // tbCanalPort
             // 
             this.tbCanalPort.Location = new System.Drawing.Point(107, 11);
-            this.tbCanalPort.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tbCanalPort.Margin = new System.Windows.Forms.Padding(4);
             this.tbCanalPort.Name = "tbCanalPort";
             this.tbCanalPort.Size = new System.Drawing.Size(57, 22);
             this.tbCanalPort.TabIndex = 4;
@@ -425,6 +450,11 @@
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.tabPage1.Controls.Add(this.textBox2);
+            this.tabPage1.Controls.Add(this.groupBox3);
+            this.tabPage1.Controls.Add(this.button1);
+            this.tabPage1.Controls.Add(this.label12);
+            this.tabPage1.Controls.Add(this.textBox1);
             this.tabPage1.Controls.Add(this.label2);
             this.tabPage1.Controls.Add(this.btnAttack);
             this.tabPage1.Controls.Add(this.clbAttackModels);
@@ -446,29 +476,98 @@
             this.tabPage1.Controls.Add(this.label4);
             this.tabPage1.Controls.Add(this.tbTargetPort);
             this.tabPage1.Controls.Add(this.groupBox2);
-            this.tabPage1.Controls.Add(this.btnAddAttackModel);
+            this.tabPage1.Controls.Add(this.btnAddUpdateAttackModel);
             this.tabPage1.Location = new System.Drawing.Point(4, 25);
-            this.tabPage1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabPage1.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(4);
             this.tabPage1.Size = new System.Drawing.Size(1136, 616);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Attack settings";
             // 
+            // textBox2
+            // 
+            this.textBox2.Location = new System.Drawing.Point(824, 10);
+            this.textBox2.Multiline = true;
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(301, 202);
+            this.textBox2.TabIndex = 29;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.rbSetValue);
+            this.groupBox3.Controls.Add(this.rbAddValue);
+            this.groupBox3.Location = new System.Drawing.Point(178, 62);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(177, 71);
+            this.groupBox3.TabIndex = 28;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Attack type";
+            // 
+            // rbSetValue
+            // 
+            this.rbSetValue.AutoSize = true;
+            this.rbSetValue.Location = new System.Drawing.Point(7, 43);
+            this.rbSetValue.Name = "rbSetValue";
+            this.rbSetValue.Size = new System.Drawing.Size(88, 21);
+            this.rbSetValue.TabIndex = 1;
+            this.rbSetValue.TabStop = true;
+            this.rbSetValue.Text = "Set value";
+            this.rbSetValue.UseVisualStyleBackColor = true;
+            // 
+            // rbAddValue
+            // 
+            this.rbAddValue.AutoSize = true;
+            this.rbAddValue.Checked = true;
+            this.rbAddValue.Location = new System.Drawing.Point(7, 21);
+            this.rbAddValue.Name = "rbAddValue";
+            this.rbAddValue.Size = new System.Drawing.Size(92, 21);
+            this.rbAddValue.TabIndex = 0;
+            this.rbAddValue.TabStop = true;
+            this.rbAddValue.Text = "Add value";
+            this.rbAddValue.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(615, 198);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 27;
+            this.button1.Text = "Clear";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(612, 149);
+            this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(126, 17);
+            this.label12.TabIndex = 26;
+            this.label12.Text = "Manual time series";
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(615, 169);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(191, 22);
+            this.textBox1.TabIndex = 25;
+            // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(348, 68);
+            this.label2.Location = new System.Drawing.Point(366, 68);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(96, 17);
+            this.label2.Size = new System.Drawing.Size(139, 17);
             this.label2.TabIndex = 24;
-            this.label2.Text = "Attack models";
+            this.label2.Text = "Saved attack models";
             // 
             // btnAttack
             // 
-            this.btnAttack.Location = new System.Drawing.Point(465, 170);
-            this.btnAttack.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnAttack.Location = new System.Drawing.Point(482, 195);
+            this.btnAttack.Margin = new System.Windows.Forms.Padding(4);
             this.btnAttack.Name = "btnAttack";
             this.btnAttack.Size = new System.Drawing.Size(99, 28);
             this.btnAttack.TabIndex = 23;
@@ -479,34 +578,38 @@
             // clbAttackModels
             // 
             this.clbAttackModels.FormattingEnabled = true;
-            this.clbAttackModels.Location = new System.Drawing.Point(352, 87);
-            this.clbAttackModels.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.clbAttackModels.Location = new System.Drawing.Point(370, 87);
+            this.clbAttackModels.Margin = new System.Windows.Forms.Padding(4);
             this.clbAttackModels.Name = "clbAttackModels";
-            this.clbAttackModels.Size = new System.Drawing.Size(211, 72);
+            this.clbAttackModels.Size = new System.Drawing.Size(211, 106);
             this.clbAttackModels.TabIndex = 22;
             this.clbAttackModels.SelectedIndexChanged += new System.EventHandler(this.clbAttackModels_SelectedIndexChanged);
             // 
             // perturbationChart
             // 
-            chartArea1.Name = "ChartArea1";
-            this.perturbationChart.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.perturbationChart.Legends.Add(legend1);
-            this.perturbationChart.Location = new System.Drawing.Point(8, 220);
-            this.perturbationChart.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.perturbationChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            chartArea2.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea2.Name = "ChartArea1";
+            this.perturbationChart.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.perturbationChart.Legends.Add(legend2);
+            this.perturbationChart.Location = new System.Drawing.Point(8, 232);
+            this.perturbationChart.Margin = new System.Windows.Forms.Padding(4);
             this.perturbationChart.Name = "perturbationChart";
-            this.perturbationChart.Size = new System.Drawing.Size(1117, 385);
+            this.perturbationChart.Size = new System.Drawing.Size(1117, 373);
             this.perturbationChart.TabIndex = 21;
             this.perturbationChart.Text = "chart1";
-            title1.Name = "Title1";
-            title1.Text = "Attack";
-            this.perturbationChart.Titles.Add(title1);
+            title2.Name = "Title1";
+            title2.Text = "Attack";
+            this.perturbationChart.Titles.Add(title2);
             // 
             // cbAllPorts
             // 
             this.cbAllPorts.AutoSize = true;
-            this.cbAllPorts.Location = new System.Drawing.Point(269, 23);
-            this.cbAllPorts.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cbAllPorts.Location = new System.Drawing.Point(269, 25);
+            this.cbAllPorts.Margin = new System.Windows.Forms.Padding(4);
             this.cbAllPorts.Name = "cbAllPorts";
             this.cbAllPorts.Size = new System.Drawing.Size(148, 21);
             this.cbAllPorts.TabIndex = 20;
@@ -517,7 +620,7 @@
             // 
             this.cbAllIPs.AutoSize = true;
             this.cbAllIPs.Location = new System.Drawing.Point(269, 6);
-            this.cbAllIPs.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cbAllIPs.Margin = new System.Windows.Forms.Padding(4);
             this.cbAllIPs.Name = "cbAllIPs";
             this.cbAllIPs.Size = new System.Drawing.Size(138, 21);
             this.cbAllIPs.TabIndex = 19;
@@ -532,8 +635,8 @@
             0,
             0,
             65536});
-            this.nudFrequency.Location = new System.Drawing.Point(289, 172);
-            this.nudFrequency.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.nudFrequency.Location = new System.Drawing.Point(300, 203);
+            this.nudFrequency.Margin = new System.Windows.Forms.Padding(4);
             this.nudFrequency.Name = "nudFrequency";
             this.nudFrequency.Size = new System.Drawing.Size(55, 22);
             this.nudFrequency.TabIndex = 18;
@@ -546,7 +649,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(168, 175);
+            this.label11.Location = new System.Drawing.Point(179, 206);
             this.label11.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(104, 17);
@@ -561,8 +664,8 @@
             0,
             0,
             65536});
-            this.nudTimeConst.Location = new System.Drawing.Point(289, 144);
-            this.nudTimeConst.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.nudTimeConst.Location = new System.Drawing.Point(300, 180);
+            this.nudTimeConst.Margin = new System.Windows.Forms.Padding(4);
             this.nudTimeConst.Name = "nudTimeConst";
             this.nudTimeConst.Size = new System.Drawing.Size(55, 22);
             this.nudTimeConst.TabIndex = 16;
@@ -575,7 +678,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(168, 146);
+            this.label10.Location = new System.Drawing.Point(179, 182);
             this.label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(116, 17);
@@ -590,8 +693,8 @@
             0,
             0,
             65536});
-            this.nudAmplitude.Location = new System.Drawing.Point(289, 116);
-            this.nudAmplitude.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.nudAmplitude.Location = new System.Drawing.Point(300, 157);
+            this.nudAmplitude.Margin = new System.Windows.Forms.Padding(4);
             this.nudAmplitude.Minimum = new decimal(new int[] {
             100,
             0,
@@ -608,8 +711,8 @@
             // 
             // nudDuration
             // 
-            this.nudDuration.Location = new System.Drawing.Point(289, 87);
-            this.nudDuration.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.nudDuration.Location = new System.Drawing.Point(300, 134);
+            this.nudDuration.Margin = new System.Windows.Forms.Padding(4);
             this.nudDuration.Name = "nudDuration";
             this.nudDuration.Size = new System.Drawing.Size(55, 22);
             this.nudDuration.TabIndex = 13;
@@ -622,7 +725,7 @@
             // labelStatus
             // 
             this.labelStatus.AutoSize = true;
-            this.labelStatus.Location = new System.Drawing.Point(572, 87);
+            this.labelStatus.Location = new System.Drawing.Point(588, 89);
             this.labelStatus.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelStatus.Name = "labelStatus";
             this.labelStatus.Size = new System.Drawing.Size(102, 34);
@@ -632,7 +735,7 @@
             // tabPage3
             // 
             this.tabPage3.Location = new System.Drawing.Point(4, 25);
-            this.tabPage3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabPage3.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Size = new System.Drawing.Size(1136, 616);
             this.tabPage3.TabIndex = 2;
@@ -653,10 +756,10 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripLabel,
             this.toolStripDropDownButton1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 677);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 662);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 19, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(1232, 26);
+            this.statusStrip1.Size = new System.Drawing.Size(1161, 26);
             this.statusStrip1.TabIndex = 2;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -695,10 +798,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1232, 703);
+            this.ClientSize = new System.Drawing.Size(1161, 688);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.tabControl1);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainForm";
             this.Text = "Canal GUI";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
@@ -715,6 +818,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudBernoulliPass)).EndInit();
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.perturbationChart)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudFrequency)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudTimeConst)).EndInit();
@@ -736,7 +841,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Button btnAddAttackModel;
+        private System.Windows.Forms.Button btnAddUpdateAttackModel;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
@@ -778,6 +883,14 @@
         public System.Windows.Forms.NumericUpDown nudFrequency;
         public System.Windows.Forms.NumericUpDown nudTimeConst;
         public System.Windows.Forms.DataVisualization.Charting.Chart perturbationChart;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label12;
+        public System.Windows.Forms.RadioButton rbManual;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.RadioButton rbSetValue;
+        private System.Windows.Forms.RadioButton rbAddValue;
+        private System.Windows.Forms.TextBox textBox2;
     }
 }
 

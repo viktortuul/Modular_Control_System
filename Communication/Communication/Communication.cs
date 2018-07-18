@@ -33,15 +33,15 @@ namespace Communication
         UdpClient listener;
         IPEndPoint serverEP;
 
-        public Server(string IP, int port) // (ip address of the sender; listenting port on this machine)
+        public Server(string IP, int Port) // (ip address of the sender; listenting port on this machine)
         {
-            IPAddress ip_address;
+            IPAddress IP_address;
 
-            if (IP == "ANY") ip_address = IPAddress.Any;
-            else ip_address = IPAddress.Parse(IP);
+            if (IP == "ANY_IP") IP_address = IPAddress.Any;
+            else IP_address = IPAddress.Parse(IP);
 
-            serverEP = new IPEndPoint(ip_address, port);
-            listener = new UdpClient(port);
+            serverEP = new IPEndPoint(IP_address, Port);
+            listener = new UdpClient(Port);
         }
 
         public void Listen()
@@ -51,6 +51,21 @@ namespace Communication
         } 
     }
 
+
+    // end-point container
+    public struct AddressEndPoint
+    {
+        public string IP;
+        public int Port;
+
+        public AddressEndPoint(string IP, int Port)
+        {
+            this.IP = IP;
+            this.Port = Port;
+        }
+    }
+
+    // same as the end-point container, but also contains a local port
     public struct ConnectionParameters
     {
         public string IP;
@@ -64,16 +79,6 @@ namespace Communication
         }
     }
 
-    public struct AddressEndPoint
-    {
-        public string IP;
-        public int Port;
 
-        public AddressEndPoint(string IP, int Port)
-        {
-            this.IP = IP;
-            this.Port = Port;
-        }
-    }
 
 }

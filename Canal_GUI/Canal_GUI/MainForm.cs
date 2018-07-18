@@ -32,7 +32,7 @@ namespace Canal_GUI
         // drop out models
         Bernoulli Bernoulli;
         MarkovChain Markov;
-        Object DropOutModel = null;
+        Object SelectedDropOutModel = null;
 
         // listening port
         int port_recieve;
@@ -78,22 +78,31 @@ namespace Canal_GUI
             folderName = Directory.GetCurrentDirectory();
             toolStripLabel.Text = "Dir: " + folderName;
 
-            Helpers.InitialChartSettings(this);
+            Charting.InitialChartSettings(this);
             Helpers.ManageNumericalUpdowns(this);
 
             timerChart.Start();
         }
 
-        private void btnAddAttackModel_Click(object sender, EventArgs e)
+        private void btnAddUpdateAttackModel_Click(object sender, EventArgs e)
         {
-            string target_tag = tbTargetTag.Text;
-
             // initalize the attack object
+            string target_tag = tbTargetTag.Text;
+            double[] time_series = new double[0];
+            bool add_value = true;
             string type = "";
-            if (rbBias.Checked == true)                 type = "bias";
-            if (rbTransientDecrease.Checked == true)    type = "transientD";
-            if (rbTransientIncrease.Checked == true)    type = "transientI";
-            if (rbSinusoid.Checked == true)             type = "sinusoid";
+            if (rbBias.Checked == true) type = "bias";
+            if (rbTransientDecrease.Checked == true) type = "transientD";
+            if (rbTransientIncrease.Checked == true) type = "transientI";
+            if (rbSinusoid.Checked == true) type = "sinusoid";
+            if (rbManual.Checked == true)
+            {
+                type = "manual";
+                time_series = Helpers.DecodeTimeSeries(textBox1.Text);
+            }
+            if (rbAddValue.Checked == true) add_value = true;
+            else if (rbSetValue.Checked == true) add_value = false;
+
             double duration = Convert.ToDouble(nudDuration.Value);
             double amplitude = Convert.ToDouble(nudAmplitude.Value);
             double time_constant = Convert.ToDouble(nudTimeConst.Value);
@@ -103,11 +112,11 @@ namespace Canal_GUI
 
             if (attack_container.ContainsKey(target_tag) || target_tag == "") // update attack settings
             {
-                attack_container[selected_tag].UpdateModel(tbTargetIP.Text, tbTargetPort.Text, allIPs, allPorts, type, duration, amplitude, time_constant, frequency);
+                attack_container[selected_tag].UpdateModel(tbTargetIP.Text, tbTargetPort.Text, allIPs, allPorts, type, add_value, duration, amplitude, time_constant, frequency, time_series);
             }
             else // new attack model
             {
-                Attack attack = new Attack(tbTargetIP.Text, tbTargetPort.Text, allIPs, allPorts, tbTargetTag.Text, type, duration, amplitude, time_constant, frequency);
+                Attack attack = new Attack(tbTargetIP.Text, tbTargetPort.Text, allIPs, allPorts, tbTargetTag.Text, type, add_value, duration, amplitude, time_constant, frequency, time_series);
                 attack_container.Add(target_tag, attack);
                 clbAttackModels.Items.Add(target_tag);
                 clbAttackModels.SelectedIndex = clbAttackModels.Items.Count - 1;
@@ -126,7 +135,7 @@ namespace Canal_GUI
             // create a new thread for the listener
             if (thread_started == false)
             {
-                thread_listener = new Thread(() => Listener("ANY", port_recieve)); // listen on port 8000 (packages from any IP address)
+                thread_listener = new Thread(() => Listener("ANY_IP", port_recieve)); // listen on packages from any IP address
                 thread_listener.Start();
                 thread_started = true;
             }
@@ -139,7 +148,6 @@ namespace Canal_GUI
 
             while (true)
             {
-                Thread.Sleep(1);
                 try
                 {
                     Listener.Listen();
@@ -148,6 +156,7 @@ namespace Canal_GUI
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
+                    textBox2.Text += ex.ToString();
                 }
             }
         }
@@ -200,8 +209,8 @@ namespace Canal_GUI
             Client Sender = new Client(IP, port);
 
             // check if pass or drop
-            MethodInfo isPass = DropOutModel.GetType().GetMethod("isPass");
-            bool pass = (bool)isPass.Invoke(DropOutModel, null);
+            MethodInfo isPass = SelectedDropOutModel.GetType().GetMethod("isPass");
+            bool pass = (bool)isPass.Invoke(SelectedDropOutModel, null);
 
             if (pass == true) Sender.Send(message);
         }
@@ -217,12 +226,13 @@ namespace Canal_GUI
             Markov = new MarkovChain(1, P_pd / 100, P_dp / 100);
 
             // assign beronoulli or markov as the current drop out model
-            if (rbBernoulli.Checked == true) DropOutModel = Bernoulli;
-            if (rbMarkov.Checked == true) DropOutModel = Markov;
+            if (rbBernoulli.Checked == true) SelectedDropOutModel = Bernoulli;
+            if (rbMarkov.Checked == true) SelectedDropOutModel = Markov;
         }
 
         private void btnAttack_Click(object sender, EventArgs e)
         {
+            // start attack on all checked items
             foreach (string item in clbAttackModels.CheckedItems)
             {
                 string key = item.ToString();
@@ -234,11 +244,12 @@ namespace Canal_GUI
 
         private void clbAttackModels_SelectedIndexChanged(object sender, EventArgs e)
         {
+            // update windows form values
             selected_tag = clbAttackModels.SelectedItem.ToString();
 
             // numerical up-downs
             nudDuration.Value = Convert.ToDecimal(attack_container[selected_tag].duration);
-            nudAmplitude.Value = Convert.ToDecimal(attack_container[selected_tag].amplitude);
+            nudAmplitude.Value = Convert.ToDecimal(attack_container[selected_tag].amplitude_attack);
             nudTimeConst.Value = Convert.ToDecimal(attack_container[selected_tag].time_const);
             nudFrequency.Value = Convert.ToDecimal(attack_container[selected_tag].frequency);
 
@@ -251,6 +262,9 @@ namespace Canal_GUI
             if (attack_container[selected_tag].type == "transientD") rbTransientDecrease.Checked = true;
             if (attack_container[selected_tag].type == "transientI") rbTransientIncrease.Checked = true;
             if (attack_container[selected_tag].type == "sinusoid") rbSinusoid.Checked = true;
+            if (attack_container[selected_tag].type == "manual") rbManual.Checked = true;
+            if (attack_container[selected_tag].add_value == true) rbAddValue.Checked = true;
+            else rbSetValue.Checked = true;
         }
 
         private void timerChart_Tick(object sender, EventArgs e)
@@ -259,14 +273,14 @@ namespace Canal_GUI
             foreach (string item in clbAttackModels.Items)
             {
                 string key = item.ToString();
-                perturbations[key].InsertData(DateTime.UtcNow.ToString(Constants.FMT), attack_container[key].value.ToString());
+                perturbations[key].InsertData(DateTime.UtcNow.ToString(Constants.FMT), attack_container[key].value_attack.ToString());
             }
 
             // scale y-axis for the chart
-            Helpers.ChangeYScale(perturbationChart, "data_chart");
+            Charting.ChangeYScale(perturbationChart, "data_chart");
 
             // update time axis minimum and maximum
-            Helpers.UpdateChartAxes(perturbationChart, chart_history);
+            Charting.UpdateChartAxes(perturbationChart, chart_history);
 
             // draw chart
             UpdateChart(perturbationChart, perturbations);
@@ -283,7 +297,7 @@ namespace Canal_GUI
             foreach (string key in keys)
             {
                 // if series does not exist, add it
-                if (chart_.Series.IndexOf(key) == -1) Helpers.AddChartSeries(key, chart_);
+                if (chart_.Series.IndexOf(key) == -1) Charting.AddChartSeries(key, chart_);
 
                 int i = dict[key].time.Length - 1;
                 if (dict[key].time[i] != null)
@@ -300,7 +314,7 @@ namespace Canal_GUI
         private void timerStatus_Tick(object sender, EventArgs e)
         {
             labelStatus.Text = "Time left[s]: " + Math.Round(attack_container[selected_tag].time_left, 1) + Environment.NewLine +
-            "Perturbation: " + Math.Round(attack_container[selected_tag].value, 1);
+            "Perturbation: " + Math.Round(attack_container[selected_tag].value_attack, 1);
         }
 
         private void btnUpdateDropoutModel_Click_1(object sender, EventArgs e)
@@ -338,10 +352,20 @@ namespace Canal_GUI
             Helpers.ManageNumericalUpdowns(this);
         }
 
+        private void rbManual_CheckedChanged(object sender, EventArgs e)
+        {
+            Helpers.ManageNumericalUpdowns(this);
+        }
+
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             // kill all threads when the form closes
             Environment.Exit(0);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            textBox1.Text = "";
         }
     }
 }

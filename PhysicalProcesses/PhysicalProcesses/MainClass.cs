@@ -185,7 +185,7 @@ namespace PhysicalProcesses
             }
 
             // update prior time
-            update_last = nowTime;
+            update_last = DateTime.Now;
         }
 
         public void change_states(double[] disturbance)
@@ -196,18 +196,12 @@ namespace PhysicalProcesses
 
         public double[] get_yo()
         {
-            // apply measurement noise
-            var r = new GaussianRandom();
-            double n = r.NextGaussian(0, 0.1);
-            return new double[] { h1 + n };
+            return new double[] { h1 };
         }
 
         public double[] get_yc()
         {
-            // apply measurement noise
-            var r = new GaussianRandom();
-            double n = r.NextGaussian(0, 0.1);
-            return new double[] { h2 + n };
+            return new double[] { h2 };
         }
 
         public void set_u(double[] _u)
@@ -311,20 +305,12 @@ namespace PhysicalProcesses
 
         public double[] get_yo()
         {
-            // apply measurement noise
-            var r = new GaussianRandom();
-            double n1 = r.NextGaussian(0, 0.1);
-            double n2 = r.NextGaussian(0, 0.1);
-            return new double[] { h11 + n1, h12 + n2 };
+            return new double[] { h11, h12 };
         }
 
         public double[] get_yc()
         {
-            // apply measurement noise
-            var r = new GaussianRandom();
-            double n1 = r.NextGaussian(0, 0.1);
-            double n2 = r.NextGaussian(0, 0.1);
-            return new double[] { h21 + n1, h22 + n2 };
+            return new double[] { h21, h22 };
         }
 
         public void set_u(double[] u_)
@@ -400,21 +386,13 @@ namespace PhysicalProcesses
 
         public double[] get_yo()
         {
-            // apply measurement noise
-            var r = new GaussianRandom();
-            double n1 = r.NextGaussian(0, 0.1);
-            double n2 = r.NextGaussian(0, 0.1);
-            double n3 = r.NextGaussian(0, 0.1);
             return new double[] { 0 };
             //return new double[] { x + n1, x_d + n2 , phi_d + n3};
         }
 
         public double[] get_yc()
         {
-            // apply measurement noise
-            var r = new GaussianRandom();
-            double n1 = r.NextGaussian(0, 0.1);
-            return new double[] { phi + n1 };
+            return new double[] { phi };
         }
 
         public void set_u(double[] u_)
@@ -489,21 +467,13 @@ namespace PhysicalProcesses
 
         public double[] get_yo()
         {
-            // apply measurement noise
-            var r = new GaussianRandom();
-            double n1 = r.NextGaussian(0, 0.1);
-            double n2 = r.NextGaussian(0, 0.1);
             return new double[] { 0 };
             //return new double[] { x_d + n2 , phi_d + n3};
         }
 
         public double[] get_yc()
         {
-            // apply measurement noise
-            var r = new GaussianRandom();
-            double n1 = r.NextGaussian(0, 0.1);
-            double n2 = r.NextGaussian(0, 0.1);
-            return new double[] { x + n1, phi + n2 };
+            return new double[] { x, phi };
         }
 
         public void set_u(double[] u_)

@@ -105,12 +105,19 @@ namespace Model_Watertank
                 message += Convert.ToString("time_" + DateTime.UtcNow.ToString(FMT) + "#");
 
                 // observed states
-                for (int i = 0; i < plant.get_yo().Length; i++)
-                    message += "yo" + (i + 1) + "_" + (plant.get_yo()[i]).ToString() + "#";
+                //for (int i = 0; i < plant.get_yo().Length; i++)
+                //    message += "yo" + (i + 1) + "_" + (plant.get_yo()[i]).ToString() + "#";
 
                 // controlled states
                 for (int i = 0; i < plant.get_yc().Length; i++)
-                    message += "yc" + (i + 1) + "_" + plant.get_yc()[i].ToString() + "#";
+                {
+                    // apply measurement noise
+                    var r = new GaussianRandom();
+                    double n = r.NextGaussian(0, 0.1);
+
+                    message += "yc" + (i + 1) + "_" + (plant.get_yc()[i] + n).ToString() + "#";
+                }
+
                 
                 message = message.Substring(0, message.LastIndexOf('#')); // remove the last delimiter '#'
                 sender.Send(message);
