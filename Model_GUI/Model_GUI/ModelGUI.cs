@@ -120,7 +120,6 @@ namespace Model_GUI
 
             while (true)
             {
-                Thread.Sleep(5);
                 try
                 {
                     listener.Listen();
@@ -152,7 +151,7 @@ namespace Model_GUI
 
             while (true)
             {
-                Thread.Sleep(10);
+                Thread.Sleep(50);
 
                 // send measurements y      
                 string message = "";
@@ -478,11 +477,11 @@ namespace Model_GUI
 
         private void ModelGUI_Resize(object sender, EventArgs e)
         {
-            int y_start = dataChart.Location.Y;
-            int height_total = groupBox5.Height - y_start;
-            dataChart.Height = height_total / 2 - y_start;
-            perturbationChart.Location = new Point(3, + y_start + height_total / 2);
-            perturbationChart.Height = height_total / 2 - y_start;
+            //int y_start = dataChart.Location.Y;
+            //int height_total = groupBox5.Height - y_start;
+            //dataChart.Height = height_total / 2 - y_start;
+            //perturbationChart.Location = new Point(3, + y_start + height_total / 2);
+            //perturbationChart.Height = height_total / 2 - y_start;
         }
     }
 }

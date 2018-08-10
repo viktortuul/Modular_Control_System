@@ -15,7 +15,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 using System.IO;
 using Communication;
 
-namespace GUI
+namespace HMI
 {
     public partial class FrameGUI : Form
     {
@@ -25,7 +25,7 @@ namespace GUI
         public int n_connections = 0; // connection count
 
         // chart settings
-        public int chart_history = 60; // chart view time [s]
+        public int n_chart_history = 60; // chart view time [s]
 
         // folder setting for chart image save
         public string folderName = "";
@@ -58,17 +58,17 @@ namespace GUI
             if (connection_current.is_connected_to_process == true)
             {
                 // add the correct number of reference series
-                Helpers.ManageReferenceSeries(this);
+                Charting.ManageReferenceSeries(this);
 
                 // update charts
-                UpdateChartGraph(connection_current.references, ""); // reference
-                UpdateChartGraph(connection_current.recieved_packages, ""); // states
-                UpdateChartGraph(connection_current.estimates, ""); // kalman filter estimates
+                UpdateChart(connection_current.references, ""); // reference
+                UpdateChart(connection_current.recieved_packages, ""); // states
+                UpdateChart(connection_current.estimates, ""); // kalman filter estimates
 
                 // update time axis minimum and maximum
-                Charting.UpdateChartAxes(dataChart, chart_history);
-                Charting.UpdateChartAxes(residualChart, chart_history);
-                Charting.UpdateChartAxes(securityChart, chart_history);
+                Charting.UpdateChartAxes(dataChart, n_chart_history);
+                Charting.UpdateChartAxes(residualChart, n_chart_history);
+                Charting.UpdateChartAxes(securityChart, n_chart_history);
 
                 // update time labels
                 Helpers.UpdateTimeLabels(this, connection_current, Constants.FMT);
@@ -78,7 +78,7 @@ namespace GUI
             }
         }
 
-        private void UpdateChartGraph(Dictionary<string, DataContainer> dict, string setting)
+        private void UpdateChart(Dictionary<string, DataContainer> dict, string setting)
         {
             // get all keys from the current dictionary
             var keys = dict.Keys.ToList();
@@ -87,7 +87,7 @@ namespace GUI
             foreach (string key in keys)
             {
                 // if series does not exist, add it
-                if (dataChart.Series.IndexOf(key) == -1) Charting.AddChartSeries(key, dataChart);
+                if (dataChart.Series.IndexOf(key) == -1) Charting.AddChartSeries(this, key, dataChart);
 
                 // data load setting
                 int index_start;
@@ -106,14 +106,14 @@ namespace GUI
                         dataChart.Series[key].Points.AddXY(time.ToOADate(), Convert.ToDouble(dict[key].value[i]));
 
                         // plot residuals for flagged states
-                        if (dict[key].hasResidual == true)
+                        if (dict[key].has_residual == true)
                         {
                             // if residual series does not exist, add it
-                            if (residualChart.Series.IndexOf(key + "_res") == -1) Charting.AddChartSeries(key + "_res", residualChart);
+                            if (residualChart.Series.IndexOf(key + "_res") == -1) Charting.AddChartSeries(this, key + "_res", residualChart);
                             residualChart.Series[key + "_res"].Points.AddXY(time.ToOADate(), Convert.ToDouble(dict[key].residual[i]));
 
                             // if security metric series does not exist, add it
-                            if (securityChart.Series.IndexOf("S_" + key) == -1) Charting.AddChartSeries("S_" + key, securityChart);
+                            if (securityChart.Series.IndexOf("S_" + key) == -1) Charting.AddChartSeries(this, "S_" + key, securityChart);
                             securityChart.Series["S_" + key].Points.AddXY(time.ToOADate(), connection_current.filter.security_metric);
                         }
                     }
@@ -123,7 +123,11 @@ namespace GUI
                 if (dataChart.Series[key].Points.Count > Constants.n_steps)
                 {
                     dataChart.Series[key].Points.RemoveAt(0);
-                    if (dict[key].hasResidual) residualChart.Series[key + "_res"].Points.RemoveAt(0);
+                    if (dict[key].has_residual)
+                    {
+                        residualChart.Series[key + "_res"].Points.RemoveAt(0);
+                        securityChart.Series["S_" + key].Points.RemoveAt(0);
+                    }
                 }
             }
         }
@@ -143,9 +147,9 @@ namespace GUI
                 residualChart.Series.Clear();
 
                 // refresh the chart
-                UpdateChartGraph(connection_current.references, "load_all"); // reference
-                UpdateChartGraph(connection_current.recieved_packages, "load_all"); // states
-                UpdateChartGraph(connection_current.estimates, "load_all"); // kalman filter estimates
+                UpdateChart(connection_current.references, "load_all"); // reference
+                UpdateChart(connection_current.recieved_packages, "load_all"); // states
+                UpdateChart(connection_current.estimates, "load_all"); // kalman filter estimates
 
                 // scale y-axis for the charts
                 Charting.ChangeYScale(dataChart, "data_chart");
@@ -157,7 +161,7 @@ namespace GUI
                 // select the corresponding item in the treeview
                 treeViewControllers.SelectedNode = treeViewControllers.Nodes[connection_current.name];
             }
-            catch {}
+            catch { }
         }
 
         private void btnAllowConnection_Click_1(object sender, EventArgs e)
@@ -167,20 +171,18 @@ namespace GUI
             numUpDownKi.Enabled = true;
             numUpDownKd.Enabled = true;
 
-            // controller name and corresponding ip:port pairs
+            // control module name and corresponding ip:port pairs
             string name = textBoxName.Text;
-            string IP_this = textBox_ip_recieve.Text;
-            int port_this = Convert.ToInt16(numericUpDown_port_recieve.Value);
             string IP_endpoint = textBox_ip_send.Text;
+            string IP_this = textBox_ip_recieve.Text;
             int port_endpoint = Convert.ToInt16(numericUpDown_port_send.Value);
+            int port_this = Convert.ToInt16(numericUpDown_port_recieve.Value);
 
             // look for name and port conflicts with present allowed traffics
             bool already_exists = false;
             foreach (CommunicationManager controller in connections)
             {
-                if ((controller.ConnectionParameters.PortThis == port_this && 
-                    controller.ConnectionParameters.Port == port_endpoint) ||
-                    controller.name == name)
+                if ((controller.ConnectionParameters.PortThis == port_this && controller.ConnectionParameters.Port == port_endpoint) || controller.name == name)
                 {
                     already_exists = true;
                 }
@@ -193,15 +195,16 @@ namespace GUI
             else
             {
                 // connection parameters
-                ConnectionParameters ConnParams = new ConnectionParameters(IP_endpoint, port_endpoint, port_this);
+                ConnectionParameters connectionParameters = new ConnectionParameters(IP_endpoint, port_endpoint, port_this);
+
                 // create and add controller
-                PIDparameters ControllerParameters = new PIDparameters(Convert.ToDouble(numUpDownKp.Value), Convert.ToDouble(numUpDownKi.Value), Convert.ToDouble(numUpDownKd.Value));
-                CommunicationManager controller_connection = new CommunicationManager(this, name, ControllerParameters, canalEP, ConnParams);
+                PIDparameters controllerParameters = new PIDparameters(Convert.ToDouble(numUpDownKp.Value), Convert.ToDouble(numUpDownKi.Value), Convert.ToDouble(numUpDownKd.Value));
+                CommunicationManager controller_connection = new CommunicationManager(this, name, controllerParameters, canalEP, connectionParameters);
                 connections.Add(controller_connection);
                 connection_current = controller_connection;
                 listBoxModules.Items.Add(name);
 
-                // select the added module
+                // select the added module in the listbox
                 listBoxModules.SelectedIndex = listBoxModules.Items.Count - 1;
 
                 // start timers
@@ -215,9 +218,9 @@ namespace GUI
                 treeViewControllers.Nodes[name].Nodes["Communication"].Nodes.Add("port", "Port (endpoint): " + port_endpoint.ToString());
                 treeViewControllers.Nodes[name].Nodes["Communication"].Nodes.Add("port_gui", "Port (this): " + port_this.ToString());
                 treeViewControllers.Nodes[name].Nodes.Add("Controller", "Controller settings");
-                treeViewControllers.Nodes[name].Nodes["Controller"].Nodes.Add("Kp", "Kp: " + ControllerParameters.Kp.ToString());
-                treeViewControllers.Nodes[name].Nodes["Controller"].Nodes.Add("Ki", "Ki: " + ControllerParameters.Ki.ToString());
-                treeViewControllers.Nodes[name].Nodes["Controller"].Nodes.Add("Kd", "Ks: " + ControllerParameters.Kd.ToString());
+                treeViewControllers.Nodes[name].Nodes["Controller"].Nodes.Add("Kp", "Kp: " + controllerParameters.Kp.ToString());
+                treeViewControllers.Nodes[name].Nodes["Controller"].Nodes.Add("Ki", "Ki: " + controllerParameters.Ki.ToString());
+                treeViewControllers.Nodes[name].Nodes["Controller"].Nodes.Add("Kd", "Ks: " + controllerParameters.Kd.ToString());
                 treeViewControllers.ExpandAll();
 
                 // update counter
@@ -235,9 +238,9 @@ namespace GUI
             Helpers.ManageTrackbars(this);
 
             // scale y-axis for the charts
-            Charting.ChangeYScale(dataChart, "data_chart");
-            Charting.ChangeYScale(residualChart, "residual_chart");
-            Charting.ChangeYScale(securityChart, "residual_chart");
+            Charting.ChangeYScale(dataChart, "round");
+            Charting.ChangeYScale(residualChart, "deci");
+            Charting.ChangeYScale(securityChart, "deci");
 
             labelSecurity.Text = "Security metric: " + Math.Round(connection_current.filter.security_metric, 1) + Environment.NewLine +
                                  "Status: " + connection_current.filter.security_status;
@@ -263,6 +266,26 @@ namespace GUI
         {
             foreach (var series in dataChart.Series) series.Points.Clear();
             foreach (var series in residualChart.Series) series.Points.Clear();
+        }
+
+        private void clbSeries_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            // list all checked items
+            List<string> checkedItems = new List<string>();
+            foreach (var item in clbSeries.CheckedItems) checkedItems.Add(item.ToString());
+
+            // also consider the new state of the checked item
+            if (e.NewValue == CheckState.Checked)
+                checkedItems.Add(clbSeries.Items[e.Index].ToString());
+            else
+                checkedItems.Remove(clbSeries.Items[e.Index].ToString());
+
+            // enable or disable series
+            foreach (var series in dataChart.Series)
+            {
+                if (checkedItems.Contains(series.Name)) dataChart.Series[series.Name].Enabled = true;
+                else dataChart.Series[series.Name].Enabled = false;
+            }
         }
 
         private void trackBarReference_Scroll(object sender, EventArgs e)
@@ -362,13 +385,13 @@ namespace GUI
 
         private void nudHistory_ValueChanged(object sender, EventArgs e)
         {
-            chart_history = Convert.ToInt16(nudHistory.Value);
+            n_chart_history = Convert.ToInt16(nudHistory.Value);
 
-            if (chart_history > 0)
+            if (n_chart_history > 0)
             {
-                dataChart.ChartAreas["ChartArea1"].AxisX.Interval = Convert.ToInt16(chart_history / 10);
-                residualChart.ChartAreas["ChartArea1"].AxisX.Interval = Convert.ToInt16(chart_history / 10);
-                securityChart.ChartAreas["ChartArea1"].AxisX.Interval = Convert.ToInt16(chart_history / 10);
+                dataChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(n_chart_history / 10);
+                residualChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(n_chart_history / 10);
+                securityChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(n_chart_history / 10);
             }
         }
 
@@ -379,12 +402,10 @@ namespace GUI
                 int y_start = residualChart.Location.Y;
                 int height_total = tabControl1.Height - y_start;
                 residualChart.Height = height_total / 2 - y_start;
-                securityChart.Location = new Point(6, +y_start + height_total / 2);
+                securityChart.Location = new Point(6, + y_start + height_total / 2);
                 securityChart.Height = height_total / 2 - y_start;
             }
             catch { }
         }
-
-
     }
 }

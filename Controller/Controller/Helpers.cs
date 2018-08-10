@@ -6,10 +6,6 @@ using System.Threading.Tasks;
 
 namespace Controller
 {
-    class Helpers
-    {
-    }
-
     public struct Constants
     {
         // time format
@@ -28,6 +24,19 @@ namespace Controller
             this.Kp = Kp;
             this.Ki = Ki;
             this.Kd = Kd;
+        }
+    }
+
+    class Helpers
+    {
+        public static bool isDouble(string str)
+        {
+            try
+            {
+                Double.Parse(str);
+                return true;
+            }
+            catch { return false; }
         }
     }
 }

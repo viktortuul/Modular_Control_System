@@ -8,7 +8,7 @@ using System.Threading;
 using System.Drawing;
 using System.Globalization;
 
-namespace GUI
+namespace HMI
 {
     public struct Constants
     {
@@ -34,13 +34,6 @@ namespace GUI
 
     public static class Helpers
     {
-        // drawing settings
-        public static Graphics g;
-        public static Pen pen_b = new Pen(Color.Black, 4);
-        public static Pen pen_r = new Pen(Color.Red, 3);
-        public static SolidBrush brush_b = new SolidBrush(Color.LightBlue);
-        public static Bitmap bm = new Bitmap(400, 800);
-
         public static void ManageReferencesKeys(int n_contr_states, Dictionary<string, DataContainer> references, int n_steps)
         {
             // add reference key
@@ -50,7 +43,6 @@ namespace GUI
                 {
                     references.Add("r1", new DataContainer(n_steps));
                     references["r1"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), "0");
-
                 }
             }
             if (n_contr_states >= 2)
@@ -59,39 +51,25 @@ namespace GUI
                 {
                     references.Add("r2", new DataContainer(n_steps));
                     references["r2"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), "0");
-
                 }
             }
         }
 
         public static void ManageEstimatesKeys(string key, Dictionary<string, DataContainer> estimates, int n_steps)
         {
-            // add estimate keys
             estimates.Add(key + "_hat", new DataContainer(n_steps)); 
-            //estimates[key + "_hat"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), "0");
         }
 
-        public static bool isDouble(String str)
-        {
-            try
-            {
-                Double.Parse(str);
-                return true;
-            }
-            catch { return false; }
-        }
-
-        
 
         public static void ManageTrackbars(FrameGUI GUI)
         {
             // enable or disable trackbars
-            if (GUI.connection_current.n_contr_states == 1)
+            if (GUI.connection_current.n_controlled_states == 1)
             {
                 GUI.trackBarReference1.Enabled = true;
                 GUI.numUpDownRef1.Enabled = true;
             }
-            else if (GUI.connection_current.n_contr_states == 2)
+            else if (GUI.connection_current.n_controlled_states == 2)
             {
                 GUI.trackBarReference1.Enabled = true;
                 GUI.trackBarReference2.Enabled = true;
@@ -104,15 +82,6 @@ namespace GUI
                 GUI.trackBarReference2.Enabled = false;
                 GUI.numUpDownRef1.Enabled = false;
                 GUI.numUpDownRef2.Enabled = false;
-            }
-        }
-
-        public static void ManageReferenceSeries(FrameGUI GUI)
-        {
-            for (int i = 0; i < GUI.connection_current.n_contr_states; i++)
-            {
-                if (GUI.dataChart.Series.IndexOf("r" + (i + 1).ToString()) == -1)
-                    Charting.AddChartSeries("r" + (i + 1).ToString(), GUI.dataChart);     
             }
         }
 
@@ -139,6 +108,13 @@ namespace GUI
             catch { }
         }
 
+        // drawing settings
+        public static Graphics g;
+        public static Pen pen_b = new Pen(Color.Black, 4);
+        public static Pen pen_r = new Pen(Color.Red, 3);
+        public static SolidBrush brush_b = new SolidBrush(Color.LightBlue);
+        public static Bitmap bm = new Bitmap(400, 800);
+
         public static void DrawTanks(FrameGUI GUI, CommunicationManager connection)
         {
             g = Graphics.FromImage(bm);
@@ -164,7 +140,7 @@ namespace GUI
             try { reference = Convert.ToInt16(cm2pix * Convert.ToDouble(connection.references["r1"].GetLastValue())); }
             catch { }
 
-            //
+            // dimensions
             double A1 = Convert.ToDouble(GUI.numUpDown_A1.Value);
             double a1 = Convert.ToDouble(GUI.numUpDown_a1a.Value);
             double A2 = Convert.ToDouble(GUI.numUpDown_A2.Value);
@@ -241,8 +217,6 @@ namespace GUI
             GUI.pictureBox1.Image = bm;
         }
 
-
-
         public static void UpdateGuiControls(FrameGUI GUI, CommunicationManager connection_current)
         {
             GUI.trackBarReference1.Value = Convert.ToInt16(connection_current.references["r1"].GetLastValue());
@@ -260,13 +234,22 @@ namespace GUI
 
     public static class Charting
     {
-        public static void AddChartSeries(string key, object chart)
+        public static void AddChartSeries(FrameGUI Main, string key, object chart)
         {
             Chart chart_ = (Chart)chart;
 
             // add a new time series
             if (chart_.Series.IndexOf(key) == -1)
             {
+                // add to the checked list box
+                if (chart_.Name == "dataChart")
+                {
+                    Main.clbSeries.Items.Add(key);
+                    Main.clbSeries.SetItemChecked(Main.clbSeries.Items.Count - 1, true);
+                }
+
+
+                // add the to the chart
                 chart_.Series.Add(key);
                 chart_.Series[key].ChartType = SeriesChartType.Line;
                 chart_.Series[key].BorderWidth = 1;
@@ -313,6 +296,14 @@ namespace GUI
                         chart_.Series[key].Color = Color.Green;
                         chart_.Series[key].BorderWidth = 2;
                         break;
+                    case "yc1_res":
+                        chart_.Series[key].Color = Color.Blue;
+                        chart_.Series[key].BorderWidth = 2;
+                        break;
+                    case "S_yc1":
+                        chart_.Series[key].Color = Color.Blue;
+                        chart_.Series[key].BorderWidth = 2;
+                        break;
                     default:
                         break;
                 }
@@ -322,10 +313,18 @@ namespace GUI
             }
         }
 
+        public static void ManageReferenceSeries(FrameGUI Main)
+        {
+            for (int i = 0; i < Main.connection_current.n_controlled_states; i++)
+            {
+                if (Main.dataChart.Series.IndexOf("r" + (i + 1).ToString()) == -1) AddChartSeries(Main, "r" + (i + 1).ToString(), Main.dataChart);
+            }
+        }
+
         public static void UpdateChartAxes(Chart chart, int chart_history)
         {
-            chart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
-            chart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
+            chart.ChartAreas[0].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
+            chart.ChartAreas[0].AxisX.Maximum = DateTime.UtcNow.ToOADate();
         }
 
         public static void ChangeYScale(object chart, string verbose)
@@ -336,8 +335,8 @@ namespace GUI
 
             Chart tmpChart = (Chart)chart;
 
-            double leftLimit = tmpChart.ChartAreas["ChartArea1"].AxisX.Minimum;
-            double rightLimit = tmpChart.ChartAreas["ChartArea1"].AxisX.Maximum;
+            double leftLimit = tmpChart.ChartAreas[0].AxisX.Minimum;
+            double rightLimit = tmpChart.ChartAreas[0].AxisX.Maximum;
 
             for (int s = 0; s < tmpChart.Series.Count(); s++)
             {
@@ -354,16 +353,16 @@ namespace GUI
 
             if (points_exist == true && (max > min))
             {
-                if (verbose == "data_chart")
+                if (verbose == "round")
                 {
-                    tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Max(Math.Ceiling(max), 0);
-                    tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Min(Math.Floor(min), 0);
-                    tmpChart.ChartAreas["ChartArea1"].AxisY.Interval = 1;
+                    tmpChart.ChartAreas[0].AxisY.Maximum = Math.Max(Math.Ceiling(max), 0);
+                    tmpChart.ChartAreas[0].AxisY.Minimum = Math.Min(Math.Floor(min), 0);
+                    tmpChart.ChartAreas[0].AxisY.Interval = 1;
                 }
-                else if (verbose == "residual_chart")
+                else if (verbose == "deci")
                 {
-                    tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Max(Math.Ceiling(max * 10) / 10, 0);
-                    tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Min(Math.Floor(min * 10) / 10, 0);
+                    tmpChart.ChartAreas[0].AxisY.Maximum = Math.Max(Math.Ceiling(max * 10) / 10, 0);
+                    tmpChart.ChartAreas[0].AxisY.Minimum = Math.Min(Math.Floor(min * 10) / 10, 0);
                 }
             }
         }
@@ -387,12 +386,12 @@ namespace GUI
 
         public static void ChartSettings(Chart chart, string title)
         {
-            chart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
-            chart.ChartAreas["ChartArea1"].AxisY.Title = title;
-            chart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
-            chart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
-            chart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
-            chart.ChartAreas["ChartArea1"].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
+            chart.ChartAreas[0].AxisX.Title = "Time";
+            chart.ChartAreas[0].AxisY.Title = title;
+            chart.ChartAreas[0].AxisX.LabelStyle.Format = "hh:mm:ss";
+            chart.ChartAreas[0].AxisX.IntervalType = DateTimeIntervalType.Seconds;
+            chart.ChartAreas[0].AxisX.Interval = 5;
+            chart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
         }
     }
 

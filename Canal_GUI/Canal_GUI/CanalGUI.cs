@@ -16,10 +16,10 @@ using System.IO;
 
 namespace Canal_GUI
 {
-    public partial class MainForm : Form
+    public partial class CanalGUI : Form
     {
         // attack model container
-        public Dictionary<string, Attack> attack_container = new Dictionary<string, Attack>();
+        public Dictionary<string, AttackModel> attack_container = new Dictionary<string, AttackModel>();
         string selected_tag = "";
 
         // data containers (dictionaries)
@@ -44,7 +44,7 @@ namespace Canal_GUI
         // folder setting for chart image save
         public string folderName = "";
 
-        public MainForm()
+        public CanalGUI()
         {
             InitializeComponent();
         }
@@ -59,7 +59,7 @@ namespace Canal_GUI
             tbCanalPort.Text = port_recieve.ToString();
             StartListener();
 
-            // choose drop out model depending on the number of arguments
+            // choose drop out model depending on the number of command line arguments
             if (args.Length == 3)
             {
                 nudBernoulliPass.Value = Convert.ToInt16(args[2]);
@@ -86,37 +86,46 @@ namespace Canal_GUI
 
         private void btnAddUpdateAttackModel_Click(object sender, EventArgs e)
         {
-            // initalize the attack object
-            string target_tag = tbTargetTag.Text;
-            double[] time_series = new double[0];
-            bool add_value = true;
+            // specify which package tag to be targeted
+            string target_tag = tbTargetTag.Text;          
+            
+            // specify the attack type
             string type = "";
-            if (rbBias.Checked == true) type = "bias";
-            if (rbTransientDecrease.Checked == true) type = "transientD";
-            if (rbTransientIncrease.Checked == true) type = "transientI";
-            if (rbSinusoid.Checked == true) type = "sinusoid";
+            if (rbBias.Checked == true)                 type = "bias";
+            if (rbTransientDecrease.Checked == true)    type = "transientD";
+            if (rbTransientIncrease.Checked == true)    type = "transientI";
+            if (rbSinusoid.Checked == true)             type = "sinusoid";
+
+            double[] time_series = new double[0];       // empty array which is used ONLY if a manual attack is conduced
             if (rbManual.Checked == true)
             {
                 type = "manual";
                 time_series = Helpers.DecodeTimeSeries(textBox1.Text);
             }
+            if (rbDelay.Checked == true) type = "delay";
+
+            // bool which determine if the attack adds a value or sets a value
+            bool add_value = true;
             if (rbAddValue.Checked == true) add_value = true;
             else if (rbSetValue.Checked == true) add_value = false;
 
+            // attack parameters
             double duration = Convert.ToDouble(nudDuration.Value);
             double amplitude = Convert.ToDouble(nudAmplitude.Value);
             double time_constant = Convert.ToDouble(nudTimeConst.Value);
             double frequency = Convert.ToDouble(nudFrequency.Value);
-            bool allIPs = cbAllIPs.Checked == true;
-            bool allPorts = cbAllPorts.Checked == true;
+            bool all_IPs = cbAllIPs.Checked == true;
+            bool all_Ports = cbAllPorts.Checked == true;
 
-            if (attack_container.ContainsKey(target_tag) || target_tag == "") // update attack settings
+            if (attack_container.ContainsKey(target_tag) || target_tag == "") 
             {
-                attack_container[selected_tag].UpdateModel(tbTargetIP.Text, tbTargetPort.Text, allIPs, allPorts, type, add_value, duration, amplitude, time_constant, frequency, time_series);
+                // update attack settings
+                attack_container[selected_tag].UpdateModel(tbTargetIP.Text, tbTargetPort.Text, all_IPs, all_Ports, type, add_value, duration, amplitude, time_constant, frequency, time_series);
             }
-            else // new attack model
+            else 
             {
-                Attack attack = new Attack(tbTargetIP.Text, tbTargetPort.Text, allIPs, allPorts, tbTargetTag.Text, type, add_value, duration, amplitude, time_constant, frequency, time_series);
+                // new attack model
+                AttackModel attack = new AttackModel(tbTargetIP.Text, tbTargetPort.Text, all_IPs, all_Ports, tbTargetTag.Text, type, add_value, duration, amplitude, time_constant, frequency, time_series);
                 attack_container.Add(target_tag, attack);
                 clbAttackModels.Items.Add(target_tag);
                 clbAttackModels.SelectedIndex = clbAttackModels.Items.Count - 1;
@@ -163,9 +172,11 @@ namespace Canal_GUI
 
         public void ParseMessage(string message)
         {
+            // end point address
             string EP_IP = "";
             string EP_Port = "";
 
+            // recieved package and send package
             string text = message;
             string reconstruction = "";
 
@@ -208,7 +219,7 @@ namespace Canal_GUI
             // initialize a sender
             Client Sender = new Client(IP, port);
 
-            // check if pass or drop
+            // implement drop-out model
             MethodInfo isPass = SelectedDropOutModel.GetType().GetMethod("isPass");
             bool pass = (bool)isPass.Invoke(SelectedDropOutModel, null);
 
@@ -225,7 +236,7 @@ namespace Canal_GUI
             double P_dp = Convert.ToDouble(100 - nudStayDrop.Value);
             Markov = new MarkovChain(1, P_pd / 100, P_dp / 100);
 
-            // assign beronoulli or markov as the current drop out model
+            // assign bernoulli or markov as the current drop out model
             if (rbBernoulli.Checked == true) SelectedDropOutModel = Bernoulli;
             if (rbMarkov.Checked == true) SelectedDropOutModel = Markov;
         }
@@ -353,6 +364,11 @@ namespace Canal_GUI
         }
 
         private void rbManual_CheckedChanged(object sender, EventArgs e)
+        {
+            Helpers.ManageNumericalUpdowns(this);
+        }
+
+        private void rbDelay_CheckedChanged(object sender, EventArgs e)
         {
             Helpers.ManageNumericalUpdowns(this);
         }

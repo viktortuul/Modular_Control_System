@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GUI
+namespace HMI
 {
     public class DataContainer
     {
@@ -17,7 +17,7 @@ namespace GUI
         public string[] residual;
 
         // residual setting
-        public bool hasResidual = false;
+        public bool has_residual = false;
 
         // constructor
         public DataContainer(int size)

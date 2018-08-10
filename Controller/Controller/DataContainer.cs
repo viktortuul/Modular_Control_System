@@ -17,7 +17,7 @@ namespace Controller
         public string[] value;
 
         // constraints
-        double max_delay = 1000; // [seconds] 
+        double max_delay = 1000; // [ms] 
 
         // constructor
         public DataContainer(int size)
@@ -27,18 +27,18 @@ namespace Controller
         }
 
         // instert a new time:value pair data point
-        public void InsertData(string time_, string value_)
+        public void InsertData(string time, string value)
         {
             // compare timestamps
             if (GetLastTime() != null)
             {
-                if (isMostRecent(time_) == true)
+                if (isMostRecent(time) == true)
                 {
-                    Array.Copy(time, 1, time, 0, time.Length - 1);
-                    time[time.Length - 1] = time_;
+                    Array.Copy(this.time, 1, this.time, 0, this.time.Length - 1);
+                    this.time[this.time.Length - 1] = time;
 
-                    Array.Copy(value, 1, value, 0, value.Length - 1);
-                    value[value.Length - 1] = value_;
+                    Array.Copy(this.value, 1, this.value, 0, this.value.Length - 1);
+                    this.value[this.value.Length - 1] = value;
                 }
                 else
                 {
@@ -47,8 +47,8 @@ namespace Controller
             }
             else
             {
-                time[time.Length - 1] = time_;
-                value[value.Length - 1] = value_;
+                this.time[this.time.Length - 1] = time;
+                this.value[this.value.Length - 1] = value;
             }
         }
 
@@ -58,10 +58,8 @@ namespace Controller
             DateTime t_prev = DateTime.ParseExact(GetLastTime(), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
             TimeSpan timeDiff = t_new - t_prev;
 
-            if (timeDiff.TotalMilliseconds > 0)
-                return true;
-            else
-                return false;
+            if (timeDiff.TotalMilliseconds > 0) return true;
+            else return false;
         }
 
         public bool isUpToDate()
@@ -73,13 +71,10 @@ namespace Controller
                 DateTime t_last = DateTime.ParseExact(GetLastTime(), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
                 TimeSpan timeDiff = t_now - t_last;
 
-                if (timeDiff.TotalMilliseconds <= max_delay)
-                    return true;
-                else
-                    return false;
+                if (timeDiff.TotalMilliseconds <= max_delay) return true;
+                else return false;
             }
-            else
-                return false;
+            else return false;
         }
 
         public string GetLastTime()

@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Canal_GUI
 {
-    public class Attack
+    public class AttackModel
     {
         // state
         public bool running = false;
@@ -38,7 +38,7 @@ namespace Canal_GUI
 
         DateTime time_stamp;
 
-        public Attack(string target_IP, string target_port, bool all_IPs, bool all_ports, string target_tag, string type, bool add_value, double duration, double amplitude, double time_const, double frequency, double[] time_series)
+        public AttackModel(string target_IP, string target_port, bool all_IPs, bool all_ports, string target_tag, string type, bool add_value, double duration, double amplitude, double time_const, double frequency, double[] time_series)
         {
             this.target_IP = target_IP;
             this.target_port = target_port;
@@ -81,6 +81,7 @@ namespace Canal_GUI
                 int idx = Math.Min(Convert.ToInt32((time_elapsed / duration) * (time_series.Length - 1)), time_series.Length - 1);
                 value_attack = time_series[idx];
             }
+            else if (type == "delay") value_attack = time_const;
 
             double elapsed_time = (DateTime.Now - time_stamp).TotalMilliseconds;
             time_elapsed += Convert.ToDouble(elapsed_time) / 1000;
@@ -139,6 +140,9 @@ namespace Canal_GUI
                     if (IP == target_IP && Port == target_port && key == target_tag) result = ApplyPerturbation(value);
                 }
             }
+
+            // if attack type is "delay", sleep the thread
+            if (type == "delay") Thread.Sleep(Convert.ToInt16(time_const));
 
             return result.ToString();
         }

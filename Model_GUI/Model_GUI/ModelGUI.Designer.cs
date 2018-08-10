@@ -29,18 +29,16 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ModelGUI));
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ModelGUI));
             this.labelDebug = new System.Windows.Forms.Label();
             this.timerChart = new System.Windows.Forms.Timer(this.components);
             this.labelDisturbance = new System.Windows.Forms.Label();
-            this.dataChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.perturbationChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.numUpDownNoiseTimeConst = new System.Windows.Forms.NumericUpDown();
@@ -119,10 +117,10 @@
             this.toolStripSplitButton1 = new System.Windows.Forms.ToolStripSplitButton();
             this.setDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveChartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.label27 = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.dataChart)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.perturbationChart)).BeginInit();
+            this.perturbationChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.dataChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseTimeConst)).BeginInit();
@@ -151,6 +149,8 @@
             this.groupBox1.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.statusStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.perturbationChart)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataChart)).BeginInit();
             this.groupBox5.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -179,55 +179,15 @@
             this.labelDisturbance.TabIndex = 18;
             this.labelDisturbance.Text = "Disturbance";
             // 
-            // dataChart
-            // 
-            this.dataChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea1.Name = "ChartArea1";
-            chartArea1.ShadowColor = System.Drawing.Color.Gray;
-            this.dataChart.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.dataChart.Legends.Add(legend1);
-            this.dataChart.Location = new System.Drawing.Point(3, 9);
-            this.dataChart.Name = "dataChart";
-            this.dataChart.Size = new System.Drawing.Size(577, 177);
-            this.dataChart.TabIndex = 19;
-            this.dataChart.Text = "chart1";
-            title1.Name = "Title1";
-            title1.Text = "Ground truth";
-            this.dataChart.Titles.Add(title1);
-            // 
-            // perturbationChart
-            // 
-            this.perturbationChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea2.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea2.Name = "ChartArea1";
-            chartArea2.ShadowColor = System.Drawing.Color.Gray;
-            this.perturbationChart.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.perturbationChart.Legends.Add(legend2);
-            this.perturbationChart.Location = new System.Drawing.Point(3, 192);
-            this.perturbationChart.Name = "perturbationChart";
-            this.perturbationChart.Size = new System.Drawing.Size(577, 184);
-            this.perturbationChart.TabIndex = 21;
-            this.perturbationChart.Text = "chart1";
-            title2.Name = "Title1";
-            title2.Text = "Applied perturbations";
-            this.perturbationChart.Titles.Add(title2);
-            // 
             // pictureBox1
             // 
             this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox1.Location = new System.Drawing.Point(593, 34);
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.pictureBox1.BackColor = System.Drawing.Color.White;
+            this.pictureBox1.Location = new System.Drawing.Point(3, 33);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(220, 380);
+            this.pictureBox1.Size = new System.Drawing.Size(220, 401);
             this.pictureBox1.TabIndex = 22;
             this.pictureBox1.TabStop = false;
             // 
@@ -472,7 +432,7 @@
             // 
             this.label17.AutoSize = true;
             this.label17.BackColor = System.Drawing.SystemColors.Control;
-            this.label17.Location = new System.Drawing.Point(6, 10);
+            this.label17.Location = new System.Drawing.Point(220, 7);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(53, 13);
             this.label17.TabIndex = 25;
@@ -480,7 +440,7 @@
             // 
             // numericUpDown1
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(65, 7);
+            this.numericUpDown1.Location = new System.Drawing.Point(279, 4);
             this.numericUpDown1.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -735,7 +695,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(120, 7);
+            this.button1.Location = new System.Drawing.Point(334, 4);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(74, 21);
             this.button1.TabIndex = 28;
@@ -1049,7 +1009,7 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripSplitButton1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 417);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 449);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(1271, 26);
             this.statusStrip1.TabIndex = 35;
@@ -1086,6 +1046,57 @@
             this.saveChartToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.saveChartToolStripMenuItem.Text = "Save chart";
             // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.BackColor = System.Drawing.SystemColors.Control;
+            this.label27.Location = new System.Drawing.Point(1, 18);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(53, 13);
+            this.label27.TabIndex = 37;
+            this.label27.Text = "Animation";
+            // 
+            // perturbationChart
+            // 
+            this.perturbationChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea1.Name = "ChartArea1";
+            chartArea1.ShadowColor = System.Drawing.Color.Gray;
+            this.perturbationChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.perturbationChart.Legends.Add(legend1);
+            this.perturbationChart.Location = new System.Drawing.Point(3, 192);
+            this.perturbationChart.Name = "perturbationChart";
+            this.perturbationChart.Size = new System.Drawing.Size(577, 207);
+            this.perturbationChart.TabIndex = 21;
+            this.perturbationChart.Text = "chart1";
+            title1.Name = "Title1";
+            title1.Text = "Applied perturbations";
+            this.perturbationChart.Titles.Add(title1);
+            this.perturbationChart.Visible = false;
+            // 
+            // dataChart
+            // 
+            this.dataChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            chartArea2.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea2.Name = "ChartArea1";
+            chartArea2.ShadowColor = System.Drawing.Color.Gray;
+            this.dataChart.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.dataChart.Legends.Add(legend2);
+            this.dataChart.Location = new System.Drawing.Point(3, 9);
+            this.dataChart.Name = "dataChart";
+            this.dataChart.Size = new System.Drawing.Size(577, 401);
+            this.dataChart.TabIndex = 19;
+            this.dataChart.Text = "chart1";
+            title2.Name = "Title1";
+            title2.Text = "True states";
+            this.dataChart.Titles.Add(title2);
+            // 
             // groupBox5
             // 
             this.groupBox5.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -1093,27 +1104,18 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox5.Controls.Add(this.dataChart);
             this.groupBox5.Controls.Add(this.perturbationChart);
-            this.groupBox5.Location = new System.Drawing.Point(4, 27);
+            this.groupBox5.Location = new System.Drawing.Point(220, 24);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(584, 387);
+            this.groupBox5.Size = new System.Drawing.Size(584, 410);
             this.groupBox5.TabIndex = 36;
             this.groupBox5.TabStop = false;
-            // 
-            // label27
-            // 
-            this.label27.AutoSize = true;
-            this.label27.BackColor = System.Drawing.SystemColors.Control;
-            this.label27.Location = new System.Drawing.Point(576, 19);
-            this.label27.Name = "label27";
-            this.label27.Size = new System.Drawing.Size(53, 13);
-            this.label27.TabIndex = 37;
-            this.label27.Text = "Animation";
             // 
             // ModelGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1271, 443);
+            this.ClientSize = new System.Drawing.Size(1271, 475);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label27);
             this.Controls.Add(this.groupBox5);
             this.Controls.Add(this.statusStrip1);
@@ -1125,7 +1127,6 @@
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.labelNoise);
             this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.labelDisturbance);
             this.Controls.Add(this.labelDebug);
             this.Controls.Add(this.groupBox1);
@@ -1134,8 +1135,6 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Resize += new System.EventHandler(this.ModelGUI_Resize);
-            ((System.ComponentModel.ISupportInitialize)(this.dataChart)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.perturbationChart)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
@@ -1169,6 +1168,8 @@
             this.groupBox4.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.perturbationChart)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataChart)).EndInit();
             this.groupBox5.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -1178,8 +1179,6 @@
         #endregion
         private System.Windows.Forms.Label labelDebug;
         private System.Windows.Forms.Timer timerChart;
-        private System.Windows.Forms.DataVisualization.Charting.Chart dataChart;
-        private System.Windows.Forms.DataVisualization.Charting.Chart perturbationChart;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label9;
@@ -1259,8 +1258,10 @@
         private System.Windows.Forms.ToolStripSplitButton toolStripSplitButton1;
         private System.Windows.Forms.ToolStripMenuItem setDirectoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveChartToolStripMenuItem;
-        private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.Label label27;
+        private System.Windows.Forms.DataVisualization.Charting.Chart perturbationChart;
+        private System.Windows.Forms.DataVisualization.Charting.Chart dataChart;
+        private System.Windows.Forms.GroupBox groupBox5;
     }
 }
 

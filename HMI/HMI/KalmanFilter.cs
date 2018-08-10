@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
-namespace GUI
+namespace HMI
 {
     public class KalmanFilter
     {

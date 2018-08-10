@@ -50,7 +50,7 @@ namespace Canal_GUI
             if (dict.ContainsKey(key) == false) dict.Add(key, new DataContainer(n_steps));
         }
 
-        public static void ManageNumericalUpdowns(MainForm Main)
+        public static void ManageNumericalUpdowns(CanalGUI Main)
         {
             if (Main.rbBias.Checked == true)
             {
@@ -78,6 +78,13 @@ namespace Canal_GUI
                 Main.nudDuration.Enabled = true;
                 Main.nudAmplitude.Enabled = false;
                 Main.nudTimeConst.Enabled = false;
+                Main.nudFrequency.Enabled = false;
+            }
+            else if (Main.rbDelay.Checked == true)
+            {
+                Main.nudDuration.Enabled = true;
+                Main.nudAmplitude.Enabled = false;
+                Main.nudTimeConst.Enabled = true;
                 Main.nudFrequency.Enabled = false;
             }
         }
@@ -146,7 +153,7 @@ namespace Canal_GUI
             }
         }
 
-        public static void InitialChartSettings(MainForm Main)
+        public static void InitialChartSettings(CanalGUI Main)
         {
             Main.perturbationChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
             Main.perturbationChart.ChartAreas["ChartArea1"].AxisY.Title = "";

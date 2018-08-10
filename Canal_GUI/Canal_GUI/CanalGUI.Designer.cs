@@ -1,6 +1,6 @@
 ﻿namespace Canal_GUI
 {
-    partial class MainForm
+    partial class CanalGUI
     {
         /// <summary>
         /// Required designer variable.
@@ -32,7 +32,7 @@
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CanalGUI));
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -91,6 +91,7 @@
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.setDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveChartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rbDelay = new System.Windows.Forms.RadioButton();
             this.groupBox2.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -130,6 +131,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.rbDelay);
             this.groupBox2.Controls.Add(this.rbManual);
             this.groupBox2.Controls.Add(this.rbTransientIncrease);
             this.groupBox2.Controls.Add(this.rbSinusoid);
@@ -139,7 +141,7 @@
             this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox2.Size = new System.Drawing.Size(163, 150);
+            this.groupBox2.Size = new System.Drawing.Size(163, 177);
             this.groupBox2.TabIndex = 7;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Attack characteristic";
@@ -147,7 +149,7 @@
             // rbManual
             // 
             this.rbManual.AutoSize = true;
-            this.rbManual.Location = new System.Drawing.Point(8, 114);
+            this.rbManual.Location = new System.Drawing.Point(8, 119);
             this.rbManual.Margin = new System.Windows.Forms.Padding(4);
             this.rbManual.Name = "rbManual";
             this.rbManual.Size = new System.Drawing.Size(75, 21);
@@ -159,7 +161,7 @@
             // rbTransientIncrease
             // 
             this.rbTransientIncrease.AutoSize = true;
-            this.rbTransientIncrease.Location = new System.Drawing.Point(8, 69);
+            this.rbTransientIncrease.Location = new System.Drawing.Point(8, 71);
             this.rbTransientIncrease.Margin = new System.Windows.Forms.Padding(4);
             this.rbTransientIncrease.Name = "rbTransientIncrease";
             this.rbTransientIncrease.Size = new System.Drawing.Size(130, 21);
@@ -171,7 +173,7 @@
             // rbSinusoid
             // 
             this.rbSinusoid.AutoSize = true;
-            this.rbSinusoid.Location = new System.Drawing.Point(8, 92);
+            this.rbSinusoid.Location = new System.Drawing.Point(8, 95);
             this.rbSinusoid.Margin = new System.Windows.Forms.Padding(4);
             this.rbSinusoid.Name = "rbSinusoid";
             this.rbSinusoid.Size = new System.Drawing.Size(83, 21);
@@ -183,7 +185,7 @@
             // rbTransientDecrease
             // 
             this.rbTransientDecrease.AutoSize = true;
-            this.rbTransientDecrease.Location = new System.Drawing.Point(8, 45);
+            this.rbTransientDecrease.Location = new System.Drawing.Point(8, 46);
             this.rbTransientDecrease.Margin = new System.Windows.Forms.Padding(4);
             this.rbTransientDecrease.Name = "rbTransientDecrease";
             this.rbTransientDecrease.Size = new System.Drawing.Size(137, 21);
@@ -275,7 +277,7 @@
             this.tabControl1.Margin = new System.Windows.Forms.Padding(4);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1144, 645);
+            this.tabControl1.Size = new System.Drawing.Size(1145, 707);
             this.tabControl1.TabIndex = 1;
             // 
             // tabPage2
@@ -481,7 +483,7 @@
             this.tabPage1.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage1.Size = new System.Drawing.Size(1136, 616);
+            this.tabPage1.Size = new System.Drawing.Size(1137, 678);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Attack settings";
             // 
@@ -492,6 +494,7 @@
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(301, 202);
             this.textBox2.TabIndex = 29;
+            this.textBox2.Visible = false;
             // 
             // groupBox3
             // 
@@ -529,7 +532,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(615, 198);
+            this.button1.Location = new System.Drawing.Point(725, 160);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 27;
@@ -540,7 +543,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(612, 149);
+            this.label12.Location = new System.Drawing.Point(585, 67);
             this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(126, 17);
@@ -549,9 +552,10 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(615, 169);
+            this.textBox1.Location = new System.Drawing.Point(588, 87);
+            this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(191, 22);
+            this.textBox1.Size = new System.Drawing.Size(212, 72);
             this.textBox1.TabIndex = 25;
             // 
             // label2
@@ -581,7 +585,7 @@
             this.clbAttackModels.Location = new System.Drawing.Point(370, 87);
             this.clbAttackModels.Margin = new System.Windows.Forms.Padding(4);
             this.clbAttackModels.Name = "clbAttackModels";
-            this.clbAttackModels.Size = new System.Drawing.Size(211, 106);
+            this.clbAttackModels.Size = new System.Drawing.Size(211, 72);
             this.clbAttackModels.TabIndex = 22;
             this.clbAttackModels.SelectedIndexChanged += new System.EventHandler(this.clbAttackModels_SelectedIndexChanged);
             // 
@@ -595,10 +599,10 @@
             this.perturbationChart.ChartAreas.Add(chartArea2);
             legend2.Name = "Legend1";
             this.perturbationChart.Legends.Add(legend2);
-            this.perturbationChart.Location = new System.Drawing.Point(8, 232);
+            this.perturbationChart.Location = new System.Drawing.Point(8, 259);
             this.perturbationChart.Margin = new System.Windows.Forms.Padding(4);
             this.perturbationChart.Name = "perturbationChart";
-            this.perturbationChart.Size = new System.Drawing.Size(1117, 373);
+            this.perturbationChart.Size = new System.Drawing.Size(1118, 408);
             this.perturbationChart.TabIndex = 21;
             this.perturbationChart.Text = "chart1";
             title2.Name = "Title1";
@@ -666,6 +670,11 @@
             65536});
             this.nudTimeConst.Location = new System.Drawing.Point(300, 180);
             this.nudTimeConst.Margin = new System.Windows.Forms.Padding(4);
+            this.nudTimeConst.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
             this.nudTimeConst.Name = "nudTimeConst";
             this.nudTimeConst.Size = new System.Drawing.Size(55, 22);
             this.nudTimeConst.TabIndex = 16;
@@ -713,6 +722,11 @@
             // 
             this.nudDuration.Location = new System.Drawing.Point(300, 134);
             this.nudDuration.Margin = new System.Windows.Forms.Padding(4);
+            this.nudDuration.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
             this.nudDuration.Name = "nudDuration";
             this.nudDuration.Size = new System.Drawing.Size(55, 22);
             this.nudDuration.TabIndex = 13;
@@ -725,7 +739,7 @@
             // labelStatus
             // 
             this.labelStatus.AutoSize = true;
-            this.labelStatus.Location = new System.Drawing.Point(588, 89);
+            this.labelStatus.Location = new System.Drawing.Point(368, 160);
             this.labelStatus.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelStatus.Name = "labelStatus";
             this.labelStatus.Size = new System.Drawing.Size(102, 34);
@@ -756,10 +770,10 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripLabel,
             this.toolStripDropDownButton1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 662);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 724);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 19, 0);
-            this.statusStrip1.Size = new System.Drawing.Size(1161, 26);
+            this.statusStrip1.Size = new System.Drawing.Size(1162, 26);
             this.statusStrip1.TabIndex = 2;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -794,15 +808,27 @@
             this.saveChartToolStripMenuItem.Size = new System.Drawing.Size(168, 26);
             this.saveChartToolStripMenuItem.Text = "Save chart";
             // 
-            // MainForm
+            // rbDelay
+            // 
+            this.rbDelay.AutoSize = true;
+            this.rbDelay.Location = new System.Drawing.Point(8, 143);
+            this.rbDelay.Margin = new System.Windows.Forms.Padding(4);
+            this.rbDelay.Name = "rbDelay";
+            this.rbDelay.Size = new System.Drawing.Size(65, 21);
+            this.rbDelay.TabIndex = 5;
+            this.rbDelay.Text = "Delay";
+            this.rbDelay.UseVisualStyleBackColor = true;
+            this.rbDelay.CheckedChanged += new System.EventHandler(this.rbDelay_CheckedChanged);
+            // 
+            // CanalGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1161, 688);
+            this.ClientSize = new System.Drawing.Size(1162, 750);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.tabControl1);
             this.Margin = new System.Windows.Forms.Padding(4);
-            this.Name = "MainForm";
+            this.Name = "CanalGUI";
             this.Text = "Canal GUI";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -891,6 +917,7 @@
         private System.Windows.Forms.RadioButton rbSetValue;
         private System.Windows.Forms.RadioButton rbAddValue;
         private System.Windows.Forms.TextBox textBox2;
+        public System.Windows.Forms.RadioButton rbDelay;
     }
 }
 

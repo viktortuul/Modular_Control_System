@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataContainer.cs" />
-    <Compile Include="Controller.cs" />
+    <Compile Include="ControlModule.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="PID.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

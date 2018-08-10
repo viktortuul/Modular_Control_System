@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Threading;
 using Communication;
 using System.Diagnostics;
+using System.Linq;
 
-namespace GUI
+namespace HMI
 {
     public class CommunicationManager
     {
@@ -13,7 +14,6 @@ namespace GUI
 
         // identity parameters
         public string name = "";
-        string status = "";
 
         // connection parameters
         public AddressEndPoint CanalEP;
@@ -26,18 +26,24 @@ namespace GUI
         public DateTime last_recieved_time;
 
         // number of controlled states
-        public int n_contr_states = 0;
+        public int n_controlled_states = 0;
 
         // data containers (dictionaries)
         public Dictionary<string, DataContainer> recieved_packages = new Dictionary<string, DataContainer>();
         public Dictionary<string, DataContainer> references = new Dictionary<string, DataContainer>();
         public Dictionary<string, DataContainer> estimates = new Dictionary<string, DataContainer>();
 
+        // flag specific keys with pre-defined meanings
+        string[] flag_residual_states = new string[] { "yc1" };
+        string[] flag_plant_states = new string[] { "yo1", "yc1", "yo2", "yc2" };
+        string[] flag_controlled_states = new string[] { "yc1", "yc2" };
+
+
         // controller parameters
         public PIDparameters ControllerParameters;
 
         // initialize estimator
-        public KalmanFilter filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, 0.16 * 2.5, 0.16 * 2.0, 15.0, 30, 6.5);
+        public KalmanFilter filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, 0.16 * 1.5, 0.16 * 1.0, 15.0, 30, 6.5);
 
         public CommunicationManager(FrameGUI Main, string name, PIDparameters ControllerParameters, AddressEndPoint CanalEP, ConnectionParameters ConnectionParameters)
         {
@@ -60,58 +66,20 @@ namespace GUI
                 EP = new AddressEndPoint(CanalEP.IP, CanalEP.Port);
             else
                 EP = new AddressEndPoint(ConnectionParameters.IP, ConnectionParameters.Port);
-            
-            // create a new thread for the listener
-            Thread thread_listener = new Thread(() => Listener(EP.IP, ConnectionParameters.PortThis));
-            thread_listener.Start();
 
             // create a new thread for the sender
             Thread thread_sender = new Thread(() => Sender(EP.IP, EP.Port));
             thread_sender.Start();
-        }
 
-        private void Listener(string IP, int port)
-        {
-            // initialize a connection to the controller
-            Server Listener = new Server(IP, port);
-          
-            // listen for messages sent from a host to this specific IP:port
-            while (true)
-            {
-                Thread.Sleep(1);
-                try
-                {
-                    // check if a new package is recieved
-                    Listener.Listen();
-                    last_recieved_time = DateTime.UtcNow;
-
-                    // parse the message which may contain u1, u2, yc1, yc2, yo1, yo2
-                    ParseMessage(Listener.last_recieved);
-
-                    // flag that the GUI is recieving packages from the controller
-                    if (is_recieving == false) is_recieving = true;
-
-                    // count the number of controlled states recieved
-                    foreach (string key in recieved_packages.Keys)
-                    {
-                        if (key.Contains("yc"))
-                        {
-                            // flag that full communication is present
-                            if (is_connected_to_process == false) is_connected_to_process = true;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Main.log(Convert.ToString(ex));
-                }
-            }
+            // create a new thread for the listener
+            Thread thread_listener = new Thread(() => Listener(EP.IP, ConnectionParameters.PortThis));
+            thread_listener.Start();
         }
 
         private void Sender(string IP, int port)
         {
             // initialize a connection to the controller
-            Client Sender = new Client(IP, port);
+            Client sender = new Client(IP, port);
 
             // send messages to a host on this specific IP:port
             while (true)
@@ -123,7 +91,7 @@ namespace GUI
                 if (Main.usingCanal == true) message += Convert.ToString("EP_" + ConnectionParameters.IP + ":" + ConnectionParameters.Port + "#");
                 message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
 
-                for (int i = 1; i <= n_contr_states; i++)
+                for (int i = 1; i <= n_controlled_states; i++)
                 {
                     message += "r" + i + "_" + references["r" + i].GetLastValue() + "#";
                 }
@@ -135,10 +103,37 @@ namespace GUI
                 if (message.Substring(0, 1) == "#") message = message.Substring(1);
 
                 // send message
-                Sender.Send(message);
+                sender.Send(message);
 
                 // flag that the GUI is sending packages to the controller
-                if (is_sending == false) is_sending = true;              
+                if (is_sending == false) is_sending = true;
+            }
+        }
+
+        private void Listener(string IP, int port)
+        {
+            // initialize a connection to the controller
+            Server listener = new Server(IP, port);
+          
+            // listen for messages sent from a host to this specific IP:port
+            while (true)
+            {
+                try
+                {
+                    // wait for a new package
+                    listener.Listen();
+                    last_recieved_time = DateTime.UtcNow;
+
+                    // parse the message 
+                    ParseMessage(listener.last_recieved);
+
+                    // flag that the GUI is recieving packages from the controller
+                    if (is_recieving == false) is_recieving = true;
+                }
+                catch (Exception ex)
+                {
+                    Main.log(Convert.ToString(ex));
+                }
             }
         }
 
@@ -167,20 +162,23 @@ namespace GUI
                 {
                     recieved_packages.Add(key, new DataContainer(Constants.n_steps));
 
-                    // flag if it has a residual or not
-                    if (key == "yc1")
+                    // add an eventual residual and estimate continer
+                    if (flag_residual_states.Contains(key) == true)
                     { 
-                        recieved_packages[key].hasResidual = true; // flag the state yc1 as having a residual  
+                        recieved_packages[key].has_residual = true;
                         Helpers.ManageEstimatesKeys(key, estimates, Constants.n_steps);
-                        Helpers.ManageEstimatesKeys("yo1", estimates, Constants.n_steps); // also add an estimate data set
+                        if (key == "yc1") Helpers.ManageEstimatesKeys("yo1", estimates, Constants.n_steps); // also estimate yo1 (hardcoded)
                     }
 
-                    // increment  the controlled states counter
-                    if (key.Contains("yc"))
+                    // increment the controlled states counter if it's a controlled state
+                    if (flag_controlled_states.Contains(key))
                     {
-                        n_contr_states += 1;
-                        Helpers.ManageReferencesKeys(n_contr_states, references, Constants.n_steps);
+                        n_controlled_states += 1;
+                        Helpers.ManageReferencesKeys(n_controlled_states, references, Constants.n_steps);
                     }
+
+                    // flag that the GUI is recieving packages originating from the process
+                    if (flag_plant_states.Contains(key)) is_connected_to_process = true;             
                 }
 
                 // store the value
@@ -212,10 +210,11 @@ namespace GUI
 
         public string GetStatus()
         {
+            string status = "";
             if (is_connected_to_process == true)
             {
                 status = "GUI <-> Contr <-> Plant";
-                if (trafficEstablished() == false) status = "GUI || Contr ? Plant";
+                if (isTrafficEstablished() == false) status = "GUI || Contr ? Plant";
             }
             else if (is_sending == true && is_recieving == true) status = "GUI <-> Contr ? Plant";
             else if (is_sending == false && is_recieving == true) status = "GUI <- Contr ? Plant";
@@ -223,10 +222,9 @@ namespace GUI
             return status;
         }
 
-        public bool trafficEstablished()
+        public bool isTrafficEstablished()
         {
             TimeSpan time_diff = DateTime.UtcNow - last_recieved_time;
-
             if (time_diff.Seconds > 3) return false;
             else return true;    
         }

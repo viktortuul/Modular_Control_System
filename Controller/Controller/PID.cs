@@ -39,7 +39,7 @@ namespace Controller
             // calculate the dime duration from the last update
             DateTime nowTime = DateTime.Now;
 
-            if (parameters_assigned)
+            if (parameters_assigned == true)
             {
                 // calculte error
                 e = r - y;
@@ -50,13 +50,16 @@ namespace Controller
 
                     //integrator with anti wind-up (only add intergral action if the control signal is not saturated)
                     if (anti_wind_up == true)
-                        if (u > u_min && u < u_max) I += dt * e;
-                        else
-                            I += dt * e;
+                    {
+                        if (u > u_min && u < u_max) I += dt * e;                 
+                    }
+                    else I += dt * e;
 
                     // derivator (with low pass)
-                    de = 1 / (dt + 1) * y - de_temp;
-                    de_temp = (y - de) / (dt + 1);
+                    //de = 1 / (dt + 1) * y - de_temp;
+                    //de_temp = (y - de) / (dt + 1);
+
+                    if (dt != 0.0f) de = (e - ep) / dt;
 
                     // control signal
                     u = Kp * e + Ki * I - Kd * de;

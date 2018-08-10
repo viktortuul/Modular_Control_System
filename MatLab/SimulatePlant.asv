@@ -1,0 +1,41 @@
+% double water tank
+function y = SimulatePlant(N, dt, a1, a2, x, g, A1, A2, k, u)
+    for i = 1:N  
+        q_out1 = a1 * sqrt(2 * x(1) * g);
+        q_out2 = a2 * sqrt(2 * x(2) * g);
+        x(1) = x(1) + dt * (1 / A1) * (k * u(i) - q_out1);
+        x(2) = x(2) + dt * (1 / A2) * (q_out1 - q_out2);  
+        y(1:2,i) = x;
+    end
+end
+
+function u = ComputeControlSignal(r, y)
+                % calculte error
+                e = r - y;
+
+                if (update_last != null)
+                {
+                    double dt = (nowTime - update_last).TotalSeconds;
+
+                    % integrator with anti wind-up (only add intergral action if the control signal is not saturated)
+                    if (anti_wind_up == true)
+                        if (u > u_min && u < u_max) I += dt * e;
+                        else I += dt * e;
+
+                    % derivator (with low pass)
+                    de = 1 / (dt + 1) * y - de_temp;
+                    de_temp = (y - de) / (dt + 1);
+
+                    % control signal
+                    u = Kp * e + Ki * I - Kd * de;
+
+                    ep = e; % update prior error
+
+                    % saturation
+                    if (u > u_max) u = u_max;
+                    if (u < u_min) u = u_min;
+
+
+      
+
+end
