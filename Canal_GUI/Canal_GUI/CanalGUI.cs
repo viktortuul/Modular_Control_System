@@ -19,11 +19,31 @@ namespace Canal_GUI
     public partial class CanalGUI : Form
     {
         // attack model container
-        public Dictionary<string, AttackModel> attack_container = new Dictionary<string, AttackModel>();
-        string selected_tag = "";
+        public Dictionary<string, AttackModel> attack_model_container = new Dictionary<string, AttackModel>();
+        string selected_attack_model = "";
 
         // data containers (dictionaries)
-        public Dictionary<string, DataContainer> perturbations = new Dictionary<string, DataContainer>();
+        public Dictionary<string, DataContainer> attack_timeseries = new Dictionary<string, DataContainer>();
+
+        // attack settings
+            // specify target package
+            string target_tag = "";
+            string target_ip = "";
+            string target_port = "";
+
+            // specify attack type
+            string attack_type = "";
+            double[] time_series = new double[0];       // empty array which is used ONLY if a manual attack is conduced
+            // bool which determine if the attack adds a value or sets a value
+            bool integrity_add = true;
+
+            // attack parameters
+            double duration = 0;
+            double amplitude = 0;
+            double time_constant = 0;
+            double frequency = 0;
+            bool all_IPs = false;
+            bool all_Ports = false;
 
         // chart settings
         public static int n_steps = 100;
@@ -82,58 +102,6 @@ namespace Canal_GUI
             Helpers.ManageNumericalUpdowns(this);
 
             timerChart.Start();
-        }
-
-        private void btnAddUpdateAttackModel_Click(object sender, EventArgs e)
-        {
-            // specify which package tag to be targeted
-            string target_tag = tbTargetTag.Text;          
-            
-            // specify the attack type
-            string type = "";
-            if (rbBias.Checked == true)                 type = "bias";
-            if (rbTransientDecrease.Checked == true)    type = "transientD";
-            if (rbTransientIncrease.Checked == true)    type = "transientI";
-            if (rbSinusoid.Checked == true)             type = "sinusoid";
-
-            double[] time_series = new double[0];       // empty array which is used ONLY if a manual attack is conduced
-            if (rbManual.Checked == true)
-            {
-                type = "manual";
-                time_series = Helpers.DecodeTimeSeries(textBox1.Text);
-            }
-            if (rbDelay.Checked == true) type = "delay";
-
-            // bool which determine if the attack adds a value or sets a value
-            bool add_value = true;
-            if (rbAddValue.Checked == true) add_value = true;
-            else if (rbSetValue.Checked == true) add_value = false;
-
-            // attack parameters
-            double duration = Convert.ToDouble(nudDuration.Value);
-            double amplitude = Convert.ToDouble(nudAmplitude.Value);
-            double time_constant = Convert.ToDouble(nudTimeConst.Value);
-            double frequency = Convert.ToDouble(nudFrequency.Value);
-            bool all_IPs = cbAllIPs.Checked == true;
-            bool all_Ports = cbAllPorts.Checked == true;
-
-            if (attack_container.ContainsKey(target_tag) || target_tag == "") 
-            {
-                // update attack settings
-                attack_container[selected_tag].UpdateModel(tbTargetIP.Text, tbTargetPort.Text, all_IPs, all_Ports, type, add_value, duration, amplitude, time_constant, frequency, time_series);
-            }
-            else 
-            {
-                // new attack model
-                AttackModel attack = new AttackModel(tbTargetIP.Text, tbTargetPort.Text, all_IPs, all_Ports, tbTargetTag.Text, type, add_value, duration, amplitude, time_constant, frequency, time_series);
-                attack_container.Add(target_tag, attack);
-                clbAttackModels.Items.Add(target_tag);
-                clbAttackModels.SelectedIndex = clbAttackModels.Items.Count - 1;
-                selected_tag = clbAttackModels.SelectedItem.ToString();
-                Helpers.CheckKey(perturbations, target_tag, n_steps);
-            }
-
-            tbTargetTag.Text = "";
         }
 
         public void StartListener()
@@ -203,8 +171,8 @@ namespace Canal_GUI
                 else
                 {
                     // perform attack
-                    if (attack_container.ContainsKey(key) && Helpers.isDouble(value) == true)
-                        value = attack_container[key].IntegrityAttack(EP_IP, EP_Port, key, value);
+                    if (attack_model_container.ContainsKey(key) && Helpers.isDouble(value) == true)
+                        value = attack_model_container[key].IntegrityAttack(EP_IP, EP_Port, key, value);
 
                     reconstruction += "#" + key + "_" + value;
                 }
@@ -224,6 +192,30 @@ namespace Canal_GUI
             bool pass = (bool)isPass.Invoke(SelectedDropOutModel, null);
 
             if (pass == true) Sender.Send(message);
+        }
+
+        private void btnAddAttackModel_Click(object sender, EventArgs e)
+        {
+            // add new attack model
+            GetAttackSettings();
+            if ((attack_model_container.ContainsKey(target_tag) || target_tag == "") == false)
+            {
+                AttackModel new_attack_model = new AttackModel(target_ip, target_port, all_IPs, all_Ports, target_tag, attack_type, integrity_add, duration, amplitude, time_constant, frequency, time_series);
+                attack_model_container.Add(target_tag, new_attack_model);
+                clbAttackModels.Items.Add(target_tag);
+                clbAttackModels.SelectedIndex = clbAttackModels.Items.Count - 1;
+                selected_attack_model = clbAttackModels.SelectedItem.ToString();
+                Helpers.AddKey(attack_timeseries, target_tag, n_steps);
+
+                tbTargetTag.Text = "";
+            }
+        }
+
+        private void btnUpdateAttackModel_Click(object sender, EventArgs e)
+        {
+            // update selected attack model
+            GetAttackSettings();
+            attack_model_container[selected_attack_model].UpdateModel(tbTargetIP.Text, tbTargetPort.Text, all_IPs, all_Ports, attack_type, integrity_add, duration, amplitude, time_constant, frequency, time_series);
         }
 
         private void UpdateDroupOutModel()
@@ -247,34 +239,44 @@ namespace Canal_GUI
             foreach (string item in clbAttackModels.CheckedItems)
             {
                 string key = item.ToString();
-                attack_container[key].Start();
+                attack_model_container[key].Start();
             }
 
             timerStatus.Start();
         }
 
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            // stop attack on all checked items
+            foreach (string item in clbAttackModels.CheckedItems)
+            {
+                string key = item.ToString();
+                attack_model_container[key].Stop();
+            }
+        }
+
         private void clbAttackModels_SelectedIndexChanged(object sender, EventArgs e)
         {
             // update windows form values
-            selected_tag = clbAttackModels.SelectedItem.ToString();
+            selected_attack_model = clbAttackModels.SelectedItem.ToString();
 
             // numerical up-downs
-            nudDuration.Value = Convert.ToDecimal(attack_container[selected_tag].duration);
-            nudAmplitude.Value = Convert.ToDecimal(attack_container[selected_tag].amplitude_attack);
-            nudTimeConst.Value = Convert.ToDecimal(attack_container[selected_tag].time_const);
-            nudFrequency.Value = Convert.ToDecimal(attack_container[selected_tag].frequency);
+            nudDuration.Value = Convert.ToDecimal(attack_model_container[selected_attack_model].duration);
+            nudAmplitude.Value = Convert.ToDecimal(attack_model_container[selected_attack_model].amplitude_attack);
+            nudTimeConst.Value = Convert.ToDecimal(attack_model_container[selected_attack_model].time_const);
+            nudFrequency.Value = Convert.ToDecimal(attack_model_container[selected_attack_model].frequency);
 
             // check boxes
-            cbAllIPs.Checked = attack_container[selected_tag].all_IPs;
-            cbAllPorts.Checked = attack_container[selected_tag].all_ports;
+            cbAllIPs.Checked = attack_model_container[selected_attack_model].all_IPs;
+            cbAllPorts.Checked = attack_model_container[selected_attack_model].all_ports;
 
             // radio buttons
-            if (attack_container[selected_tag].type == "bias") rbBias.Checked = true;
-            if (attack_container[selected_tag].type == "transientD") rbTransientDecrease.Checked = true;
-            if (attack_container[selected_tag].type == "transientI") rbTransientIncrease.Checked = true;
-            if (attack_container[selected_tag].type == "sinusoid") rbSinusoid.Checked = true;
-            if (attack_container[selected_tag].type == "manual") rbManual.Checked = true;
-            if (attack_container[selected_tag].add_value == true) rbAddValue.Checked = true;
+            if (attack_model_container[selected_attack_model].type == "bias") rbBias.Checked = true;
+            if (attack_model_container[selected_attack_model].type == "transient_decr") rbTransientDecrease.Checked = true;
+            if (attack_model_container[selected_attack_model].type == "transient_incr") rbTransientIncrease.Checked = true;
+            if (attack_model_container[selected_attack_model].type == "sinusoid") rbSinusoid.Checked = true;
+            if (attack_model_container[selected_attack_model].type == "manual") rbManual.Checked = true;
+            if (attack_model_container[selected_attack_model].integrity_add == true) rbAddValue.Checked = true;
             else rbSetValue.Checked = true;
         }
 
@@ -284,17 +286,17 @@ namespace Canal_GUI
             foreach (string item in clbAttackModels.Items)
             {
                 string key = item.ToString();
-                perturbations[key].InsertData(DateTime.UtcNow.ToString(Constants.FMT), attack_container[key].value_attack.ToString());
+                attack_timeseries[key].InsertData(DateTime.UtcNow.ToString(Constants.FMT), attack_model_container[key].value_attack.ToString());
             }
+
+            // draw chart
+            UpdateChart(perturbationChart, attack_timeseries);
 
             // scale y-axis for the chart
             Charting.ChangeYScale(perturbationChart, "data_chart");
 
             // update time axis minimum and maximum
             Charting.UpdateChartAxes(perturbationChart, chart_history);
-
-            // draw chart
-            UpdateChart(perturbationChart, perturbations);
         }
 
         private void UpdateChart(object chart, Dictionary<string, DataContainer> dict)
@@ -322,10 +324,45 @@ namespace Canal_GUI
             }
         }
 
+        private void GetAttackSettings()
+        {
+            // specify target package
+            target_tag = tbTargetTag.Text;
+            target_ip = tbTargetIP.Text;
+            target_port = tbTargetPort.Text;
+
+            // specify attack type
+            if (rbBias.Checked == true) attack_type = "bias";
+            if (rbTransientDecrease.Checked == true) attack_type = "transient_decr";
+            if (rbTransientIncrease.Checked == true) attack_type = "transient_incr";
+            if (rbSinusoid.Checked == true) attack_type = "sinusoid";
+            if (rbManual.Checked == true)
+            {
+                attack_type = "manual";
+                time_series = Helpers.DecodeTimeSeries(tbTimeSeries.Text);
+            }
+            if (rbDelay.Checked == true) attack_type = "delay";
+
+            // bool which determine if the attack adds a value or sets a value
+            integrity_add = true;
+            if (rbAddValue.Checked == true) integrity_add = true;
+            else if (rbSetValue.Checked == true) integrity_add = false;
+
+            // attack parameters
+            duration = Convert.ToDouble(nudDuration.Value);
+            amplitude = Convert.ToDouble(nudAmplitude.Value);
+            time_constant = Convert.ToDouble(nudTimeConst.Value);
+            frequency = Convert.ToDouble(nudFrequency.Value);
+            all_IPs = cbAllIPs.Checked == true;
+            all_Ports = cbAllPorts.Checked == true;
+
+
+        }
+
         private void timerStatus_Tick(object sender, EventArgs e)
         {
-            labelStatus.Text = "Time left[s]: " + Math.Round(attack_container[selected_tag].time_left, 1) + Environment.NewLine +
-            "Perturbation: " + Math.Round(attack_container[selected_tag].value_attack, 1);
+            labelStatus.Text = "Time left[s]: " + Math.Round(attack_model_container[selected_attack_model].time_left, 1) + Environment.NewLine +
+            "Perturbation: " + Math.Round(attack_model_container[selected_attack_model].value_attack, 1);
         }
 
         private void btnUpdateDropoutModel_Click_1(object sender, EventArgs e)
@@ -381,7 +418,19 @@ namespace Canal_GUI
 
         private void button1_Click(object sender, EventArgs e)
         {
-            textBox1.Text = "";
+            tbTimeSeries.Text = "";
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void CanalGUI_Load(object sender, EventArgs e)
+        {
+
+        }
+
+
     }
 }

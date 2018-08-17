@@ -38,12 +38,11 @@ namespace HMI
         string[] flag_plant_states = new string[] { "yo1", "yc1", "yo2", "yc2" };
         string[] flag_controlled_states = new string[] { "yc1", "yc2" };
 
-
         // controller parameters
         public PIDparameters ControllerParameters;
 
         // initialize estimator
-        public KalmanFilter filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, 0.16 * 1.5, 0.16 * 1.0, 15.0, 30, 6.5);
+        public KalmanFilter kalman_filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, 0.3, 0.2, 15.0, 50, 6.5); // x0, a1, a2, A1, A2, k
 
         public CommunicationManager(FrameGUI Main, string name, PIDparameters ControllerParameters, AddressEndPoint CanalEP, ConnectionParameters ConnectionParameters)
         {
@@ -99,7 +98,7 @@ namespace HMI
                 // attach controller parameters
                 message += Convert.ToString("Kp_" + ControllerParameters.Kp + "#Ki_" + ControllerParameters.Ki + "#Kd_" + ControllerParameters.Kd);
 
-                // if the first character is '#', then remove it
+                // remove redundant delimiter
                 if (message.Substring(0, 1) == "#") message = message.Substring(1);
 
                 // send message
@@ -198,14 +197,14 @@ namespace HMI
             // estimate states             
             double z = Convert.ToDouble(recieved_packages["yc1"].GetLastValue());
             double u = Convert.ToDouble(recieved_packages["u1"].GetLastValue());
-            double[,] x = filter.Update(z, u);
+            double[,] x = kalman_filter.Update(z, u);
 
             // store the value
             if (estimates.ContainsKey("yo1_hat")) estimates["yo1_hat"].InsertData(time, x[0, 0].ToString());
             if (estimates.ContainsKey("yc1_hat")) estimates["yc1_hat"].InsertData(time, x[1, 0].ToString());
 
             // store the residual
-            if (recieved_packages.ContainsKey("yc1")) recieved_packages["yc1"].InsertResidual(filter.innovation.ToString());
+            if (recieved_packages.ContainsKey("yc1")) recieved_packages["yc1"].InsertResidual(kalman_filter.innovation.ToString());
         }
 
         public string GetStatus()

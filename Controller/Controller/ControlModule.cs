@@ -4,14 +4,13 @@ using System.Linq;
 using System.Threading;
 using Communication;
 using System.Globalization;
-using System.Linq;
 
 namespace Controller
 {
     public class ControlModule
     {
         // data containers (dictionaries)
-        static Dictionary<string, DataContainer> recieved_packages = new Dictionary<string, DataContainer>();
+        static Dictionary<string, DataContainer> received_packages = new Dictionary<string, DataContainer>();
         static Dictionary<string, DataContainer> references = new Dictionary<string, DataContainer>();
 
         // flag specific keys with pre-defined meanings
@@ -22,8 +21,6 @@ namespace Controller
 
         // state variables
         static bool listening_on_plant = false;
-
-        // canal flag
         static public bool using_canal = false;
 
         // GUI and Plant endpoints
@@ -40,6 +37,7 @@ namespace Controller
             EP_GUI = new ConnectionParameters(args[0], Convert.ToInt16(args[1]), Convert.ToInt16(args[2]));
             EP_Plant = new ConnectionParameters(args[3], Convert.ToInt16(args[4]), Convert.ToInt16(args[5]));
 
+            // 6 arguments --> no canal. 10 arguments --> canal
             if (args.Length == 6)
             {
                 EP_Send_GUI = new AddressEndPoint(EP_GUI.IP, EP_GUI.Port);
@@ -98,8 +96,8 @@ namespace Controller
                     listener.Listen();
                     ParseMessage(listener.last_recieved);
 
-                    // compute the new control signal for each controller (with updated r)
-                    ComputeControlSignals(PIDList, "from_GUI");
+                    // update controller settings (reference set-point and PID parameters)
+                    ManageControllers(PIDList, flag : "GUI");
                 }
                 catch (Exception ex)
                 {
@@ -119,7 +117,7 @@ namespace Controller
 
                 if (listening_on_plant == true)
                 {
-                    // send u to the plant
+                    // send control signal u to the plant
                     string message = ConstructMessagePlant(PIDList);
                     Sender.Send(message);
                 }
@@ -139,8 +137,9 @@ namespace Controller
                     ParseMessage(listener.last_recieved);
 
                     // compute the new control signal for each controller
-                    ComputeControlSignals(PIDList, "from_plant");
+                    ManageControllers(PIDList, flag : "Plant");
 
+                    // flag that packages from the plant are being received
                     listening_on_plant = true;
                 }
                 catch (Exception ex)
@@ -167,12 +166,12 @@ namespace Controller
             }
 
             // append measurements signals
-            for (int i = 0; i < recieved_packages.Keys.Count(); i++)
+            for (int i = 0; i < received_packages.Keys.Count(); i++)
             {   
-                var item = recieved_packages.ElementAt(i);
+                var item = received_packages.ElementAt(i);
                 string key = item.Key;
 
-                if (key.Contains("y")) message += "#" + key + "_" + recieved_packages[key].GetLastValue();                 
+                if (key.Contains("y")) message += "#" + key + "_" + received_packages[key].GetLastValue();                 
             }
 
             return message;
@@ -183,18 +182,18 @@ namespace Controller
             string message = "";
 
             // if a canal is used, append the end-point address
-            if (using_canal == true) message += Convert.ToString("EP_" + EP_Plant.IP + ":" + EP_Plant.Port);
+            if (using_canal == true) message += Convert.ToString("EP_" + EP_Plant.IP + ":" + EP_Plant.Port + "#");
 
             int index = 0;
             foreach (PID controller in PIDList)
             {
                 index++;
-                message += "#u" + index + "_" + controller.get_u();
+                message += "u" + index + "_" + controller.get_u() + "#";
             }
 
-            // remove the first delimiter
-            if (message[0] == '#') message = message.Substring(1);
-            // Console.WriteLine(message);
+            // remove the redundant delimiter
+            message = message.Substring(0, message.LastIndexOf('#'));
+
             return message;
         }
 
@@ -226,20 +225,20 @@ namespace Controller
                 }
 
                 // if a new key is recieved, add it
-                if (recieved_packages.ContainsKey(key) == false)
+                if (received_packages.ContainsKey(key) == false)
                 {
-                    recieved_packages.Add(key, new DataContainer(Constants.n_steps));
+                    received_packages.Add(key, new DataContainer(Constants.n_steps));
 
-                    // add controller
+                    // add controller if the tag corresponds to a controlled state
                     if (flag_controlled_states.Contains(key)) PIDList.Add(new PID());
                 }
 
                 // insert the recieved data to corresponding tag
-                recieved_packages[key].InsertData(time, value);
+                received_packages[key].InsertData(time, value);
             }
         }
 
-        private static void ComputeControlSignals(List<PID> PIDList, string flag)
+        private static void ManageControllers(List<PID> PIDList, string flag)
         {
             int index = 0;
             foreach (PID controller in PIDList)
@@ -247,20 +246,25 @@ namespace Controller
                 index++;
 
                 // check if corresponing reference value exist
-                if (recieved_packages.ContainsKey("r" + index) == false) continue;
+                if (received_packages.ContainsKey("r" + index) == false) continue;
 
                 // check if both the last recieved measurement is up to date (else don't update the control signal) 
-                if (recieved_packages["yc" + index].isUpToDate())
+                if (received_packages["yc" + index].isUpToDate())
                 {
                     // update controller parameters
-                    if (flag == "from_GUI") controller.UpdateParameters(Convert.ToDouble(recieved_packages["Kp"].GetLastValue()),
-                                                                        Convert.ToDouble(recieved_packages["Ki"].GetLastValue()),
-                                                                        Convert.ToDouble(recieved_packages["Kd"].GetLastValue()));
-
-                    // update control signal
-                    double reference = Convert.ToDouble(recieved_packages["r" + index].GetLastValue());
-                    double measurement = Convert.ToDouble(recieved_packages["yc" + index].GetLastValue());
-                    if (listening_on_plant) controller.ComputeControlSignal(reference, measurement);
+                    if (flag == "GUI")
+                    {
+                        controller.UpdateParameters(Convert.ToDouble(received_packages["Kp"].GetLastValue()),
+                                                    Convert.ToDouble(received_packages["Ki"].GetLastValue()),
+                                                    Convert.ToDouble(received_packages["Kd"].GetLastValue()));
+                    }
+                    else if (flag == "Plant")
+                    {
+                        // update control signal
+                        double reference = Convert.ToDouble(received_packages["r" + index].GetLastValue());
+                        double measurement = Convert.ToDouble(received_packages["yc" + index].GetLastValue());
+                        controller.ComputeControlSignal(reference, measurement);
+                    }
                 }
             }
         }

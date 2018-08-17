@@ -123,7 +123,7 @@ namespace HMI
             // map tank height in cm to pixels
             double max_height_p = GUI.pictureBox1.Height / 2.5; // max height [pixels]
             double max_inflow_width = 10;
-            double max_height_r = 25; // real max height [cm]
+            double max_height_r = 20; // real max height [cm]
             double cm2pix = max_height_p / max_height_r;
 
             // if there are no estimates, there is nothing to animate 
@@ -153,7 +153,7 @@ namespace HMI
             // tank dimensions
             double R1_ = Math.Sqrt(A1 / Math.PI); int R1 = Convert.ToInt16(R1_ * cm2pix);
             double r1_ = Math.Sqrt(a1 / Math.PI); int r1 = Convert.ToInt16(r1_ * cm2pix);
-            double h1_ = 25; int h1 = Convert.ToInt16(h1_ * cm2pix);
+            double h1_ = 20; int h1 = Convert.ToInt16(h1_ * cm2pix);
 
             // inlet
             if (u > 0)
@@ -187,7 +187,7 @@ namespace HMI
             // tank dimensions
             double R2_ = Math.Sqrt(A2 / Math.PI); int R2 = Convert.ToInt16(R2_ * cm2pix);
             double r2_ = Math.Sqrt(a2 / Math.PI); int r2 = Convert.ToInt16(r2_ * cm2pix);
-            double h2_ = 25; int h2 = Convert.ToInt16(h2_ * cm2pix);
+            double h2_ = 20; int h2 = Convert.ToInt16(h2_ * cm2pix);
 
             // water 
             Rectangle water2 = new Rectangle(T2.X - R2, T2.Y - y2, 2 * R2, y2);
@@ -296,11 +296,11 @@ namespace HMI
                         chart_.Series[key].Color = Color.Green;
                         chart_.Series[key].BorderWidth = 2;
                         break;
-                    case "yc1_res":
+                    case "Res_yc1":
                         chart_.Series[key].Color = Color.Blue;
                         chart_.Series[key].BorderWidth = 2;
                         break;
-                    case "S_yc1":
+                    case "Sec_yc1":
                         chart_.Series[key].Color = Color.Blue;
                         chart_.Series[key].BorderWidth = 2;
                         break;
@@ -327,7 +327,7 @@ namespace HMI
             chart.ChartAreas[0].AxisX.Maximum = DateTime.UtcNow.ToOADate();
         }
 
-        public static void ChangeYScale(object chart, string verbose)
+        public static void ChangeYScale(object chart, string treshold_interval, string grid_interval)
         {
             bool points_exist = false;
             double max = Double.MinValue;
@@ -353,16 +353,25 @@ namespace HMI
 
             if (points_exist == true && (max > min))
             {
-                if (verbose == "round")
+                if (treshold_interval == "one")
                 {
                     tmpChart.ChartAreas[0].AxisY.Maximum = Math.Max(Math.Ceiling(max), 0);
                     tmpChart.ChartAreas[0].AxisY.Minimum = Math.Min(Math.Floor(min), 0);
-                    tmpChart.ChartAreas[0].AxisY.Interval = 1;
                 }
-                else if (verbose == "deci")
+                else if (treshold_interval == "deci")
                 {
                     tmpChart.ChartAreas[0].AxisY.Maximum = Math.Max(Math.Ceiling(max * 10) / 10, 0);
                     tmpChart.ChartAreas[0].AxisY.Minimum = Math.Min(Math.Floor(min * 10) / 10, 0);
+                }
+
+                if (grid_interval == "one")
+                {
+
+                    tmpChart.ChartAreas[0].AxisY.Interval = 1;
+                }
+                else if (grid_interval == "adaptive")
+                {
+                    tmpChart.ChartAreas[0].AxisY.Interval = Math.Max(Math.Ceiling(max / 10), 1);
                 }
             }
         }

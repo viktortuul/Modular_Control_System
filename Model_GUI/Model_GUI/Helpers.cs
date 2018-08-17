@@ -155,7 +155,7 @@ namespace Model_GUI
             if (dict.ContainsKey(key) == false) dict.Add(key, new DataContainer(n_steps));
         }
 
-        public static void UpdatePerturbationLabels(ModelGUI GUI, ModelGUI.Perturbation Disturbance, ModelGUI.Perturbation Noise, ModelGUI.Perturbation Control)
+        public static void UpdatePerturbationLabels(ModelGUI GUI, ModelGUI.Perturbation Disturbance)
         {
 
             GUI.labelDisturbance.Text = "Disturbances: \n" +
@@ -163,18 +163,6 @@ namespace Model_GUI
                                     Math.Round(Disturbance.value[1], 1) + "\n" +
                                     Math.Round(Disturbance.value[2], 1) + "\n" +
                                     Math.Round(Disturbance.value[3], 1);
-
-            GUI.labelNoise.Text = "Noises: \n" +
-                                    Math.Round(Noise.value[0], 1) + "\n" +
-                                    Math.Round(Noise.value[1], 1) + "\n" +
-                                    Math.Round(Noise.value[2], 1) + "\n" +
-                                    Math.Round(Noise.value[3], 1);
-
-            GUI.labelControl.Text = "Controls: \n" +
-                                    Math.Round(Control.value[0], 1) + "\n" +
-                                    Math.Round(Control.value[1], 1) + "\n" +
-                                    Math.Round(Control.value[2], 1) + "\n" +
-                                    Math.Round(Control.value[3], 1);
         }
 
         public static void DrawTanks(ModelGUI GUI)
@@ -185,7 +173,7 @@ namespace Model_GUI
             // map tank height in cm to pixels
             double max_height_p = GUI.pictureBox1.Height / 2.5; // max height [pixels]
             double max_inflow_width = 10;
-            double max_height_r = 25; // real max height [cm]
+            double max_height_r = 20; // real max height [cm]
             double cm2pix = max_height_p / max_height_r;
 
             // extract signals
@@ -194,11 +182,11 @@ namespace Model_GUI
             int y1 = Convert.ToInt16(cm2pix * Convert.ToDouble(GUI.states["yo1"].GetLastValue()));
             int y2 = Convert.ToInt16(cm2pix * Convert.ToDouble(GUI.states["yc1"].GetLastValue()));
 
-            //
+            // tank dimensions
             double A1 = 15; //Convert.ToDouble(numUpDown_A1.Value);
-            double a1 = 0.16 * 2; //Convert.ToDouble(numUpDown_a1a.Value);
-            double A2 = 100; //Convert.ToDouble(numUpDown_A2.Value);
-            double a2 = 0.16; //Convert.ToDouble(numUpDown_a2a.Value);
+            double a1 = 0.2; //Convert.ToDouble(numUpDown_a1a.Value);
+            double A2 = 50; //Convert.ToDouble(numUpDown_A2.Value);
+            double a2 = 0.3; //Convert.ToDouble(numUpDown_a2a.Value);
 
             // TANK 1 ----------------------------------------------------------------
             Point T1 = new Point(75, Convert.ToInt16(GUI.pictureBox1.Height / 2));
@@ -207,7 +195,7 @@ namespace Model_GUI
             // tank dimensions
             double R1_ = Math.Sqrt(A1 / Math.PI); int R1 = Convert.ToInt16(R1_ * cm2pix);
             double r1_ = Math.Sqrt(a1 / Math.PI); int r1 = Convert.ToInt16(r1_ * cm2pix);
-            double h1_ = 25; int h1 = Convert.ToInt16(h1_ * cm2pix);
+            double h1_ = 20; int h1 = Convert.ToInt16(h1_ * cm2pix);
 
             // inlet
             if (u > 0)
@@ -242,7 +230,7 @@ namespace Model_GUI
             // tank dimensions
             double R2_ = Math.Sqrt(A2 / Math.PI); int R2 = Convert.ToInt16(R2_ * cm2pix);
             double r2_ = Math.Sqrt(a2 / Math.PI); int r2 = Convert.ToInt16(r2_ * cm2pix);
-            double h2_ = 25; int h2 = Convert.ToInt16(h2_ * cm2pix);
+            double h2_ = 20; int h2 = Convert.ToInt16(h2_ * cm2pix);
 
             // water 
             Rectangle water2 = new Rectangle(T2.X - R2, T2.Y - y2, 2 * R2, y2);

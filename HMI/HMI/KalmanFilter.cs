@@ -14,7 +14,7 @@ namespace HMI
         private double[,] x, G;                                     // states and jacobian
         private double[,] P = new double[,] { { 1, 1 }, { 1, 1 } }; // state covariance
         private double[,] R = new double[,] { { 1, 1 }, { 1, 1 } }; // process noise covariance
-        private double Q = 50;                                      // measurement noise covariance
+        private double Q = 5;                                      // measurement noise covariance
         private double[,] H = new double[1, 2] { {0, 1} };          // measurement model jacobian
         private double[,] I = new double[,] { { 1, 0 }, { 0, 1 } }; // identity matrix
         private DateTime update_last = DateTime.Now;

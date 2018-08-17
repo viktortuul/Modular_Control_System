@@ -15,56 +15,57 @@ namespace Controller
         private bool parameters_assigned = false;
 
         // states
-        private double I = 0; // error integral
-        private double e = 0, ep = 0; // current and prior error
-        private double de = 0; // error derivative
-        private double de_temp = 0; // error derivative holder
-        private double u = 0; // control signal
-        private DateTime update_last = DateTime.Now; // time stamp of prior execution
+        private double I = 0;           // error integral
+        private double e = 0, ep = 0;   // current and prior error
+        private double de = 0;          // error derivative
+        private double dE = 0;          // error derivative (low passed)
+        private double u = 0;           // control signal
+        private DateTime time_previous = DateTime.Now; // time stamp of prior execution
 
         // controller coefficients
-        private double Kp; // proportional
-        private double Ki; // integral
-        private double Kd; // derivative
+        private double Kp;              // proportional
+        private double Ki;              // integral
+        private double Kd;              // derivative
+        private double q = 0.01;        // FIR smoothing factor
 
-        // controller limitations
+        // actuator limitations
         private double u_max = 7.5;
         private double u_min = -7.5 * 0;
 
-        // constructor
+        // empty constructor
         public PID() { }
 
         public void ComputeControlSignal(double r, double y)
         {
             // calculate the dime duration from the last update
-            DateTime nowTime = DateTime.Now;
+            DateTime time_now = DateTime.Now;
 
             if (parameters_assigned == true)
             {
-                // calculte error
-                e = r - y;
-
-                if (update_last != null)
+                if (time_previous != null)
                 {
-                    double dt = (nowTime - update_last).TotalSeconds;
+                    // calculte error
+                    e = r - y;
 
-                    //integrator with anti wind-up (only add intergral action if the control signal is not saturated)
+                    // duration since the last update
+                    double dt = (time_now - time_previous).TotalSeconds;
+
+                    // integral part with anti wind-up (only add intergral action if the control signal is not saturated)
                     if (anti_wind_up == true)
                     {
                         if (u > u_min && u < u_max) I += dt * e;                 
                     }
                     else I += dt * e;
 
-                    // derivator (with low pass)
-                    //de = 1 / (dt + 1) * y - de_temp;
-                    //de_temp = (y - de) / (dt + 1);
-
+                    // derivative part (with low pass)
                     if (dt != 0.0f) de = (e - ep) / dt;
+                    dE = (1 - q) * dE + q * de;
 
-                    // control signal
-                    u = Kp * e + Ki * I - Kd * de;
+                    // resulting control signal
+                    u = Kp * e + Ki * I + Kd * dE;
 
-                    ep = e; // update prior error
+                    // save the prior error for the next update
+                    ep = e; 
 
                     // saturation
                     if (u > u_max) u = u_max;
@@ -73,7 +74,7 @@ namespace Controller
             }
 
             // update prior time
-            update_last = nowTime;
+            time_previous = time_now;
         }
 
         public void UpdateParameters(double Kp, double Ki, double Kd)

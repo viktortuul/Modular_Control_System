@@ -30,37 +30,16 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ModelGUI));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title5 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title6 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.labelDebug = new System.Windows.Forms.Label();
             this.timerChart = new System.Windows.Forms.Timer(this.components);
             this.labelDisturbance = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.numUpDownNoiseTimeConst = new System.Windows.Forms.NumericUpDown();
-            this.label15 = new System.Windows.Forms.Label();
-            this.buttonApplyNoise = new System.Windows.Forms.Button();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.numUpDownNoiseAmplitude22 = new System.Windows.Forms.NumericUpDown();
-            this.numUpDownNoiseAmplitude12 = new System.Windows.Forms.NumericUpDown();
-            this.numUpDownNoiseAmplitude21 = new System.Windows.Forms.NumericUpDown();
-            this.numUpDownNoiseAmplitude11 = new System.Windows.Forms.NumericUpDown();
-            this.rBtnNoiseTransient = new System.Windows.Forms.RadioButton();
-            this.rBtnNoiseSinusoid = new System.Windows.Forms.RadioButton();
-            this.rBtnNoiseConstant = new System.Windows.Forms.RadioButton();
-            this.label12 = new System.Windows.Forms.Label();
-            this.numUpDownNoiseFrequency = new System.Windows.Forms.NumericUpDown();
-            this.label13 = new System.Windows.Forms.Label();
-            this.numUpDownNoiseDuration = new System.Windows.Forms.NumericUpDown();
-            this.label14 = new System.Windows.Forms.Label();
-            this.labelNoise = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
@@ -83,7 +62,6 @@
             this.label24 = new System.Windows.Forms.Label();
             this.numUpDownControlDuration = new System.Windows.Forms.NumericUpDown();
             this.label25 = new System.Windows.Forms.Label();
-            this.labelControl = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.timerUpdateGUI = new System.Windows.Forms.Timer(this.components);
             this.label2 = new System.Windows.Forms.Label();
@@ -107,11 +85,6 @@
             this.checkBoxInstant = new System.Windows.Forms.CheckBox();
             this.numUpDownDisturbanceTimeConst = new System.Windows.Forms.NumericUpDown();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.buttonCorruptStart = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.label26 = new System.Windows.Forms.Label();
-            this.textBoxAppendCorrupt = new System.Windows.Forms.TextBox();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripSplitButton1 = new System.Windows.Forms.ToolStripSplitButton();
@@ -120,16 +93,10 @@
             this.label27 = new System.Windows.Forms.Label();
             this.perturbationChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.dataChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseTimeConst)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseAmplitude22)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseAmplitude12)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseAmplitude21)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseAmplitude11)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseFrequency)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseDuration)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownControlTimeConst)).BeginInit();
@@ -147,20 +114,22 @@
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownDisturbanceAmplitude22)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownDisturbanceTimeConst)).BeginInit();
             this.groupBox1.SuspendLayout();
-            this.groupBox4.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.perturbationChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataChart)).BeginInit();
-            this.groupBox5.SuspendLayout();
+            this.tabControl1.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
             this.SuspendLayout();
             // 
             // labelDebug
             // 
             this.labelDebug.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.labelDebug.AutoSize = true;
-            this.labelDebug.Location = new System.Drawing.Point(843, 166);
+            this.labelDebug.Location = new System.Drawing.Point(1175, 204);
+            this.labelDebug.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelDebug.Name = "labelDebug";
-            this.labelDebug.Size = new System.Drawing.Size(61, 13);
+            this.labelDebug.Size = new System.Drawing.Size(81, 17);
             this.labelDebug.TabIndex = 17;
             this.labelDebug.Text = "Duration [s]";
             // 
@@ -173,9 +142,10 @@
             // 
             this.labelDisturbance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.labelDisturbance.AutoSize = true;
-            this.labelDisturbance.Location = new System.Drawing.Point(843, 182);
+            this.labelDisturbance.Location = new System.Drawing.Point(1175, 224);
+            this.labelDisturbance.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelDisturbance.Name = "labelDisturbance";
-            this.labelDisturbance.Size = new System.Drawing.Size(64, 13);
+            this.labelDisturbance.Size = new System.Drawing.Size(84, 17);
             this.labelDisturbance.TabIndex = 18;
             this.labelDisturbance.Text = "Disturbance";
             // 
@@ -184,270 +154,35 @@
             this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.pictureBox1.BackColor = System.Drawing.Color.White;
-            this.pictureBox1.Location = new System.Drawing.Point(3, 33);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2);
+            this.pictureBox1.Location = new System.Drawing.Point(4, 41);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(220, 401);
+            this.pictureBox1.Size = new System.Drawing.Size(293, 494);
             this.pictureBox1.TabIndex = 22;
             this.pictureBox1.TabStop = false;
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.numUpDownNoiseTimeConst);
-            this.groupBox2.Controls.Add(this.label15);
-            this.groupBox2.Controls.Add(this.buttonApplyNoise);
-            this.groupBox2.Controls.Add(this.label4);
-            this.groupBox2.Controls.Add(this.label9);
-            this.groupBox2.Controls.Add(this.label10);
-            this.groupBox2.Controls.Add(this.label11);
-            this.groupBox2.Controls.Add(this.numUpDownNoiseAmplitude22);
-            this.groupBox2.Controls.Add(this.numUpDownNoiseAmplitude12);
-            this.groupBox2.Controls.Add(this.numUpDownNoiseAmplitude21);
-            this.groupBox2.Controls.Add(this.numUpDownNoiseAmplitude11);
-            this.groupBox2.Controls.Add(this.rBtnNoiseTransient);
-            this.groupBox2.Controls.Add(this.rBtnNoiseSinusoid);
-            this.groupBox2.Controls.Add(this.rBtnNoiseConstant);
-            this.groupBox2.Controls.Add(this.label12);
-            this.groupBox2.Controls.Add(this.numUpDownNoiseFrequency);
-            this.groupBox2.Controls.Add(this.label13);
-            this.groupBox2.Controls.Add(this.numUpDownNoiseDuration);
-            this.groupBox2.Controls.Add(this.label14);
-            this.groupBox2.Location = new System.Drawing.Point(825, 345);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(362, 129);
-            this.groupBox2.TabIndex = 23;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Noise settings";
-            this.groupBox2.Visible = false;
-            // 
-            // numUpDownNoiseTimeConst
-            // 
-            this.numUpDownNoiseTimeConst.DecimalPlaces = 1;
-            this.numUpDownNoiseTimeConst.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            65536});
-            this.numUpDownNoiseTimeConst.Location = new System.Drawing.Point(219, 66);
-            this.numUpDownNoiseTimeConst.Name = "numUpDownNoiseTimeConst";
-            this.numUpDownNoiseTimeConst.Size = new System.Drawing.Size(47, 20);
-            this.numUpDownNoiseTimeConst.TabIndex = 26;
-            this.numUpDownNoiseTimeConst.Value = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(94, 67);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(88, 13);
-            this.label15.TabIndex = 27;
-            this.label15.Text = "Time constant [s]";
-            // 
-            // buttonApplyNoise
-            // 
-            this.buttonApplyNoise.Location = new System.Drawing.Point(6, 93);
-            this.buttonApplyNoise.Name = "buttonApplyNoise";
-            this.buttonApplyNoise.Size = new System.Drawing.Size(70, 31);
-            this.buttonApplyNoise.TabIndex = 25;
-            this.buttonApplyNoise.Text = "Apply";
-            this.buttonApplyNoise.UseVisualStyleBackColor = true;
-            this.buttonApplyNoise.Click += new System.EventHandler(this.buttonApplyNoise_Click);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(272, 108);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(26, 13);
-            this.label4.TabIndex = 24;
-            this.label4.Text = "T22";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(272, 89);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(26, 13);
-            this.label9.TabIndex = 23;
-            this.label9.Text = "T12";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(192, 108);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(26, 13);
-            this.label10.TabIndex = 22;
-            this.label10.Text = "T21";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(192, 89);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(26, 13);
-            this.label11.TabIndex = 21;
-            this.label11.Text = "T11";
-            // 
-            // numUpDownNoiseAmplitude22
-            // 
-            this.numUpDownNoiseAmplitude22.Enabled = false;
-            this.numUpDownNoiseAmplitude22.Location = new System.Drawing.Point(304, 106);
-            this.numUpDownNoiseAmplitude22.Name = "numUpDownNoiseAmplitude22";
-            this.numUpDownNoiseAmplitude22.Size = new System.Drawing.Size(47, 20);
-            this.numUpDownNoiseAmplitude22.TabIndex = 19;
-            // 
-            // numUpDownNoiseAmplitude12
-            // 
-            this.numUpDownNoiseAmplitude12.Enabled = false;
-            this.numUpDownNoiseAmplitude12.Location = new System.Drawing.Point(304, 88);
-            this.numUpDownNoiseAmplitude12.Name = "numUpDownNoiseAmplitude12";
-            this.numUpDownNoiseAmplitude12.Size = new System.Drawing.Size(47, 20);
-            this.numUpDownNoiseAmplitude12.TabIndex = 18;
-            // 
-            // numUpDownNoiseAmplitude21
-            // 
-            this.numUpDownNoiseAmplitude21.Location = new System.Drawing.Point(220, 106);
-            this.numUpDownNoiseAmplitude21.Name = "numUpDownNoiseAmplitude21";
-            this.numUpDownNoiseAmplitude21.Size = new System.Drawing.Size(47, 20);
-            this.numUpDownNoiseAmplitude21.TabIndex = 17;
-            this.numUpDownNoiseAmplitude21.Value = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
-            // 
-            // numUpDownNoiseAmplitude11
-            // 
-            this.numUpDownNoiseAmplitude11.Enabled = false;
-            this.numUpDownNoiseAmplitude11.Location = new System.Drawing.Point(220, 88);
-            this.numUpDownNoiseAmplitude11.Name = "numUpDownNoiseAmplitude11";
-            this.numUpDownNoiseAmplitude11.Size = new System.Drawing.Size(47, 20);
-            this.numUpDownNoiseAmplitude11.TabIndex = 16;
-            // 
-            // rBtnNoiseTransient
-            // 
-            this.rBtnNoiseTransient.AutoSize = true;
-            this.rBtnNoiseTransient.Location = new System.Drawing.Point(5, 66);
-            this.rBtnNoiseTransient.Name = "rBtnNoiseTransient";
-            this.rBtnNoiseTransient.Size = new System.Drawing.Size(69, 17);
-            this.rBtnNoiseTransient.TabIndex = 10;
-            this.rBtnNoiseTransient.Text = "Transient";
-            this.rBtnNoiseTransient.UseVisualStyleBackColor = true;
-            // 
-            // rBtnNoiseSinusoid
-            // 
-            this.rBtnNoiseSinusoid.AutoSize = true;
-            this.rBtnNoiseSinusoid.Location = new System.Drawing.Point(5, 42);
-            this.rBtnNoiseSinusoid.Name = "rBtnNoiseSinusoid";
-            this.rBtnNoiseSinusoid.Size = new System.Drawing.Size(65, 17);
-            this.rBtnNoiseSinusoid.TabIndex = 11;
-            this.rBtnNoiseSinusoid.Text = "Sinusoid";
-            this.rBtnNoiseSinusoid.UseVisualStyleBackColor = true;
-            // 
-            // rBtnNoiseConstant
-            // 
-            this.rBtnNoiseConstant.AutoSize = true;
-            this.rBtnNoiseConstant.Checked = true;
-            this.rBtnNoiseConstant.Location = new System.Drawing.Point(5, 19);
-            this.rBtnNoiseConstant.Name = "rBtnNoiseConstant";
-            this.rBtnNoiseConstant.Size = new System.Drawing.Size(67, 17);
-            this.rBtnNoiseConstant.TabIndex = 9;
-            this.rBtnNoiseConstant.TabStop = true;
-            this.rBtnNoiseConstant.Text = "Constant";
-            this.rBtnNoiseConstant.UseVisualStyleBackColor = true;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(94, 93);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(76, 13);
-            this.label12.TabIndex = 15;
-            this.label12.Text = "Amplitude [cm]";
-            // 
-            // numUpDownNoiseFrequency
-            // 
-            this.numUpDownNoiseFrequency.DecimalPlaces = 1;
-            this.numUpDownNoiseFrequency.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            65536});
-            this.numUpDownNoiseFrequency.Location = new System.Drawing.Point(219, 42);
-            this.numUpDownNoiseFrequency.Name = "numUpDownNoiseFrequency";
-            this.numUpDownNoiseFrequency.Size = new System.Drawing.Size(47, 20);
-            this.numUpDownNoiseFrequency.TabIndex = 12;
-            this.numUpDownNoiseFrequency.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(94, 21);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(61, 13);
-            this.label13.TabIndex = 1;
-            this.label13.Text = "Duration [s]";
-            // 
-            // numUpDownNoiseDuration
-            // 
-            this.numUpDownNoiseDuration.Location = new System.Drawing.Point(219, 19);
-            this.numUpDownNoiseDuration.Name = "numUpDownNoiseDuration";
-            this.numUpDownNoiseDuration.Size = new System.Drawing.Size(47, 20);
-            this.numUpDownNoiseDuration.TabIndex = 3;
-            this.numUpDownNoiseDuration.Value = new decimal(new int[] {
-            20,
-            0,
-            0,
-            0});
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(94, 44);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(79, 13);
-            this.label14.TabIndex = 14;
-            this.label14.Text = "Frequency [Hz]";
-            // 
-            // labelNoise
-            // 
-            this.labelNoise.AutoSize = true;
-            this.labelNoise.Location = new System.Drawing.Point(833, 233);
-            this.labelNoise.Name = "labelNoise";
-            this.labelNoise.Size = new System.Drawing.Size(34, 13);
-            this.labelNoise.TabIndex = 24;
-            this.labelNoise.Text = "Noise";
-            this.labelNoise.Visible = false;
             // 
             // label17
             // 
             this.label17.AutoSize = true;
             this.label17.BackColor = System.Drawing.SystemColors.Control;
-            this.label17.Location = new System.Drawing.Point(220, 7);
+            this.label17.Location = new System.Drawing.Point(593, 18);
+            this.label17.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(53, 13);
+            this.label17.Size = new System.Drawing.Size(71, 17);
             this.label17.TabIndex = 25;
             this.label17.Text = "History [s]";
             // 
             // numericUpDown1
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(279, 4);
+            this.numericUpDown1.Location = new System.Drawing.Point(672, 14);
+            this.numericUpDown1.Margin = new System.Windows.Forms.Padding(4);
             this.numericUpDown1.Maximum = new decimal(new int[] {
             1000,
             0,
             0,
             0});
             this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(49, 20);
+            this.numericUpDown1.Size = new System.Drawing.Size(65, 22);
             this.numericUpDown1.TabIndex = 28;
             this.numericUpDown1.Value = new decimal(new int[] {
             60,
@@ -477,9 +212,11 @@
             this.groupBox3.Controls.Add(this.label24);
             this.groupBox3.Controls.Add(this.numUpDownControlDuration);
             this.groupBox3.Controls.Add(this.label25);
-            this.groupBox3.Location = new System.Drawing.Point(830, 480);
+            this.groupBox3.Location = new System.Drawing.Point(1107, 591);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(362, 129);
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox3.Size = new System.Drawing.Size(483, 159);
             this.groupBox3.TabIndex = 29;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Control settings";
@@ -493,9 +230,10 @@
             0,
             0,
             65536});
-            this.numUpDownControlTimeConst.Location = new System.Drawing.Point(219, 66);
+            this.numUpDownControlTimeConst.Location = new System.Drawing.Point(292, 81);
+            this.numUpDownControlTimeConst.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownControlTimeConst.Name = "numUpDownControlTimeConst";
-            this.numUpDownControlTimeConst.Size = new System.Drawing.Size(47, 20);
+            this.numUpDownControlTimeConst.Size = new System.Drawing.Size(63, 22);
             this.numUpDownControlTimeConst.TabIndex = 26;
             this.numUpDownControlTimeConst.Value = new decimal(new int[] {
             5,
@@ -506,79 +244,87 @@
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(94, 67);
+            this.label18.Location = new System.Drawing.Point(125, 82);
+            this.label18.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(88, 13);
+            this.label18.Size = new System.Drawing.Size(116, 17);
             this.label18.TabIndex = 27;
             this.label18.Text = "Time constant [s]";
             // 
             // buttonApplyControl
             // 
-            this.buttonApplyControl.Location = new System.Drawing.Point(6, 93);
+            this.buttonApplyControl.Location = new System.Drawing.Point(8, 114);
+            this.buttonApplyControl.Margin = new System.Windows.Forms.Padding(4);
             this.buttonApplyControl.Name = "buttonApplyControl";
-            this.buttonApplyControl.Size = new System.Drawing.Size(70, 31);
+            this.buttonApplyControl.Size = new System.Drawing.Size(93, 38);
             this.buttonApplyControl.TabIndex = 25;
             this.buttonApplyControl.Text = "Apply";
             this.buttonApplyControl.UseVisualStyleBackColor = true;
-            this.buttonApplyControl.Click += new System.EventHandler(this.buttonApplyControl_Click);
             // 
             // label19
             // 
             this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(272, 108);
+            this.label19.Location = new System.Drawing.Point(363, 133);
+            this.label19.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(26, 13);
+            this.label19.Size = new System.Drawing.Size(33, 17);
             this.label19.TabIndex = 24;
             this.label19.Text = "T22";
             // 
             // label20
             // 
             this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(272, 89);
+            this.label20.Location = new System.Drawing.Point(363, 110);
+            this.label20.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(26, 13);
+            this.label20.Size = new System.Drawing.Size(33, 17);
             this.label20.TabIndex = 23;
             this.label20.Text = "T12";
             // 
             // label21
             // 
             this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(192, 108);
+            this.label21.Location = new System.Drawing.Point(256, 133);
+            this.label21.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(26, 13);
+            this.label21.Size = new System.Drawing.Size(33, 17);
             this.label21.TabIndex = 22;
             this.label21.Text = "T21";
             // 
             // label22
             // 
             this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(192, 89);
+            this.label22.Location = new System.Drawing.Point(256, 110);
+            this.label22.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(26, 13);
+            this.label22.Size = new System.Drawing.Size(33, 17);
             this.label22.TabIndex = 21;
             this.label22.Text = "T11";
             // 
             // numUpDownControlAmplitude22
             // 
             this.numUpDownControlAmplitude22.Enabled = false;
-            this.numUpDownControlAmplitude22.Location = new System.Drawing.Point(304, 106);
+            this.numUpDownControlAmplitude22.Location = new System.Drawing.Point(405, 130);
+            this.numUpDownControlAmplitude22.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownControlAmplitude22.Name = "numUpDownControlAmplitude22";
-            this.numUpDownControlAmplitude22.Size = new System.Drawing.Size(47, 20);
+            this.numUpDownControlAmplitude22.Size = new System.Drawing.Size(63, 22);
             this.numUpDownControlAmplitude22.TabIndex = 19;
             // 
             // numUpDownControlAmplitude12
             // 
             this.numUpDownControlAmplitude12.Enabled = false;
-            this.numUpDownControlAmplitude12.Location = new System.Drawing.Point(304, 88);
+            this.numUpDownControlAmplitude12.Location = new System.Drawing.Point(405, 108);
+            this.numUpDownControlAmplitude12.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownControlAmplitude12.Name = "numUpDownControlAmplitude12";
-            this.numUpDownControlAmplitude12.Size = new System.Drawing.Size(47, 20);
+            this.numUpDownControlAmplitude12.Size = new System.Drawing.Size(63, 22);
             this.numUpDownControlAmplitude12.TabIndex = 18;
             // 
             // numUpDownControlAmplitude21
             // 
-            this.numUpDownControlAmplitude21.Location = new System.Drawing.Point(220, 106);
+            this.numUpDownControlAmplitude21.Location = new System.Drawing.Point(293, 130);
+            this.numUpDownControlAmplitude21.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownControlAmplitude21.Name = "numUpDownControlAmplitude21";
-            this.numUpDownControlAmplitude21.Size = new System.Drawing.Size(47, 20);
+            this.numUpDownControlAmplitude21.Size = new System.Drawing.Size(63, 22);
             this.numUpDownControlAmplitude21.TabIndex = 17;
             this.numUpDownControlAmplitude21.Value = new decimal(new int[] {
             5,
@@ -589,17 +335,19 @@
             // numUpDownControlAmplitude11
             // 
             this.numUpDownControlAmplitude11.Enabled = false;
-            this.numUpDownControlAmplitude11.Location = new System.Drawing.Point(220, 88);
+            this.numUpDownControlAmplitude11.Location = new System.Drawing.Point(293, 108);
+            this.numUpDownControlAmplitude11.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownControlAmplitude11.Name = "numUpDownControlAmplitude11";
-            this.numUpDownControlAmplitude11.Size = new System.Drawing.Size(47, 20);
+            this.numUpDownControlAmplitude11.Size = new System.Drawing.Size(63, 22);
             this.numUpDownControlAmplitude11.TabIndex = 16;
             // 
             // rBtnControlTransient
             // 
             this.rBtnControlTransient.AutoSize = true;
-            this.rBtnControlTransient.Location = new System.Drawing.Point(5, 66);
+            this.rBtnControlTransient.Location = new System.Drawing.Point(7, 81);
+            this.rBtnControlTransient.Margin = new System.Windows.Forms.Padding(4);
             this.rBtnControlTransient.Name = "rBtnControlTransient";
-            this.rBtnControlTransient.Size = new System.Drawing.Size(69, 17);
+            this.rBtnControlTransient.Size = new System.Drawing.Size(89, 21);
             this.rBtnControlTransient.TabIndex = 10;
             this.rBtnControlTransient.Text = "Transient";
             this.rBtnControlTransient.UseVisualStyleBackColor = true;
@@ -607,9 +355,10 @@
             // rBtnControlSinusoid
             // 
             this.rBtnControlSinusoid.AutoSize = true;
-            this.rBtnControlSinusoid.Location = new System.Drawing.Point(5, 42);
+            this.rBtnControlSinusoid.Location = new System.Drawing.Point(7, 52);
+            this.rBtnControlSinusoid.Margin = new System.Windows.Forms.Padding(4);
             this.rBtnControlSinusoid.Name = "rBtnControlSinusoid";
-            this.rBtnControlSinusoid.Size = new System.Drawing.Size(65, 17);
+            this.rBtnControlSinusoid.Size = new System.Drawing.Size(83, 21);
             this.rBtnControlSinusoid.TabIndex = 11;
             this.rBtnControlSinusoid.Text = "Sinusoid";
             this.rBtnControlSinusoid.UseVisualStyleBackColor = true;
@@ -618,9 +367,10 @@
             // 
             this.rBtnControlConstant.AutoSize = true;
             this.rBtnControlConstant.Checked = true;
-            this.rBtnControlConstant.Location = new System.Drawing.Point(5, 19);
+            this.rBtnControlConstant.Location = new System.Drawing.Point(7, 23);
+            this.rBtnControlConstant.Margin = new System.Windows.Forms.Padding(4);
             this.rBtnControlConstant.Name = "rBtnControlConstant";
-            this.rBtnControlConstant.Size = new System.Drawing.Size(67, 17);
+            this.rBtnControlConstant.Size = new System.Drawing.Size(85, 21);
             this.rBtnControlConstant.TabIndex = 9;
             this.rBtnControlConstant.TabStop = true;
             this.rBtnControlConstant.Text = "Constant";
@@ -629,9 +379,10 @@
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(94, 93);
+            this.label23.Location = new System.Drawing.Point(125, 114);
+            this.label23.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(76, 13);
+            this.label23.Size = new System.Drawing.Size(100, 17);
             this.label23.TabIndex = 15;
             this.label23.Text = "Amplitude [cm]";
             // 
@@ -643,9 +394,10 @@
             0,
             0,
             65536});
-            this.numUpDownControlFrequency.Location = new System.Drawing.Point(219, 42);
+            this.numUpDownControlFrequency.Location = new System.Drawing.Point(292, 52);
+            this.numUpDownControlFrequency.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownControlFrequency.Name = "numUpDownControlFrequency";
-            this.numUpDownControlFrequency.Size = new System.Drawing.Size(47, 20);
+            this.numUpDownControlFrequency.Size = new System.Drawing.Size(63, 22);
             this.numUpDownControlFrequency.TabIndex = 12;
             this.numUpDownControlFrequency.Value = new decimal(new int[] {
             1,
@@ -656,17 +408,19 @@
             // label24
             // 
             this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(94, 21);
+            this.label24.Location = new System.Drawing.Point(125, 26);
+            this.label24.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label24.Name = "label24";
-            this.label24.Size = new System.Drawing.Size(61, 13);
+            this.label24.Size = new System.Drawing.Size(81, 17);
             this.label24.TabIndex = 1;
             this.label24.Text = "Duration [s]";
             // 
             // numUpDownControlDuration
             // 
-            this.numUpDownControlDuration.Location = new System.Drawing.Point(219, 19);
+            this.numUpDownControlDuration.Location = new System.Drawing.Point(292, 23);
+            this.numUpDownControlDuration.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownControlDuration.Name = "numUpDownControlDuration";
-            this.numUpDownControlDuration.Size = new System.Drawing.Size(47, 20);
+            this.numUpDownControlDuration.Size = new System.Drawing.Size(63, 22);
             this.numUpDownControlDuration.TabIndex = 3;
             this.numUpDownControlDuration.Value = new decimal(new int[] {
             20,
@@ -677,27 +431,19 @@
             // label25
             // 
             this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(94, 44);
+            this.label25.Location = new System.Drawing.Point(125, 54);
+            this.label25.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label25.Name = "label25";
-            this.label25.Size = new System.Drawing.Size(79, 13);
+            this.label25.Size = new System.Drawing.Size(104, 17);
             this.label25.TabIndex = 14;
             this.label25.Text = "Frequency [Hz]";
             // 
-            // labelControl
-            // 
-            this.labelControl.AutoSize = true;
-            this.labelControl.Location = new System.Drawing.Point(907, 233);
-            this.labelControl.Name = "labelControl";
-            this.labelControl.Size = new System.Drawing.Size(40, 13);
-            this.labelControl.TabIndex = 30;
-            this.labelControl.Text = "Control";
-            this.labelControl.Visible = false;
-            // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(334, 4);
+            this.button1.Location = new System.Drawing.Point(745, 14);
+            this.button1.Margin = new System.Windows.Forms.Padding(4);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(74, 21);
+            this.button1.Size = new System.Drawing.Size(99, 26);
             this.button1.TabIndex = 28;
             this.button1.Text = "Clear charts";
             this.button1.UseVisualStyleBackColor = true;
@@ -712,17 +458,19 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(94, 44);
+            this.label2.Location = new System.Drawing.Point(125, 54);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(79, 13);
+            this.label2.Size = new System.Drawing.Size(104, 17);
             this.label2.TabIndex = 14;
             this.label2.Text = "Frequency [Hz]";
             // 
             // numUpDownDisturbanceDuration
             // 
-            this.numUpDownDisturbanceDuration.Location = new System.Drawing.Point(219, 19);
+            this.numUpDownDisturbanceDuration.Location = new System.Drawing.Point(292, 23);
+            this.numUpDownDisturbanceDuration.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownDisturbanceDuration.Name = "numUpDownDisturbanceDuration";
-            this.numUpDownDisturbanceDuration.Size = new System.Drawing.Size(47, 20);
+            this.numUpDownDisturbanceDuration.Size = new System.Drawing.Size(63, 22);
             this.numUpDownDisturbanceDuration.TabIndex = 3;
             this.numUpDownDisturbanceDuration.Value = new decimal(new int[] {
             20,
@@ -733,9 +481,10 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(94, 21);
+            this.label1.Location = new System.Drawing.Point(125, 26);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(61, 13);
+            this.label1.Size = new System.Drawing.Size(81, 17);
             this.label1.TabIndex = 1;
             this.label1.Text = "Duration [s]";
             // 
@@ -747,9 +496,10 @@
             0,
             0,
             65536});
-            this.numUpDownDisturbanceFrequency.Location = new System.Drawing.Point(219, 42);
+            this.numUpDownDisturbanceFrequency.Location = new System.Drawing.Point(292, 52);
+            this.numUpDownDisturbanceFrequency.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownDisturbanceFrequency.Name = "numUpDownDisturbanceFrequency";
-            this.numUpDownDisturbanceFrequency.Size = new System.Drawing.Size(47, 20);
+            this.numUpDownDisturbanceFrequency.Size = new System.Drawing.Size(63, 22);
             this.numUpDownDisturbanceFrequency.TabIndex = 12;
             this.numUpDownDisturbanceFrequency.Value = new decimal(new int[] {
             1,
@@ -760,9 +510,10 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(94, 89);
+            this.label3.Location = new System.Drawing.Point(125, 110);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(92, 13);
+            this.label3.Size = new System.Drawing.Size(119, 17);
             this.label3.TabIndex = 15;
             this.label3.Text = "Amplitude [cm3/s]";
             // 
@@ -770,9 +521,10 @@
             // 
             this.rBtnDisturbanceConstant.AutoSize = true;
             this.rBtnDisturbanceConstant.Checked = true;
-            this.rBtnDisturbanceConstant.Location = new System.Drawing.Point(5, 19);
+            this.rBtnDisturbanceConstant.Location = new System.Drawing.Point(7, 23);
+            this.rBtnDisturbanceConstant.Margin = new System.Windows.Forms.Padding(4);
             this.rBtnDisturbanceConstant.Name = "rBtnDisturbanceConstant";
-            this.rBtnDisturbanceConstant.Size = new System.Drawing.Size(67, 17);
+            this.rBtnDisturbanceConstant.Size = new System.Drawing.Size(85, 21);
             this.rBtnDisturbanceConstant.TabIndex = 9;
             this.rBtnDisturbanceConstant.TabStop = true;
             this.rBtnDisturbanceConstant.Text = "Constant";
@@ -781,9 +533,10 @@
             // rBtnDisturbanceSinusoid
             // 
             this.rBtnDisturbanceSinusoid.AutoSize = true;
-            this.rBtnDisturbanceSinusoid.Location = new System.Drawing.Point(5, 42);
+            this.rBtnDisturbanceSinusoid.Location = new System.Drawing.Point(7, 52);
+            this.rBtnDisturbanceSinusoid.Margin = new System.Windows.Forms.Padding(4);
             this.rBtnDisturbanceSinusoid.Name = "rBtnDisturbanceSinusoid";
-            this.rBtnDisturbanceSinusoid.Size = new System.Drawing.Size(65, 17);
+            this.rBtnDisturbanceSinusoid.Size = new System.Drawing.Size(83, 21);
             this.rBtnDisturbanceSinusoid.TabIndex = 11;
             this.rBtnDisturbanceSinusoid.Text = "Sinusoid";
             this.rBtnDisturbanceSinusoid.UseVisualStyleBackColor = true;
@@ -791,25 +544,28 @@
             // rBtnDisturbanceTransient
             // 
             this.rBtnDisturbanceTransient.AutoSize = true;
-            this.rBtnDisturbanceTransient.Location = new System.Drawing.Point(5, 66);
+            this.rBtnDisturbanceTransient.Location = new System.Drawing.Point(7, 81);
+            this.rBtnDisturbanceTransient.Margin = new System.Windows.Forms.Padding(4);
             this.rBtnDisturbanceTransient.Name = "rBtnDisturbanceTransient";
-            this.rBtnDisturbanceTransient.Size = new System.Drawing.Size(69, 17);
+            this.rBtnDisturbanceTransient.Size = new System.Drawing.Size(89, 21);
             this.rBtnDisturbanceTransient.TabIndex = 10;
             this.rBtnDisturbanceTransient.Text = "Transient";
             this.rBtnDisturbanceTransient.UseVisualStyleBackColor = true;
             // 
             // numUpDownDisturbanceAmplitude11
             // 
-            this.numUpDownDisturbanceAmplitude11.Location = new System.Drawing.Point(220, 88);
+            this.numUpDownDisturbanceAmplitude11.Location = new System.Drawing.Point(293, 108);
+            this.numUpDownDisturbanceAmplitude11.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownDisturbanceAmplitude11.Name = "numUpDownDisturbanceAmplitude11";
-            this.numUpDownDisturbanceAmplitude11.Size = new System.Drawing.Size(47, 20);
+            this.numUpDownDisturbanceAmplitude11.Size = new System.Drawing.Size(63, 22);
             this.numUpDownDisturbanceAmplitude11.TabIndex = 16;
             // 
             // buttonApplyDisturbance
             // 
-            this.buttonApplyDisturbance.Location = new System.Drawing.Point(6, 93);
+            this.buttonApplyDisturbance.Location = new System.Drawing.Point(8, 114);
+            this.buttonApplyDisturbance.Margin = new System.Windows.Forms.Padding(4);
             this.buttonApplyDisturbance.Name = "buttonApplyDisturbance";
-            this.buttonApplyDisturbance.Size = new System.Drawing.Size(70, 31);
+            this.buttonApplyDisturbance.Size = new System.Drawing.Size(93, 38);
             this.buttonApplyDisturbance.TabIndex = 0;
             this.buttonApplyDisturbance.Text = "Apply";
             this.buttonApplyDisturbance.UseVisualStyleBackColor = true;
@@ -817,9 +573,10 @@
             // 
             // numUpDownDisturbanceAmplitude21
             // 
-            this.numUpDownDisturbanceAmplitude21.Location = new System.Drawing.Point(220, 106);
+            this.numUpDownDisturbanceAmplitude21.Location = new System.Drawing.Point(293, 130);
+            this.numUpDownDisturbanceAmplitude21.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownDisturbanceAmplitude21.Name = "numUpDownDisturbanceAmplitude21";
-            this.numUpDownDisturbanceAmplitude21.Size = new System.Drawing.Size(47, 20);
+            this.numUpDownDisturbanceAmplitude21.Size = new System.Drawing.Size(63, 22);
             this.numUpDownDisturbanceAmplitude21.TabIndex = 17;
             this.numUpDownDisturbanceAmplitude21.Value = new decimal(new int[] {
             10,
@@ -830,71 +587,78 @@
             // numUpDownDisturbanceAmplitude12
             // 
             this.numUpDownDisturbanceAmplitude12.Enabled = false;
-            this.numUpDownDisturbanceAmplitude12.Location = new System.Drawing.Point(304, 88);
+            this.numUpDownDisturbanceAmplitude12.Location = new System.Drawing.Point(405, 108);
+            this.numUpDownDisturbanceAmplitude12.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownDisturbanceAmplitude12.Name = "numUpDownDisturbanceAmplitude12";
-            this.numUpDownDisturbanceAmplitude12.Size = new System.Drawing.Size(47, 20);
+            this.numUpDownDisturbanceAmplitude12.Size = new System.Drawing.Size(63, 22);
             this.numUpDownDisturbanceAmplitude12.TabIndex = 18;
             // 
             // numUpDownDisturbanceAmplitude22
             // 
             this.numUpDownDisturbanceAmplitude22.Enabled = false;
-            this.numUpDownDisturbanceAmplitude22.Location = new System.Drawing.Point(304, 106);
+            this.numUpDownDisturbanceAmplitude22.Location = new System.Drawing.Point(405, 130);
+            this.numUpDownDisturbanceAmplitude22.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownDisturbanceAmplitude22.Name = "numUpDownDisturbanceAmplitude22";
-            this.numUpDownDisturbanceAmplitude22.Size = new System.Drawing.Size(47, 20);
+            this.numUpDownDisturbanceAmplitude22.Size = new System.Drawing.Size(63, 22);
             this.numUpDownDisturbanceAmplitude22.TabIndex = 19;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(192, 89);
+            this.label5.Location = new System.Drawing.Point(256, 110);
+            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(26, 13);
+            this.label5.Size = new System.Drawing.Size(33, 17);
             this.label5.TabIndex = 21;
             this.label5.Text = "T11";
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(192, 108);
+            this.label6.Location = new System.Drawing.Point(256, 133);
+            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(26, 13);
+            this.label6.Size = new System.Drawing.Size(33, 17);
             this.label6.TabIndex = 22;
             this.label6.Text = "T21";
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(272, 89);
+            this.label8.Location = new System.Drawing.Point(363, 110);
+            this.label8.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(26, 13);
+            this.label8.Size = new System.Drawing.Size(33, 17);
             this.label8.TabIndex = 23;
             this.label8.Text = "T12";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(272, 108);
+            this.label7.Location = new System.Drawing.Point(363, 133);
+            this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(26, 13);
+            this.label7.Size = new System.Drawing.Size(33, 17);
             this.label7.TabIndex = 24;
             this.label7.Text = "T22";
             // 
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(94, 67);
+            this.label16.Location = new System.Drawing.Point(125, 82);
+            this.label16.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(88, 13);
+            this.label16.Size = new System.Drawing.Size(116, 17);
             this.label16.TabIndex = 29;
             this.label16.Text = "Time constant [s]";
             // 
             // checkBoxInstant
             // 
             this.checkBoxInstant.AutoSize = true;
-            this.checkBoxInstant.Location = new System.Drawing.Point(272, 18);
-            this.checkBoxInstant.Margin = new System.Windows.Forms.Padding(2);
+            this.checkBoxInstant.Location = new System.Drawing.Point(363, 22);
+            this.checkBoxInstant.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.checkBoxInstant.Name = "checkBoxInstant";
-            this.checkBoxInstant.Size = new System.Drawing.Size(116, 17);
+            this.checkBoxInstant.Size = new System.Drawing.Size(150, 21);
             this.checkBoxInstant.TabIndex = 25;
             this.checkBoxInstant.Text = "Instant disturbance";
             this.checkBoxInstant.UseVisualStyleBackColor = true;
@@ -908,9 +672,10 @@
             0,
             0,
             65536});
-            this.numUpDownDisturbanceTimeConst.Location = new System.Drawing.Point(219, 66);
+            this.numUpDownDisturbanceTimeConst.Location = new System.Drawing.Point(292, 81);
+            this.numUpDownDisturbanceTimeConst.Margin = new System.Windows.Forms.Padding(4);
             this.numUpDownDisturbanceTimeConst.Name = "numUpDownDisturbanceTimeConst";
-            this.numUpDownDisturbanceTimeConst.Size = new System.Drawing.Size(47, 20);
+            this.numUpDownDisturbanceTimeConst.Size = new System.Drawing.Size(63, 22);
             this.numUpDownDisturbanceTimeConst.TabIndex = 28;
             this.numUpDownDisturbanceTimeConst.Value = new decimal(new int[] {
             1,
@@ -941,67 +706,14 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.numUpDownDisturbanceDuration);
             this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Location = new System.Drawing.Point(830, 28);
+            this.groupBox1.Location = new System.Drawing.Point(1158, 34);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(391, 129);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
+            this.groupBox1.Size = new System.Drawing.Size(521, 159);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Disturbance settings";
-            // 
-            // buttonCorruptStart
-            // 
-            this.buttonCorruptStart.Location = new System.Drawing.Point(34, 45);
-            this.buttonCorruptStart.Margin = new System.Windows.Forms.Padding(2);
-            this.buttonCorruptStart.Name = "buttonCorruptStart";
-            this.buttonCorruptStart.Size = new System.Drawing.Size(50, 19);
-            this.buttonCorruptStart.TabIndex = 31;
-            this.buttonCorruptStart.Text = "start";
-            this.buttonCorruptStart.UseVisualStyleBackColor = true;
-            this.buttonCorruptStart.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(88, 45);
-            this.button3.Margin = new System.Windows.Forms.Padding(2);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(49, 19);
-            this.button3.TabIndex = 32;
-            this.button3.Text = "stop";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
-            // 
-            // label26
-            // 
-            this.label26.AutoSize = true;
-            this.label26.Location = new System.Drawing.Point(5, 22);
-            this.label26.Name = "label26";
-            this.label26.Size = new System.Drawing.Size(24, 13);
-            this.label26.TabIndex = 28;
-            this.label26.Text = "yc1";
-            // 
-            // textBoxAppendCorrupt
-            // 
-            this.textBoxAppendCorrupt.Location = new System.Drawing.Point(34, 22);
-            this.textBoxAppendCorrupt.Margin = new System.Windows.Forms.Padding(2);
-            this.textBoxAppendCorrupt.Name = "textBoxAppendCorrupt";
-            this.textBoxAppendCorrupt.Size = new System.Drawing.Size(50, 20);
-            this.textBoxAppendCorrupt.TabIndex = 33;
-            // 
-            // groupBox4
-            // 
-            this.groupBox4.Controls.Add(this.label26);
-            this.groupBox4.Controls.Add(this.textBoxAppendCorrupt);
-            this.groupBox4.Controls.Add(this.buttonCorruptStart);
-            this.groupBox4.Controls.Add(this.button3);
-            this.groupBox4.Location = new System.Drawing.Point(836, 257);
-            this.groupBox4.Margin = new System.Windows.Forms.Padding(2);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox4.Size = new System.Drawing.Size(177, 74);
-            this.groupBox4.TabIndex = 34;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Append to measurement signal";
-            this.groupBox4.Visible = false;
             // 
             // statusStrip1
             // 
@@ -1009,16 +721,17 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripSplitButton1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 449);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 559);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1271, 26);
+            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 19, 0);
+            this.statusStrip1.Size = new System.Drawing.Size(1695, 26);
             this.statusStrip1.TabIndex = 35;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(58, 21);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(73, 21);
             this.toolStripStatusLabel1.Text = "Directory:";
             // 
             // toolStripSplitButton1
@@ -1030,29 +743,30 @@
             this.toolStripSplitButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton1.Image")));
             this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripSplitButton1.Name = "toolStripSplitButton1";
-            this.toolStripSplitButton1.Size = new System.Drawing.Size(36, 24);
+            this.toolStripSplitButton1.Size = new System.Drawing.Size(39, 24);
             this.toolStripSplitButton1.Text = "toolStripSplitButton1";
             this.toolStripSplitButton1.ButtonClick += new System.EventHandler(this.toolStripSplitButton1_ButtonClick);
             // 
             // setDirectoryToolStripMenuItem
             // 
             this.setDirectoryToolStripMenuItem.Name = "setDirectoryToolStripMenuItem";
-            this.setDirectoryToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.setDirectoryToolStripMenuItem.Size = new System.Drawing.Size(168, 26);
             this.setDirectoryToolStripMenuItem.Text = "Set directory";
             // 
             // saveChartToolStripMenuItem
             // 
             this.saveChartToolStripMenuItem.Name = "saveChartToolStripMenuItem";
-            this.saveChartToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.saveChartToolStripMenuItem.Size = new System.Drawing.Size(168, 26);
             this.saveChartToolStripMenuItem.Text = "Save chart";
             // 
             // label27
             // 
             this.label27.AutoSize = true;
             this.label27.BackColor = System.Drawing.SystemColors.Control;
-            this.label27.Location = new System.Drawing.Point(1, 18);
+            this.label27.Location = new System.Drawing.Point(95, 22);
+            this.label27.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label27.Name = "label27";
-            this.label27.Size = new System.Drawing.Size(53, 13);
+            this.label27.Size = new System.Drawing.Size(70, 17);
             this.label27.TabIndex = 37;
             this.label27.Text = "Animation";
             // 
@@ -1061,90 +775,99 @@
             this.perturbationChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea1.Name = "ChartArea1";
-            chartArea1.ShadowColor = System.Drawing.Color.Gray;
-            this.perturbationChart.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.perturbationChart.Legends.Add(legend1);
-            this.perturbationChart.Location = new System.Drawing.Point(3, 192);
+            chartArea5.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea5.Name = "ChartArea1";
+            chartArea5.ShadowColor = System.Drawing.Color.Gray;
+            this.perturbationChart.ChartAreas.Add(chartArea5);
+            legend5.Name = "Legend1";
+            this.perturbationChart.Legends.Add(legend5);
+            this.perturbationChart.Location = new System.Drawing.Point(7, 4);
+            this.perturbationChart.Margin = new System.Windows.Forms.Padding(4);
             this.perturbationChart.Name = "perturbationChart";
-            this.perturbationChart.Size = new System.Drawing.Size(577, 207);
+            this.perturbationChart.Size = new System.Drawing.Size(842, 482);
             this.perturbationChart.TabIndex = 21;
             this.perturbationChart.Text = "chart1";
-            title1.Name = "Title1";
-            title1.Text = "Applied perturbations";
-            this.perturbationChart.Titles.Add(title1);
-            this.perturbationChart.Visible = false;
+            title5.Name = "Title1";
+            title5.Text = "Applied perturbations";
+            this.perturbationChart.Titles.Add(title5);
             // 
             // dataChart
             // 
             this.dataChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea2.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea2.Name = "ChartArea1";
-            chartArea2.ShadowColor = System.Drawing.Color.Gray;
-            this.dataChart.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.dataChart.Legends.Add(legend2);
-            this.dataChart.Location = new System.Drawing.Point(3, 9);
+            chartArea6.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea6.Name = "ChartArea1";
+            chartArea6.ShadowColor = System.Drawing.Color.Gray;
+            this.dataChart.ChartAreas.Add(chartArea6);
+            legend6.Name = "Legend1";
+            this.dataChart.Legends.Add(legend6);
+            this.dataChart.Location = new System.Drawing.Point(1, 1);
+            this.dataChart.Margin = new System.Windows.Forms.Padding(4);
             this.dataChart.Name = "dataChart";
-            this.dataChart.Size = new System.Drawing.Size(577, 401);
+            this.dataChart.Size = new System.Drawing.Size(842, 482);
             this.dataChart.TabIndex = 19;
-            this.dataChart.Text = "chart1";
-            title2.Name = "Title1";
-            title2.Text = "True states";
-            this.dataChart.Titles.Add(title2);
+            title6.Name = "Title1";
+            title6.Text = "True states";
+            this.dataChart.Titles.Add(title6);
             // 
-            // groupBox5
+            // tabControl1
             // 
-            this.groupBox5.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox5.Controls.Add(this.dataChart);
-            this.groupBox5.Controls.Add(this.perturbationChart);
-            this.groupBox5.Location = new System.Drawing.Point(220, 24);
-            this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(584, 410);
-            this.groupBox5.TabIndex = 36;
-            this.groupBox5.TabStop = false;
+            this.tabControl1.Controls.Add(this.tabPage1);
+            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Location = new System.Drawing.Point(296, 16);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(855, 519);
+            this.tabControl1.TabIndex = 38;
+            // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.dataChart);
+            this.tabPage1.Location = new System.Drawing.Point(4, 25);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(847, 490);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "True states";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.perturbationChart);
+            this.tabPage2.Location = new System.Drawing.Point(4, 25);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(847, 490);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Disturbance";
+            this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // ModelGUI
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1271, 475);
-            this.Controls.Add(this.pictureBox1);
-            this.Controls.Add(this.label27);
-            this.Controls.Add(this.groupBox5);
-            this.Controls.Add(this.statusStrip1);
+            this.ClientSize = new System.Drawing.Size(1695, 585);
             this.Controls.Add(this.label17);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.numericUpDown1);
-            this.Controls.Add(this.labelControl);
+            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.tabControl1);
+            this.Controls.Add(this.label27);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.groupBox3);
-            this.Controls.Add(this.labelNoise);
-            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.labelDisturbance);
             this.Controls.Add(this.labelDebug);
             this.Controls.Add(this.groupBox1);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "ModelGUI";
             this.Text = "Model";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.Resize += new System.EventHandler(this.ModelGUI_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseTimeConst)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseAmplitude22)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseAmplitude12)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseAmplitude21)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseAmplitude11)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseFrequency)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numUpDownNoiseDuration)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
@@ -1164,13 +887,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownDisturbanceTimeConst)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.perturbationChart)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataChart)).EndInit();
-            this.groupBox5.ResumeLayout(false);
+            this.tabControl1.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1179,26 +902,6 @@
         #endregion
         private System.Windows.Forms.Label labelDebug;
         private System.Windows.Forms.Timer timerChart;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.NumericUpDown numUpDownNoiseAmplitude22;
-        private System.Windows.Forms.NumericUpDown numUpDownNoiseAmplitude12;
-        private System.Windows.Forms.NumericUpDown numUpDownNoiseAmplitude21;
-        private System.Windows.Forms.NumericUpDown numUpDownNoiseAmplitude11;
-        private System.Windows.Forms.RadioButton rBtnNoiseTransient;
-        private System.Windows.Forms.RadioButton rBtnNoiseSinusoid;
-        private System.Windows.Forms.RadioButton rBtnNoiseConstant;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.NumericUpDown numUpDownNoiseFrequency;
-        private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.NumericUpDown numUpDownNoiseDuration;
-        private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.Button buttonApplyNoise;
-        private System.Windows.Forms.NumericUpDown numUpDownNoiseTimeConst;
-        private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.GroupBox groupBox3;
@@ -1245,14 +948,7 @@
         private System.Windows.Forms.NumericUpDown numUpDownDisturbanceTimeConst;
         private System.Windows.Forms.GroupBox groupBox1;
         public System.Windows.Forms.Label labelDisturbance;
-        public System.Windows.Forms.Label labelNoise;
-        public System.Windows.Forms.Label labelControl;
-        private System.Windows.Forms.Button buttonCorruptStart;
-        private System.Windows.Forms.Button button3;
         public System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.Label label26;
-        private System.Windows.Forms.TextBox textBoxAppendCorrupt;
-        private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripSplitButton toolStripSplitButton1;
@@ -1261,7 +957,9 @@
         private System.Windows.Forms.Label label27;
         private System.Windows.Forms.DataVisualization.Charting.Chart perturbationChart;
         private System.Windows.Forms.DataVisualization.Charting.Chart dataChart;
-        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage tabPage2;
     }
 }
 

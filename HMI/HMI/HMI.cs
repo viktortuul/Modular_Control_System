@@ -25,7 +25,7 @@ namespace HMI
         public int n_connections = 0; // connection count
 
         // chart settings
-        public int n_chart_history = 60; // chart view time [s]
+        public int time_chart = 60; // chart view time [s]
 
         // folder setting for chart image save
         public string folderName = "";
@@ -66,9 +66,9 @@ namespace HMI
                 UpdateChart(connection_current.estimates, ""); // kalman filter estimates
 
                 // update time axis minimum and maximum
-                Charting.UpdateChartAxes(dataChart, n_chart_history);
-                Charting.UpdateChartAxes(residualChart, n_chart_history);
-                Charting.UpdateChartAxes(securityChart, n_chart_history);
+                Charting.UpdateChartAxes(dataChart, time_chart);
+                Charting.UpdateChartAxes(residualChart, time_chart);
+                Charting.UpdateChartAxes(securityChart, time_chart);
 
                 // update time labels
                 Helpers.UpdateTimeLabels(this, connection_current, Constants.FMT);
@@ -109,12 +109,12 @@ namespace HMI
                         if (dict[key].has_residual == true)
                         {
                             // if residual series does not exist, add it
-                            if (residualChart.Series.IndexOf(key + "_res") == -1) Charting.AddChartSeries(this, key + "_res", residualChart);
-                            residualChart.Series[key + "_res"].Points.AddXY(time.ToOADate(), Convert.ToDouble(dict[key].residual[i]));
+                            if (residualChart.Series.IndexOf("Res_" + key) == -1) Charting.AddChartSeries(this, "Res_" + key, residualChart);
+                            residualChart.Series["Res_" + key].Points.AddXY(time.ToOADate(), Convert.ToDouble(dict[key].residual[i]));
 
                             // if security metric series does not exist, add it
-                            if (securityChart.Series.IndexOf("S_" + key) == -1) Charting.AddChartSeries(this, "S_" + key, securityChart);
-                            securityChart.Series["S_" + key].Points.AddXY(time.ToOADate(), connection_current.filter.security_metric);
+                            if (securityChart.Series.IndexOf("Sec_" + key) == -1) Charting.AddChartSeries(this, "Sec_" + key, securityChart);
+                            securityChart.Series["Sec_" + key].Points.AddXY(time.ToOADate(), connection_current.kalman_filter.security_metric);
                         }
                     }
                 }
@@ -125,8 +125,8 @@ namespace HMI
                     dataChart.Series[key].Points.RemoveAt(0);
                     if (dict[key].has_residual)
                     {
-                        residualChart.Series[key + "_res"].Points.RemoveAt(0);
-                        securityChart.Series["S_" + key].Points.RemoveAt(0);
+                        residualChart.Series["Res_" + key].Points.RemoveAt(0);
+                        securityChart.Series["Sec_" + key].Points.RemoveAt(0);
                     }
                 }
             }
@@ -152,8 +152,8 @@ namespace HMI
                 UpdateChart(connection_current.estimates, "load_all"); // kalman filter estimates
 
                 // scale y-axis for the charts
-                Charting.ChangeYScale(dataChart, "data_chart");
-                Charting.ChangeYScale(residualChart, "residual_chart");
+                Charting.ChangeYScale(dataChart, treshold_interval : "one", grid_interval : "one");
+                Charting.ChangeYScale(residualChart, treshold_interval: "one", grid_interval: "one");
 
                 // update GUI values according to the connected controller
                 Helpers.UpdateGuiControls(this, connection_current);
@@ -238,12 +238,12 @@ namespace HMI
             Helpers.ManageTrackbars(this);
 
             // scale y-axis for the charts
-            Charting.ChangeYScale(dataChart, "round");
-            Charting.ChangeYScale(residualChart, "deci");
-            Charting.ChangeYScale(securityChart, "deci");
+            Charting.ChangeYScale(dataChart, treshold_interval: "one", grid_interval: "one");
+            Charting.ChangeYScale(residualChart, treshold_interval: "one", grid_interval: "one");
+            Charting.ChangeYScale(securityChart, treshold_interval: "one", grid_interval: "adaptive");
 
-            labelSecurity.Text = "Security metric: " + Math.Round(connection_current.filter.security_metric, 1) + Environment.NewLine +
-                                 "Status: " + connection_current.filter.security_status;
+            labelSecurity.Text = "Security metric: " + Math.Round(connection_current.kalman_filter.security_metric, 1) + Environment.NewLine +
+                                 "Status: " + connection_current.kalman_filter.security_status;
         }
 
         private void InitalSetting()
@@ -385,13 +385,13 @@ namespace HMI
 
         private void nudHistory_ValueChanged(object sender, EventArgs e)
         {
-            n_chart_history = Convert.ToInt16(nudHistory.Value);
+            time_chart = Convert.ToInt16(nudHistory.Value);
 
-            if (n_chart_history > 0)
+            if (time_chart > 0)
             {
-                dataChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(n_chart_history / 10);
-                residualChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(n_chart_history / 10);
-                securityChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(n_chart_history / 10);
+                dataChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(time_chart / 10);
+                residualChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(time_chart / 10);
+                securityChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(time_chart / 10);
             }
         }
 

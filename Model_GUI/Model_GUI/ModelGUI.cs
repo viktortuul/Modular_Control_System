@@ -15,8 +15,6 @@ namespace Model_GUI
 {
     public partial class ModelGUI : Form
     {
-        string CORRUPT_STRING = "";
-
         // chart settings
         public int chart_history = 60;
 
@@ -30,8 +28,6 @@ namespace Model_GUI
 
         // initialize perturbation settings
         Perturbation Disturbance = new Perturbation();
-        Perturbation Noise = new Perturbation();
-        Perturbation Control = new Perturbation();
 
         // initialize an empty plant class
         Plant plant = new Plant();
@@ -106,10 +102,9 @@ namespace Model_GUI
             while (true)
             {
                 Thread.Sleep(dt);
+
                 // update and apply disturbance/noise/control perturbations
                 ApplyDisturbance(plant);
-                UpdatePerturbation(Noise);
-                UpdatePerturbation(Control);
             }
         }
 
@@ -131,8 +126,7 @@ namespace Model_GUI
                     int i = 0;
                     foreach (string key in package_last.Keys)
                     {
-                        u[i] = Convert.ToDouble(package_last[key]) ;
-                        u[i] += Control.value[i + 1]; // APPLY CONTROL PERTURBATION ########################################################
+                        u[i] = Convert.ToDouble(package_last[key]);
                         i++;
                     }
                     plant.set_u(u);
@@ -151,10 +145,9 @@ namespace Model_GUI
 
             while (true)
             {
-                Thread.Sleep(50);
-
-                // send measurements y      
+                Thread.Sleep(50);    
                 string message = "";
+
                 if (using_canal == true) message += Convert.ToString("EP_" + EP_Controller.IP + ":" + EP_Controller.Port + "#");
                 message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
 
@@ -167,13 +160,13 @@ namespace Model_GUI
                 {
                     // apply measurement noise
                     var r = new GaussianRandom();
-                    double n = r.NextGaussian(0, 0.1);
+                    double noise = r.NextGaussian(0, 0.1);
 
-                    message += "yc" + (i + 1) + "_" + (plant.get_yc()[i] + n + Noise.value[i + 1] + CORRUPT_STRING).ToString() + "#"; // WITH MEASUREMENT NOISE
+                    message += "yc" + (i + 1) + "_" + (plant.get_yc()[i] + noise).ToString() + "#";
                 }
-                    
 
-                message = message.Substring(0, message.LastIndexOf('#')); // remove the redundant delimiter
+                // remove the redundant delimiter
+                message = message.Substring(0, message.LastIndexOf('#')); 
                 sender.Send(message);
             }
         }
@@ -218,7 +211,7 @@ namespace Model_GUI
             Helpers.DrawTanks(this);
 
             // update labels
-            Helpers.UpdatePerturbationLabels(this, Disturbance, Noise, Control);
+            Helpers.UpdatePerturbationLabels(this, Disturbance);
         }
 
         private void ApplyDisturbance(Plant plant)
@@ -289,20 +282,6 @@ namespace Model_GUI
             {
                 Helpers.CheckKey(perturbations, "dist." + (i + 1), Constants.n_steps);
                 perturbations["dist." + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Disturbance.value[i].ToString());
-            }
-
-            // noise
-            for (int i = 0; i < Noise.value.Length; i++)
-            {
-                Helpers.CheckKey(perturbations, "noise" + (i + 1), Constants.n_steps);
-                perturbations["noise" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Noise.value[i].ToString());
-            }
-
-            // control
-            for (int i = 0; i < Control.value.Length; i++)
-            {
-                Helpers.CheckKey(perturbations, "control" + (i + 1), Constants.n_steps);
-                perturbations["control" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Control.value[i].ToString());
             }
         }
 
@@ -417,35 +396,6 @@ namespace Model_GUI
             Disturbance.time_elapsed = 0;
         }
 
-        private void buttonApplyNoise_Click(object sender, EventArgs e)
-        {
-            if (rBtnNoiseConstant.Checked == true) Noise.type = "constant";
-            if (rBtnNoiseTransient.Checked == true) Noise.type = "transient";
-            if (rBtnNoiseSinusoid.Checked == true) Noise.type = "sinusoid";
-
-            Noise.time_left = Convert.ToDouble(numUpDownNoiseDuration.Value);
-            Noise.frequency = Convert.ToDouble(numUpDownNoiseFrequency.Value);
-            Noise.amplitude = new double[] { Convert.ToDouble(numUpDownNoiseAmplitude11.Value), Convert.ToDouble(numUpDownNoiseAmplitude21.Value), Convert.ToDouble(numUpDownNoiseAmplitude12.Value), Convert.ToDouble(numUpDownNoiseAmplitude22.Value) };
-            Noise.time_const = Convert.ToDouble(numUpDownNoiseTimeConst.Value);
-            Noise.value = new double[] { 0, 0, 0, 0 };
-
-            Noise.time_elapsed = 0;
-        }
-        private void buttonApplyControl_Click(object sender, EventArgs e)
-        {
-            if (rBtnControlConstant.Checked == true) Control.type = "constant";
-            if (rBtnControlTransient.Checked == true) Control.type = "transient";
-            if (rBtnControlSinusoid.Checked == true) Control.type = "sinusoid";
-
-            Control.time_left = Convert.ToDouble(numUpDownControlDuration.Value);
-            Control.frequency = Convert.ToDouble(numUpDownControlFrequency.Value);
-            Control.amplitude = new double[] { Convert.ToDouble(numUpDownControlAmplitude11.Value), Convert.ToDouble(numUpDownControlAmplitude21.Value), Convert.ToDouble(numUpDownControlAmplitude12.Value), Convert.ToDouble(numUpDownControlAmplitude22.Value) };
-            Control.time_const = Convert.ToDouble(numUpDownControlTimeConst.Value);
-            Control.value = new double[] { 0, 0, 0, 0 };
-
-            Control.time_elapsed = 0;
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {
             foreach (var series in dataChart.Series) series.Points.Clear();
@@ -459,29 +409,10 @@ namespace Model_GUI
             Helpers.ChangeYScale(perturbationChart, "");
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            CORRUPT_STRING = textBoxAppendCorrupt.Text;
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            CORRUPT_STRING = "";
-        }
-
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
         {
             dataChart.SaveImage(folderName + "\\chart_model_main.png", ChartImageFormat.Png);
             perturbationChart.SaveImage(folderName + "\\chart_model_disturbance.png", ChartImageFormat.Png);
-        }
-
-        private void ModelGUI_Resize(object sender, EventArgs e)
-        {
-            //int y_start = dataChart.Location.Y;
-            //int height_total = groupBox5.Height - y_start;
-            //dataChart.Height = height_total / 2 - y_start;
-            //perturbationChart.Location = new Point(3, + y_start + height_total / 2);
-            //perturbationChart.Height = height_total / 2 - y_start;
         }
     }
 }

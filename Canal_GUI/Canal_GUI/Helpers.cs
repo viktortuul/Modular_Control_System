@@ -21,9 +21,11 @@ namespace Canal_GUI
     {
         public static double[] DecodeTimeSeries(string text)
         {
+            // split text at each 'tab'
             string[] strings = text.Split('\t');
             double[] time_series = new double[strings.Length];
 
+            // fill the vector
             for (int i = 0; i < strings.Length - 1; i++)
             {
                 time_series[i] = Convert.ToDouble(strings[i]);
@@ -44,7 +46,7 @@ namespace Canal_GUI
             }
         }
 
-        public static void CheckKey(Dictionary<string, DataContainer> dict, string key, int n_steps)
+        public static void AddKey(Dictionary<string, DataContainer> dict, string key, int n_steps)
         {
             // if the key doesn't exist, add it
             if (dict.ContainsKey(key) == false) dict.Add(key, new DataContainer(n_steps));
@@ -52,6 +54,10 @@ namespace Canal_GUI
 
         public static void ManageNumericalUpdowns(CanalGUI Main)
         {
+            Main.tbTimeSeries.Visible = false;
+            Main.btnClear.Visible = false;
+            Main.labelTimeSeries.Visible = false;
+
             if (Main.rbBias.Checked == true)
             {
                 Main.nudAmplitude.Enabled = true;
@@ -79,6 +85,9 @@ namespace Canal_GUI
                 Main.nudAmplitude.Enabled = false;
                 Main.nudTimeConst.Enabled = false;
                 Main.nudFrequency.Enabled = false;
+                Main.tbTimeSeries.Visible = true;
+                Main.btnClear.Visible = true;
+                Main.labelTimeSeries.Visible = true;
             }
             else if (Main.rbDelay.Checked == true)
             {

@@ -36,12 +36,13 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.rbDelay = new System.Windows.Forms.RadioButton();
             this.rbManual = new System.Windows.Forms.RadioButton();
             this.rbTransientIncrease = new System.Windows.Forms.RadioButton();
             this.rbSinusoid = new System.Windows.Forms.RadioButton();
             this.rbTransientDecrease = new System.Windows.Forms.RadioButton();
             this.rbBias = new System.Windows.Forms.RadioButton();
-            this.btnAddUpdateAttackModel = new System.Windows.Forms.Button();
+            this.btnAddAttackModel = new System.Windows.Forms.Button();
             this.tbTargetTag = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.tbTargetPort = new System.Windows.Forms.TextBox();
@@ -63,13 +64,15 @@
             this.tbCanalPort = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.button3 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.rbSetValue = new System.Windows.Forms.RadioButton();
             this.rbAddValue = new System.Windows.Forms.RadioButton();
-            this.button1 = new System.Windows.Forms.Button();
-            this.label12 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.btnClear = new System.Windows.Forms.Button();
+            this.labelTimeSeries = new System.Windows.Forms.Label();
+            this.tbTimeSeries = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.btnAttack = new System.Windows.Forms.Button();
             this.clbAttackModels = new System.Windows.Forms.CheckedListBox();
@@ -91,7 +94,6 @@
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.setDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveChartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.rbDelay = new System.Windows.Forms.RadioButton();
             this.groupBox2.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -145,6 +147,18 @@
             this.groupBox2.TabIndex = 7;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Attack characteristic";
+            // 
+            // rbDelay
+            // 
+            this.rbDelay.AutoSize = true;
+            this.rbDelay.Location = new System.Drawing.Point(8, 143);
+            this.rbDelay.Margin = new System.Windows.Forms.Padding(4);
+            this.rbDelay.Name = "rbDelay";
+            this.rbDelay.Size = new System.Drawing.Size(65, 21);
+            this.rbDelay.TabIndex = 5;
+            this.rbDelay.Text = "Delay";
+            this.rbDelay.UseVisualStyleBackColor = true;
+            this.rbDelay.CheckedChanged += new System.EventHandler(this.rbDelay_CheckedChanged);
             // 
             // rbManual
             // 
@@ -208,16 +222,16 @@
             this.rbBias.UseVisualStyleBackColor = true;
             this.rbBias.CheckedChanged += new System.EventHandler(this.rbBias_CheckedChanged);
             // 
-            // btnAddUpdateAttackModel
+            // btnAddAttackModel
             // 
-            this.btnAddUpdateAttackModel.Location = new System.Drawing.Point(369, 195);
-            this.btnAddUpdateAttackModel.Margin = new System.Windows.Forms.Padding(4);
-            this.btnAddUpdateAttackModel.Name = "btnAddUpdateAttackModel";
-            this.btnAddUpdateAttackModel.Size = new System.Drawing.Size(95, 28);
-            this.btnAddUpdateAttackModel.TabIndex = 6;
-            this.btnAddUpdateAttackModel.Text = "Add/Update attack model";
-            this.btnAddUpdateAttackModel.UseVisualStyleBackColor = true;
-            this.btnAddUpdateAttackModel.Click += new System.EventHandler(this.btnAddUpdateAttackModel_Click);
+            this.btnAddAttackModel.Location = new System.Drawing.Point(369, 181);
+            this.btnAddAttackModel.Margin = new System.Windows.Forms.Padding(4);
+            this.btnAddAttackModel.Name = "btnAddAttackModel";
+            this.btnAddAttackModel.Size = new System.Drawing.Size(117, 28);
+            this.btnAddAttackModel.TabIndex = 6;
+            this.btnAddAttackModel.Text = "Add model";
+            this.btnAddAttackModel.UseVisualStyleBackColor = true;
+            this.btnAddAttackModel.Click += new System.EventHandler(this.btnAddAttackModel_Click);
             // 
             // tbTargetTag
             // 
@@ -290,7 +304,7 @@
             this.tabPage2.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage2.Size = new System.Drawing.Size(1136, 616);
+            this.tabPage2.Size = new System.Drawing.Size(1137, 678);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Canal settings";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -452,11 +466,13 @@
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.tabPage1.Controls.Add(this.button3);
+            this.tabPage1.Controls.Add(this.button2);
             this.tabPage1.Controls.Add(this.textBox2);
             this.tabPage1.Controls.Add(this.groupBox3);
-            this.tabPage1.Controls.Add(this.button1);
-            this.tabPage1.Controls.Add(this.label12);
-            this.tabPage1.Controls.Add(this.textBox1);
+            this.tabPage1.Controls.Add(this.btnClear);
+            this.tabPage1.Controls.Add(this.labelTimeSeries);
+            this.tabPage1.Controls.Add(this.tbTimeSeries);
             this.tabPage1.Controls.Add(this.label2);
             this.tabPage1.Controls.Add(this.btnAttack);
             this.tabPage1.Controls.Add(this.clbAttackModels);
@@ -478,7 +494,7 @@
             this.tabPage1.Controls.Add(this.label4);
             this.tabPage1.Controls.Add(this.tbTargetPort);
             this.tabPage1.Controls.Add(this.groupBox2);
-            this.tabPage1.Controls.Add(this.btnAddUpdateAttackModel);
+            this.tabPage1.Controls.Add(this.btnAddAttackModel);
             this.tabPage1.Location = new System.Drawing.Point(4, 25);
             this.tabPage1.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage1.Name = "tabPage1";
@@ -486,6 +502,28 @@
             this.tabPage1.Size = new System.Drawing.Size(1137, 678);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Attack settings";
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(369, 209);
+            this.button3.Margin = new System.Windows.Forms.Padding(4);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(117, 28);
+            this.button3.TabIndex = 31;
+            this.button3.Text = "Update model";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.btnUpdateAttackModel_Click);
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(494, 209);
+            this.button2.Margin = new System.Windows.Forms.Padding(4);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(99, 28);
+            this.button2.TabIndex = 30;
+            this.button2.Text = "Stop attack";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click_1);
             // 
             // textBox2
             // 
@@ -530,38 +568,41 @@
             this.rbAddValue.Text = "Add value";
             this.rbAddValue.UseVisualStyleBackColor = true;
             // 
-            // button1
+            // btnClear
             // 
-            this.button1.Location = new System.Drawing.Point(725, 160);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 27;
-            this.button1.Text = "Clear";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.btnClear.Location = new System.Drawing.Point(725, 46);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Size = new System.Drawing.Size(75, 23);
+            this.btnClear.TabIndex = 27;
+            this.btnClear.Text = "Clear";
+            this.btnClear.UseVisualStyleBackColor = true;
+            this.btnClear.Visible = false;
+            this.btnClear.Click += new System.EventHandler(this.button1_Click);
             // 
-            // label12
+            // labelTimeSeries
             // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(585, 67);
-            this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(126, 17);
-            this.label12.TabIndex = 26;
-            this.label12.Text = "Manual time series";
+            this.labelTimeSeries.AutoSize = true;
+            this.labelTimeSeries.Location = new System.Drawing.Point(585, 52);
+            this.labelTimeSeries.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelTimeSeries.Name = "labelTimeSeries";
+            this.labelTimeSeries.Size = new System.Drawing.Size(126, 17);
+            this.labelTimeSeries.TabIndex = 26;
+            this.labelTimeSeries.Text = "Manual time series";
+            this.labelTimeSeries.Visible = false;
             // 
-            // textBox1
+            // tbTimeSeries
             // 
-            this.textBox1.Location = new System.Drawing.Point(588, 87);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(212, 72);
-            this.textBox1.TabIndex = 25;
+            this.tbTimeSeries.Location = new System.Drawing.Point(588, 70);
+            this.tbTimeSeries.Multiline = true;
+            this.tbTimeSeries.Name = "tbTimeSeries";
+            this.tbTimeSeries.Size = new System.Drawing.Size(212, 72);
+            this.tbTimeSeries.TabIndex = 25;
+            this.tbTimeSeries.Visible = false;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(366, 68);
+            this.label2.Location = new System.Drawing.Point(366, 52);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(139, 17);
@@ -570,19 +611,19 @@
             // 
             // btnAttack
             // 
-            this.btnAttack.Location = new System.Drawing.Point(482, 195);
+            this.btnAttack.Location = new System.Drawing.Point(494, 181);
             this.btnAttack.Margin = new System.Windows.Forms.Padding(4);
             this.btnAttack.Name = "btnAttack";
             this.btnAttack.Size = new System.Drawing.Size(99, 28);
             this.btnAttack.TabIndex = 23;
-            this.btnAttack.Text = "Apply attack";
+            this.btnAttack.Text = "Start attack";
             this.btnAttack.UseVisualStyleBackColor = true;
             this.btnAttack.Click += new System.EventHandler(this.btnAttack_Click);
             // 
             // clbAttackModels
             // 
             this.clbAttackModels.FormattingEnabled = true;
-            this.clbAttackModels.Location = new System.Drawing.Point(370, 87);
+            this.clbAttackModels.Location = new System.Drawing.Point(370, 70);
             this.clbAttackModels.Margin = new System.Windows.Forms.Padding(4);
             this.clbAttackModels.Name = "clbAttackModels";
             this.clbAttackModels.Size = new System.Drawing.Size(211, 72);
@@ -739,7 +780,7 @@
             // labelStatus
             // 
             this.labelStatus.AutoSize = true;
-            this.labelStatus.Location = new System.Drawing.Point(368, 160);
+            this.labelStatus.Location = new System.Drawing.Point(368, 146);
             this.labelStatus.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelStatus.Name = "labelStatus";
             this.labelStatus.Size = new System.Drawing.Size(102, 34);
@@ -751,7 +792,7 @@
             this.tabPage3.Location = new System.Drawing.Point(4, 25);
             this.tabPage3.Margin = new System.Windows.Forms.Padding(4);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(1136, 616);
+            this.tabPage3.Size = new System.Drawing.Size(1137, 678);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Statistics";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -808,18 +849,6 @@
             this.saveChartToolStripMenuItem.Size = new System.Drawing.Size(168, 26);
             this.saveChartToolStripMenuItem.Text = "Save chart";
             // 
-            // rbDelay
-            // 
-            this.rbDelay.AutoSize = true;
-            this.rbDelay.Location = new System.Drawing.Point(8, 143);
-            this.rbDelay.Margin = new System.Windows.Forms.Padding(4);
-            this.rbDelay.Name = "rbDelay";
-            this.rbDelay.Size = new System.Drawing.Size(65, 21);
-            this.rbDelay.TabIndex = 5;
-            this.rbDelay.Text = "Delay";
-            this.rbDelay.UseVisualStyleBackColor = true;
-            this.rbDelay.CheckedChanged += new System.EventHandler(this.rbDelay_CheckedChanged);
-            // 
             // CanalGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -867,7 +896,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Button btnAddUpdateAttackModel;
+        private System.Windows.Forms.Button btnAddAttackModel;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
@@ -909,15 +938,17 @@
         public System.Windows.Forms.NumericUpDown nudFrequency;
         public System.Windows.Forms.NumericUpDown nudTimeConst;
         public System.Windows.Forms.DataVisualization.Charting.Chart perturbationChart;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Label label12;
         public System.Windows.Forms.RadioButton rbManual;
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.RadioButton rbSetValue;
         private System.Windows.Forms.RadioButton rbAddValue;
         private System.Windows.Forms.TextBox textBox2;
         public System.Windows.Forms.RadioButton rbDelay;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button3;
+        public System.Windows.Forms.TextBox tbTimeSeries;
+        public System.Windows.Forms.Label labelTimeSeries;
+        public System.Windows.Forms.Button btnClear;
     }
 }
 

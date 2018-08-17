@@ -4,6 +4,7 @@ function variables_ = ComputeControlSignal(r, y, dt, variables, parameters)
     e = variables.e;
     ep = variables.ep;
     de = variables.de;
+    dE = variables.dE;
     de_temp = variables.de_temp;
     u = variables.u;    
     u_min = parameters.u_min;
@@ -11,6 +12,7 @@ function variables_ = ComputeControlSignal(r, y, dt, variables, parameters)
     Kp = parameters.Kp;
     Ki = parameters.Ki;
     Kd = parameters.Kd;
+    q = parameters.q;
 
     % calculte error
     e = r - y;
@@ -19,16 +21,16 @@ function variables_ = ComputeControlSignal(r, y, dt, variables, parameters)
     if (u > u_min && u < u_max) 
         I = I + dt * e;
     else
-        I = I + dt * e;
+        I = I + 0;
     end
     
 
-    % derivator (with low pass)
-    de = 1 / (dt + 1) * y - de_temp;
-    de_temp = (y - de) / (dt + 1);
+    % derivative part (with low pass)
+    de = (e - ep) / dt;
+    dE = (1 - q) * dE + q * de;
 
     % control signal
-    u = Kp * e + Ki * I - Kd * de;
+    u = Kp * e + Ki * I - Kd * dE;
     
     ep = e; % update prior error
 
@@ -44,6 +46,7 @@ function variables_ = ComputeControlSignal(r, y, dt, variables, parameters)
     variables_.e = e;
     variables_.ep = ep;
     variables_.de = de;
+    variables_.dE = dE;
     variables_.de_temp = de_temp;
     variables_.u = u;
 

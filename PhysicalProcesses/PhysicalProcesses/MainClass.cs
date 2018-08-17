@@ -144,12 +144,12 @@ namespace PhysicalProcesses
         double k = 6.5;
 
         // outlet areas [cm^2]
-        double a1 = 0.16 * 1.5;
-        double a2 = 0.16 * 1;
+        double a1 = 0.3;
+        double a2 = 0.2;
 
         // cross section areas [cm^2]
         double A1 = 15.0;
-        double A2 = 30.0;
+        double A2 = 50.0;
 
         double dt;
 

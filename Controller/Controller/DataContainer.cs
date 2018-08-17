@@ -28,10 +28,10 @@ namespace Controller
 
         // instert a new time:value pair data point
         public void InsertData(string time, string value)
-        {
-            // compare timestamps
+        { 
             if (GetLastTime() != null)
             {
+                // check if the new data is up to date
                 if (isMostRecent(time) == true)
                 {
                     Array.Copy(this.time, 1, this.time, 0, this.time.Length - 1);
@@ -54,6 +54,7 @@ namespace Controller
 
         public bool isMostRecent(string time)
         {
+            // compare a time-stamp with the current most recent
             DateTime t_new = DateTime.ParseExact(time, FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
             DateTime t_prev = DateTime.ParseExact(GetLastTime(), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
             TimeSpan timeDiff = t_new - t_prev;
@@ -64,7 +65,7 @@ namespace Controller
 
         public bool isUpToDate()
         {
-            // compare timestamps
+            // check if the last data point was added withing a specfic time
             if (GetLastTime() != null)
             {
                 DateTime t_now = DateTime.ParseExact(DateTime.UtcNow.ToString(FMT), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
