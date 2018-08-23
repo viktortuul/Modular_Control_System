@@ -63,6 +63,11 @@ namespace Communication
             this.IP = IP;
             this.Port = Port;
         }
+
+        public override string ToString()
+        {
+            return IP + ":" + Port;
+        }
     }
 
     // same as the end-point container, but also contains a local port

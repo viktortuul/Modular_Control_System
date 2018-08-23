@@ -62,109 +62,6 @@ namespace Model_GUI
         static SolidBrush brush_b = new SolidBrush(Color.LightBlue);
         static Bitmap bm = new Bitmap(400, 800);
 
-
-        public static void UpdateChartAxes(Chart chart, int chart_history)
-        {
-            chart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
-            chart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
-        }
-
-        public static void AddChartSeries(string key, object chart)
-        {
-            Chart chart_ = (Chart)chart;
-
-            // add a new time series
-            if (chart_.Series.IndexOf(key) == -1)
-            {
-                chart_.Series.Add(key);
-                chart_.Series[key].ChartType = SeriesChartType.Line;
-                chart_.Series[key].BorderWidth = 2;
-
-                switch (key)
-                {
-                    case "u1":
-                        chart_.Series[key].Color = Color.Orange;
-                        chart_.Series[key].BorderWidth = 1;
-                        break;
-                    case "u2":
-                        chart_.Series[key].Color = Color.Magenta;
-                        chart_.Series[key].BorderWidth = 1;
-                        break;
-                    case "yo1":
-                        chart_.Series[key].Color = Color.Black;
-                        chart_.Series[key].BorderWidth = 2;
-                        break;
-                    case "yo2":
-                        chart_.Series[key].Color = Color.Gray;
-                        chart_.Series[key].BorderWidth = 2;
-                        break;
-                    case "yc1":
-                        chart_.Series[key].Color = Color.Blue;
-                        chart_.Series[key].BorderWidth = 2;
-                        break;
-                    case "yc2":
-                        chart_.Series[key].Color = Color.Green;
-                        chart_.Series[key].BorderWidth = 2;
-                        break;
-                    default:
-                        break;
-                }
-                // set the x-axis type to DateTime
-                chart_.Series[key].XValueType = ChartValueType.DateTime;
-            }
-        }
-
-        public static void ChangeYScale(object chart, string verbose)
-        {
-            bool points_exist = false;
-            double max = Double.MinValue;
-            double min = Double.MaxValue;
-
-            Chart tmpChart = (Chart)chart;
-
-            double leftLimit = tmpChart.ChartAreas["ChartArea1"].AxisX.Minimum;
-            double rightLimit = tmpChart.ChartAreas["ChartArea1"].AxisX.Maximum;
-
-            for (int s = 0; s < tmpChart.Series.Count(); s++)
-            {
-                foreach (DataPoint dp in tmpChart.Series[s].Points)
-                {
-                    if (dp.XValue >= leftLimit && dp.XValue <= rightLimit)
-                    {
-                        min = Math.Min(min, dp.YValues[0]);
-                        max = Math.Max(max, dp.YValues[0]);
-                        points_exist = true;
-                    }
-                }
-            }
-
-            if (points_exist == true && (max > min))
-            {
-  
-                tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Max(Math.Ceiling(max), 0);
-                tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Min(Math.Floor(min), 0);
-                tmpChart.ChartAreas["ChartArea1"].AxisY.Interval = 1;            
-            }
-
-        }
-
-
-        public static void CheckKey(Dictionary<string, DataContainer> dict, string key, int n_steps)
-        {
-            // if the key doesn't exist, add it
-            if (dict.ContainsKey(key) == false) dict.Add(key, new DataContainer(n_steps));
-        }
-
-        public static void UpdatePerturbationLabels(ModelGUI GUI, ModelGUI.Perturbation Disturbance)
-        {
-
-            GUI.labelDisturbance.Text = "Disturbances: \n" +
-                                    Math.Round(Disturbance.value[0], 1) + "\n" +
-                                    Math.Round(Disturbance.value[1], 1) + "\n" +
-                                    Math.Round(Disturbance.value[2], 1) + "\n" +
-                                    Math.Round(Disturbance.value[3], 1);
-        }
-
         public static void DrawTanks(ModelGUI GUI)
         {
             g = Graphics.FromImage(bm);
@@ -183,13 +80,13 @@ namespace Model_GUI
             int y2 = Convert.ToInt16(cm2pix * Convert.ToDouble(GUI.states["yc1"].GetLastValue()));
 
             // tank dimensions
-            double A1 = 15; //Convert.ToDouble(numUpDown_A1.Value);
-            double a1 = 0.2; //Convert.ToDouble(numUpDown_a1a.Value);
-            double A2 = 50; //Convert.ToDouble(numUpDown_A2.Value);
-            double a2 = 0.3; //Convert.ToDouble(numUpDown_a2a.Value);
+            double A1 = GUI.model_parameters[0]; //Convert.ToDouble(numUpDown_A1.Value);
+            double a1 = GUI.model_parameters[1]; //Convert.ToDouble(numUpDown_a1a.Value);
+            double A2 = GUI.model_parameters[2]; //Convert.ToDouble(numUpDown_A2.Value);
+            double a2 = GUI.model_parameters[3]; //Convert.ToDouble(numUpDown_a2a.Value);
 
             // TANK 1 ----------------------------------------------------------------
-            Point T1 = new Point(75, Convert.ToInt16(GUI.pictureBox1.Height / 2));
+            Point T1 = new Point(GUI.pictureBox1.Width / 2, Convert.ToInt16(GUI.pictureBox1.Height / 2));
             Point T2 = new Point(T1.X, Convert.ToInt16(GUI.pictureBox1.Height - 20));
 
             // tank dimensions
@@ -255,5 +152,144 @@ namespace Model_GUI
             GUI.pictureBox1.Image = bm;
         }
 
+        public static void CheckKey(Dictionary<string, DataContainer> dict, string key, int n_steps)
+        {
+            // if the key doesn't exist, add it
+            if (dict.ContainsKey(key) == false) dict.Add(key, new DataContainer(n_steps));
+        }
+
+        public static void UpdatePerturbationLabels(ModelGUI GUI, Perturbation Disturbance)
+        {
+            GUI.labelDebug.Text = "Time left: " + Math.Round(Disturbance.time_left, 1);
+            GUI.labelDisturbance.Text = "Disturbances: \n" + Math.Round(Disturbance.value_disturbance, 2);
+        }
+
+        public static void ManageNumericalUpdowns(ModelGUI Main)
+        {
+
+            Main.labelAmplitude.Text = "Amplitude [cm/s]";
+            if (Main.rbConstant.Checked == true)
+            {
+                Main.nudAmplitude.Enabled = true;
+                Main.nudTimeConst.Enabled = false;
+                Main.nudFrequency.Enabled = false;
+                Main.nudDuration.Enabled = true;
+            }
+            else if (Main.rbTransientDecrease.Checked == true)
+            {
+                Main.nudAmplitude.Enabled = true;
+                Main.nudTimeConst.Enabled = true;
+                Main.nudFrequency.Enabled = false;
+                Main.nudDuration.Enabled = true;
+            }
+            else if (Main.rbSinusoid.Checked == true)
+            {
+                Main.nudAmplitude.Enabled = true;
+                Main.nudTimeConst.Enabled = false;
+                Main.nudFrequency.Enabled = true;
+                Main.nudDuration.Enabled = true;
+            }
+            else if (Main.rbInstant.Checked == true)
+            {
+                Main.nudAmplitude.Enabled = true;
+                Main.nudTimeConst.Enabled = false;
+                Main.nudFrequency.Enabled = false;
+                Main.nudDuration.Enabled = false;
+                Main.labelAmplitude.Text = "Amplitude [cm]";
+            }
+        }
+    }
+    static class Charting
+    {
+        public static void UpdateChartAxes(Chart chart, int chart_history)
+        {
+            chart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
+            chart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
+        }
+
+        public static void AddChartSeries(ModelGUI Main, string key, object chart)
+        {
+            Chart chart_ = (Chart)chart;
+
+            // add a new time series
+            if (chart_.Series.IndexOf(key) == -1)
+            {
+                if (chart_.Name == "dataChart")
+                {
+                    Main.clbSeries.Items.Add(key);
+                    Main.clbSeries.SetItemChecked(Main.clbSeries.Items.Count - 1, true);
+                }
+
+                chart_.Series.Add(key);
+                chart_.Series[key].ChartType = SeriesChartType.Line;
+                chart_.Series[key].BorderWidth = 2;
+
+                switch (key)
+                {
+                    case "u1":
+                        chart_.Series[key].Color = Color.Orange;
+                        chart_.Series[key].BorderWidth = 1;
+                        break;
+                    case "u2":
+                        chart_.Series[key].Color = Color.Magenta;
+                        chart_.Series[key].BorderWidth = 1;
+                        break;
+                    case "yo1":
+                        chart_.Series[key].Color = Color.Black;
+                        chart_.Series[key].BorderWidth = 2;
+                        break;
+                    case "yo2":
+                        chart_.Series[key].Color = Color.Gray;
+                        chart_.Series[key].BorderWidth = 2;
+                        break;
+                    case "yc1":
+                        chart_.Series[key].Color = Color.Blue;
+                        chart_.Series[key].BorderWidth = 2;
+                        break;
+                    case "yc2":
+                        chart_.Series[key].Color = Color.Green;
+                        chart_.Series[key].BorderWidth = 2;
+                        break;
+                    default:
+                        break;
+                }
+                // set the x-axis type to DateTime
+                chart_.Series[key].XValueType = ChartValueType.DateTime;
+            }
+        }
+
+        public static void ChangeYScale(object chart, string verbose)
+        {
+            bool points_exist = false;
+            double max = Double.MinValue;
+            double min = Double.MaxValue;
+
+            Chart tmpChart = (Chart)chart;
+
+            double leftLimit = tmpChart.ChartAreas["ChartArea1"].AxisX.Minimum;
+            double rightLimit = tmpChart.ChartAreas["ChartArea1"].AxisX.Maximum;
+
+            for (int s = 0; s < tmpChart.Series.Count(); s++)
+            {
+                foreach (DataPoint dp in tmpChart.Series[s].Points)
+                {
+                    if (dp.XValue >= leftLimit && dp.XValue <= rightLimit)
+                    {
+                        min = Math.Min(min, dp.YValues[0]);
+                        max = Math.Max(max, dp.YValues[0]);
+                        points_exist = true;
+                    }
+                }
+            }
+
+            if (points_exist == true && (max > min))
+            {
+
+                tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Max(Math.Ceiling(max), 0);
+                tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Min(Math.Floor(min), 0);
+                tmpChart.ChartAreas["ChartArea1"].AxisY.Interval = 1;
+            }
+
+        }
     }
 }

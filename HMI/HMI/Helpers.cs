@@ -32,6 +32,19 @@ namespace HMI
         }
     }
 
+    public struct TankDimensions
+    {
+        public double A1, a1, A2, a2;
+
+        public TankDimensions(double A1, double a1, double A2, double a2)
+        {
+            this.A1 = A1;
+            this.a1 = a1;
+            this.A2 = A2;
+            this.a2 = a2;
+        }
+    }
+
     public static class Helpers
     {
         public static void ManageReferencesKeys(int n_contr_states, Dictionary<string, DataContainer> references, int n_steps)
@@ -72,16 +85,16 @@ namespace HMI
             else if (GUI.connection_current.n_controlled_states == 2)
             {
                 GUI.trackBarReference1.Enabled = true;
-                GUI.trackBarReference2.Enabled = true;
+                GUI.trackBarReference2.Visible = true;
                 GUI.numUpDownRef1.Enabled = true;
-                GUI.numUpDownRef2.Enabled = true;
+                GUI.numUpDownRef2.Visible = true;
             }
             else
             {
                 GUI.trackBarReference1.Enabled = false;
-                GUI.trackBarReference2.Enabled = false;
+                GUI.trackBarReference2.Visible = false;
                 GUI.numUpDownRef1.Enabled = false;
-                GUI.numUpDownRef2.Enabled = false;
+                GUI.numUpDownRef2.Visible = false;
             }
         }
 
@@ -100,12 +113,18 @@ namespace HMI
             {
                 DateTime time_sent = DateTime.ParseExact(connection.recieved_packages["u1"].GetLastTime(), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
                 TimeSpan timeDiff = connection.last_recieved_time - time_sent;
-                GUI.label_time.Text = "time now:                    " + DateTime.UtcNow.ToString("hh:mm:ss.fff tt") + "\n" +
-                                  "last recieved:              " + connection.last_recieved_time.ToString("hh:mm:ss.fff tt") + "\n" +
-                                  "when it was sent:        " + time_sent.ToString("hh:mm:ss.fff tt") + "\n" +
-                                  "transmission duration [ms]: " + timeDiff.TotalMilliseconds;
+                GUI.label_time.Text =   "time now:                    " + DateTime.UtcNow.ToString("hh:mm:ss.fff tt") + "\n" +
+                                        "last recieved:              " + connection.last_recieved_time.ToString("hh:mm:ss.fff tt") + "\n" +
+                                        "when it was sent:        " + time_sent.ToString("hh:mm:ss.fff tt") + "\n" +
+                                        "transmission duration [ms]: " + timeDiff.TotalMilliseconds;
             }
-            catch { }
+            catch
+            {
+                GUI.label_time.Text = "time now:                  \n" +
+                                        "last recieved:           \n" +
+                                        "when it was sent:        \n" +
+                                        "transmission duration [ms]: ";
+            }
         }
 
         // drawing settings
@@ -127,8 +146,11 @@ namespace HMI
             double cm2pix = max_height_p / max_height_r;
 
             // if there are no estimates, there is nothing to animate 
-            if (connection.estimates.ContainsKey("yo1_hat") == false) return;
-            if (connection.estimates.ContainsKey("yc1_hat") == false) return;
+            if (connection.estimates.ContainsKey("yo1_hat") == false || connection.estimates.ContainsKey("yc1_hat") == false)
+            {
+                GUI.pictureBox1.Image = bm;
+                return;
+            }
 
             // extract signals
             int u = Convert.ToInt16(Convert.ToDouble(connection.recieved_packages["u1"].GetLastValue()));
@@ -141,13 +163,13 @@ namespace HMI
             catch { }
 
             // dimensions
-            double A1 = Convert.ToDouble(GUI.numUpDown_A1.Value);
-            double a1 = Convert.ToDouble(GUI.numUpDown_a1a.Value);
-            double A2 = Convert.ToDouble(GUI.numUpDown_A2.Value);
-            double a2 = Convert.ToDouble(GUI.numUpDown_a2a.Value);
+            double A1 = GUI.tankDimensions.A1;
+            double a1 = GUI.tankDimensions.a1;
+            double A2 = GUI.tankDimensions.A2;
+            double a2 = GUI.tankDimensions.a2;
 
             // TANK 1 ----------------------------------------------------------------
-            Point T1 = new Point(75, Convert.ToInt16(GUI.pictureBox1.Height / 2));
+            Point T1 = new Point(GUI.pictureBox1.Width / 2, Convert.ToInt16(GUI.pictureBox1.Height / 2));
             Point T2 = new Point(T1.X, Convert.ToInt16(GUI.pictureBox1.Height - 20));
 
             // tank dimensions
@@ -248,12 +270,11 @@ namespace HMI
                     Main.clbSeries.SetItemChecked(Main.clbSeries.Items.Count - 1, true);
                 }
 
-
                 // add the to the chart
                 chart_.Series.Add(key);
                 chart_.Series[key].ChartType = SeriesChartType.Line;
                 chart_.Series[key].BorderWidth = 1;
-
+    
                 switch (key)
                 {
                     case "r1":
@@ -277,7 +298,7 @@ namespace HMI
                         chart_.Series[key].BorderWidth = 2;
                         break;
                     case "yo1_hat":
-                        chart_.Series[key].Color = Color.Black;
+                        chart_.Series[key].Color = Color.Gray;
                         chart_.Series[key].BorderWidth = 2;
                         break;
                     case "yo2":

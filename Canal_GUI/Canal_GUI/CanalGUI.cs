@@ -24,30 +24,14 @@ namespace Canal_GUI
 
         // data containers (dictionaries)
         public Dictionary<string, DataContainer> attack_timeseries = new Dictionary<string, DataContainer>();
+        public Dictionary<string, DataContainer> package_timeseries = new Dictionary<string, DataContainer>();
 
-        // attack settings
-            // specify target package
-            string target_tag = "";
-            string target_ip = "";
-            string target_port = "";
-
-            // specify attack type
-            string attack_type = "";
-            double[] time_series = new double[0];       // empty array which is used ONLY if a manual attack is conduced
-            // bool which determine if the attack adds a value or sets a value
-            bool integrity_add = true;
-
-            // attack parameters
-            double duration = 0;
-            double amplitude = 0;
-            double time_constant = 0;
-            double frequency = 0;
-            bool all_IPs = false;
-            bool all_Ports = false;
-
+        // end-point addresses
+        public List<AddressEndPoint> end_points = new List<AddressEndPoint>();
+         
         // chart settings
         public static int n_steps = 100;
-        public int chart_history = 60;
+        public int time_chart = 60;
 
         // drop out models
         Bernoulli Bernoulli;
@@ -63,6 +47,26 @@ namespace Canal_GUI
 
         // folder setting for chart image save
         public string folderName = "";
+
+        // attack settings
+                // specify target package
+                string target_tag = "";
+                string target_ip = "";
+                string target_port = "";
+
+                // specify attack type
+                string attack_type = "";
+                double[] time_series = new double[0];       // empty array which is used ONLY if a manual attack is conduced
+                                                            // bool which determine if the attack adds a value or sets a value
+                bool integrity_add = true;
+
+                // attack parameters
+                double duration = 0;
+                double amplitude = 0;
+                double time_constant = 0;
+                double frequency = 0;
+                bool all_IPs = false;
+                bool all_Ports = false;
 
         public CanalGUI()
         {
@@ -184,14 +188,48 @@ namespace Canal_GUI
 
         public void SendMessage(string IP, int port, string message)
         {
+            // append each destination to the checked listbox
+            AddressEndPoint EP = new AddressEndPoint(IP, port);
+            if (end_points.Contains(EP) == false)
+            {
+                end_points.Add(EP);
+                clbDropOutTarget.Items.Add(EP);
+            }
+
             // initialize a sender
             Client Sender = new Client(IP, port);
 
-            // implement drop-out model
-            MethodInfo isPass = SelectedDropOutModel.GetType().GetMethod("isPass");
-            bool pass = (bool)isPass.Invoke(SelectedDropOutModel, null);
+            // add key
+            Helpers.AddKey(package_timeseries, EP.ToString(), n_steps);
 
-            if (pass == true) Sender.Send(message);
+            // check if the end-point is checked or not
+            if (clbDropOutTarget.GetItemCheckState(clbDropOutTarget.Items.IndexOf(EP)) == CheckState.Checked)
+            {
+                // implement drop-out model
+                MethodInfo isPass = SelectedDropOutModel.GetType().GetMethod("isPass");
+                bool pass = (bool)isPass.Invoke(SelectedDropOutModel, null);
+
+                if (pass == true)
+                {
+                    Sender.Send(message);
+
+                    // mark package as passed
+                    package_timeseries[EP.ToString()].InsertData(DateTime.UtcNow.ToString(Constants.FMT), "1");
+                }
+                else
+                {
+                    // mark package as dropped
+                    package_timeseries[EP.ToString()].InsertData(DateTime.UtcNow.ToString(Constants.FMT), "0");
+                }
+            }
+            else
+            {
+                // if the end-point is unchecked, pass the package automatically
+                Sender.Send(message);
+
+                // mark package as passed
+                package_timeseries[EP.ToString()].InsertData(DateTime.UtcNow.ToString(Constants.FMT), "1");
+            }
         }
 
         private void btnAddAttackModel_Click(object sender, EventArgs e)
@@ -290,13 +328,15 @@ namespace Canal_GUI
             }
 
             // draw chart
-            UpdateChart(perturbationChart, attack_timeseries);
+            UpdateChart(attackChart, attack_timeseries);
+            UpdateChart(packageChart, package_timeseries);
 
             // scale y-axis for the chart
-            Charting.ChangeYScale(perturbationChart, "data_chart");
+            Charting.ChangeYScale(attackChart, "data_chart");
 
             // update time axis minimum and maximum
-            Charting.UpdateChartAxes(perturbationChart, chart_history);
+            Charting.UpdateChartAxes(attackChart, time_chart);
+            Charting.UpdateChartAxes(packageChart, time_chart);
         }
 
         private void UpdateChart(object chart, Dictionary<string, DataContainer> dict)
@@ -355,8 +395,28 @@ namespace Canal_GUI
             frequency = Convert.ToDouble(nudFrequency.Value);
             all_IPs = cbAllIPs.Checked == true;
             all_Ports = cbAllPorts.Checked == true;
+        }
 
+        private void nudHistory_ValueChanged(object sender, EventArgs e)
+        {
+            time_chart = Convert.ToInt16(nudHistory.Value);
+            if (time_chart > 0)
+            {
+                attackChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(time_chart / 10);
+                packageChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(time_chart / 10);
+            }
+            nudHistory1.Value = time_chart;
+        }
 
+        private void nudHistory1_ValueChanged(object sender, EventArgs e)
+        {
+            time_chart = Convert.ToInt16(nudHistory1.Value);
+            if (time_chart > 0)
+            {
+                attackChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(time_chart / 10);
+                packageChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(time_chart / 10);
+            }
+            nudHistory.Value = time_chart;
         }
 
         private void timerStatus_Tick(object sender, EventArgs e)
@@ -377,7 +437,8 @@ namespace Canal_GUI
 
         private void toolStripDropDownButton1_Click(object sender, EventArgs e)
         {
-            perturbationChart.SaveImage(folderName + "\\chart_canal_attack.png", ChartImageFormat.Png);
+            attackChart.SaveImage(folderName + "\\chart_canal_attack.png", ChartImageFormat.Png);
+            packageChart.SaveImage(folderName + "\\chart_canal_package.png", ChartImageFormat.Png);
         }
 
         private void rbTransientDecrease_CheckedChanged(object sender, EventArgs e)
@@ -421,16 +482,14 @@ namespace Canal_GUI
             tbTimeSeries.Text = "";
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void setDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            DialogResult result = folderBrowserDialog1.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                folderName = folderBrowserDialog1.SelectedPath;
+                toolStripLabel.Text = "Dir: " + folderName;
+            }
         }
-
-        private void CanalGUI_Load(object sender, EventArgs e)
-        {
-
-        }
-
-
     }
 }

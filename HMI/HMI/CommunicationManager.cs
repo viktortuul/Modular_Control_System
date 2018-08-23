@@ -207,6 +207,11 @@ namespace HMI
             if (recieved_packages.ContainsKey("yc1")) recieved_packages["yc1"].InsertResidual(kalman_filter.innovation.ToString());
         }
 
+        public void UpdateKalmanFilter(double A1, double a1, double A2, double a2)
+        {
+            kalman_filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, a1, a2, A1, A2, 6.5); // x0, a1, a2, A1, A2, k
+        }
+
         public string GetStatus()
         {
             string status = "";

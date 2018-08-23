@@ -34,6 +34,12 @@ namespace HMI
         public bool usingCanal = false;
         AddressEndPoint canalEP = new AddressEndPoint();
 
+        // tank dimensions
+        public TankDimensions tankDimensions = new TankDimensions(0,0,0,0);
+
+        // debug log
+        public string debugLog = "";
+
         public FrameGUI()
         {
             InitializeComponent();
@@ -47,10 +53,24 @@ namespace HMI
             {
                 canalEP = new AddressEndPoint(args[1], Convert.ToInt16(args[2]));
                 usingCanal = true;
+                log("Using canal: <" + args[1] + ">, <" + args[2] + ">");
             }
+            else
+            {
+                log("Direct module communication (no canal)");
+            }
+
 
             // folder and chart settings
             InitalSetting();
+
+            // load saved settings
+            double A1 = Properties.Settings.Default.BA1;
+            double a1 = Properties.Settings.Default.SA1;
+            double A2 = Properties.Settings.Default.BA2;
+            double a2 = Properties.Settings.Default.SA2;
+            tankDimensions = new TankDimensions(A1, a1, A2, a2);
+            log("Settings loaded");
         }
 
         private void timerCharts_Tick(object sender, EventArgs e)
@@ -69,13 +89,13 @@ namespace HMI
                 Charting.UpdateChartAxes(dataChart, time_chart);
                 Charting.UpdateChartAxes(residualChart, time_chart);
                 Charting.UpdateChartAxes(securityChart, time_chart);
-
-                // update time labels
-                Helpers.UpdateTimeLabels(this, connection_current, Constants.FMT);
-
-                // draw simulation
-                Helpers.DrawTanks(this, connection_current);
             }
+
+            // update time labels
+            Helpers.UpdateTimeLabels(this, connection_current, Constants.FMT);
+
+            // draw simulation
+            Helpers.DrawTanks(this, connection_current);
         }
 
         private void UpdateChart(Dictionary<string, DataContainer> dict, string setting)
@@ -145,6 +165,9 @@ namespace HMI
                 // clear charts
                 dataChart.Series.Clear();
                 residualChart.Series.Clear();
+
+                // clear checkbox series
+                clbSeries.Items.Clear();
 
                 // refresh the chart
                 UpdateChart(connection_current.references, "load_all"); // reference
@@ -226,6 +249,7 @@ namespace HMI
                 // update counter
                 n_connections += 1;
                 textBoxName.Text = "Module" + (n_connections + 1);
+                log("Communication to a control module enabled");
             }
         }
 
@@ -250,7 +274,7 @@ namespace HMI
         {
             // application directory
             folderName = Directory.GetCurrentDirectory();
-            toolStripStatusLabel1.Text = "Dir: " + folderName;
+            toolStripLabel.Text = "Dir: " + folderName;
 
             Charting.AddThresholdStripLine(residualChart, 0, Color.Red);
             Charting.AddThresholdStripLine(residualChart, 0.2, Color.Red);
@@ -325,7 +349,7 @@ namespace HMI
 
         public void log(string text)
         {
-            this.Invoke((MethodInvoker)delegate () { tbDebugLog.AppendText(DateTime.UtcNow + ": " + text + Environment.NewLine); });
+            this.Invoke((MethodInvoker)delegate () { debugLog += (DateTime.UtcNow + ": " + text + Environment.NewLine); });
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -341,26 +365,21 @@ namespace HMI
             textBox_ip_recieve.Text = myIP;
         }
 
-        private void saveChartToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            dataChart.SaveImage(folderName + "\\chart.png", ChartImageFormat.Png);
-        }
-
         private void setDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DialogResult result = folderBrowserDialog1.ShowDialog();
             if (result == DialogResult.OK)
             {
                 folderName = folderBrowserDialog1.SelectedPath;
-                toolStripStatusLabel1.Text = "Dir: " + folderName;
+                toolStripLabel.Text = "Dir: " + folderName;
             }
         }
 
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
         {
-            dataChart.SaveImage(folderName + "\\chart_main.png", ChartImageFormat.Png);
-            residualChart.SaveImage(folderName + "\\chart_residual.png", ChartImageFormat.Png);
-            securityChart.SaveImage(folderName + "\\chart_security.png", ChartImageFormat.Png);
+            dataChart.SaveImage(folderName + "\\chart_HMI_main.png", ChartImageFormat.Png);
+            residualChart.SaveImage(folderName + "\\chart_HMI_residual.png", ChartImageFormat.Png);
+            securityChart.SaveImage(folderName + "\\chart_HMI_security.png", ChartImageFormat.Png);
         }
 
         private void numUpDownRef1_ValueChanged(object sender, EventArgs e)
@@ -406,6 +425,14 @@ namespace HMI
                 securityChart.Height = height_total / 2 - y_start;
             }
             catch { }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            FormSettings form_settnings = new FormSettings();
+            form_settnings.Main = this;
+            form_settnings.Show();
+
         }
     }
 }

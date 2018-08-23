@@ -40,6 +40,9 @@ namespace Model_GUI
         ConnectionParameters EP_Controller = new ConnectionParameters();
         AddressEndPoint EP = new AddressEndPoint();
 
+        // model parameters from command line arguments
+        public double[] model_parameters = new double[0];
+
         public ModelGUI()
         {
             InitializeComponent();
@@ -48,28 +51,7 @@ namespace Model_GUI
         private void Form1_Load(object sender, EventArgs e)
         {
             string[] args = Environment.GetCommandLineArgs();
-
-            EP_Controller = new ConnectionParameters(args[1], Convert.ToInt16(args[2]), Convert.ToInt16(args[3]));
-            string model_type = args[4];
-
-            if (args.Length == 7)
-            {
-                EP = new AddressEndPoint(args[5], Convert.ToInt16(args[6]));
-                using_canal = true;
-            }
-            else if (args.Length == 5)
-            {
-                EP = new AddressEndPoint(EP_Controller.IP, EP_Controller.Port);
-            }
-
-
-            // store the model in a container which generically send and access values 
-            switch (model_type)
-            {
-                case "dwt": plant = new Plant(new DoubleWatertank()); break;
-                case "qwt": plant = new Plant(new QuadWatertank()); break;
-                case "ipsiso": plant = new Plant(new InvertedPendulumSISO()); break;
-            }
+            ProcessArguments(args);
 
             // create a thread for listening on the controller
             Thread thread_listener = new Thread(() => Listener(EP.IP, EP_Controller.PortThis, plant));
@@ -80,7 +62,7 @@ namespace Model_GUI
             thread_sender.Start();
 
             // create a thread for the simulation
-            double dt = 0.01; // simulation update rate
+            int dt = 10; // simulation update rate [ms]
             Thread thread_process = new Thread(() => Process(plant, dt));
             thread_process.Start();
 
@@ -92,20 +74,37 @@ namespace Model_GUI
 
             // application directory
             folderName = Directory.GetCurrentDirectory();
-            toolStripStatusLabel1.Text = "Dir: " + folderName;
+            toolStripLabel.Text = "Dir: " + folderName;
         }
 
-        public void Process(Plant plant, double dt_)
+        public void Process(Plant plant, int dt)
         {
-            int dt = Convert.ToInt16(1000 * dt_); // convert s to ms
-
             while (true)
             {
                 Thread.Sleep(dt);
 
-                // update and apply disturbance/noise/control perturbations
-                ApplyDisturbance(plant);
+                // update process
+                if (Disturbance.time_left > 0)
+                {
+                    ApplyDisturbance(plant);
+                }
+                else
+                {
+                    plant.UpdateStates();
+                }            
             }
+        }
+
+        private void ApplyDisturbance(Plant plant)
+        {
+            Disturbance.PerturbationNext();
+            plant.ChangeState(Disturbance.target_state, Disturbance.value_disturbance);
+            SampleStates(plant);
+            this.Invoke((MethodInvoker)delegate ()
+            {
+                UpdateChart(perturbationChart, perturbations);
+            });
+            if (Disturbance.type == "instant") Disturbance.Stop();
         }
 
         public void Listener(string IP, int port, Plant plant)
@@ -118,9 +117,11 @@ namespace Model_GUI
                 try
                 {
                     listener.Listen();
+
+                    // parse recieved message
                     ParseMessage(listener.last_recieved);
 
-                    // parse dictionary to proper input
+                    // pre-allocate control signal vector (size = the number of received different control signals)
                     double[] u = new double[package_last.Count];
 
                     int i = 0;
@@ -129,6 +130,8 @@ namespace Model_GUI
                         u[i] = Convert.ToDouble(package_last[key]);
                         i++;
                     }
+
+                    // update actuators
                     plant.set_u(u);
                 }
                 catch (Exception ex)
@@ -146,16 +149,16 @@ namespace Model_GUI
             while (true)
             {
                 Thread.Sleep(50);    
-                string message = "";
 
-                if (using_canal == true) message += Convert.ToString("EP_" + EP_Controller.IP + ":" + EP_Controller.Port + "#");
+                string message = "";
+                if (using_canal == true) message += Convert.ToString("EP_" + EP_Controller.IP + ":" + EP_Controller.Port + "#"); // add end-point if canal is used
                 message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
 
-                // observed states
-                //for (int i = 0; i < plant.get_yo().Length; i++)
-                //    message += "yo" + (i + 1) + "_" + plant.get_yo()[i].ToString() + "#";      
+                // attach observed states measurement 
+                for (int i = 0; i < plant.get_yo().Length; i++)
+                    message += "yo" + (i + 1) + "_" + plant.get_yo()[i].ToString() + "#";      
 
-                // controlled states
+                // attach controlled states measurement
                 for (int i = 0; i < plant.get_yc().Length; i++)
                 {
                     // apply measurement noise
@@ -194,9 +197,7 @@ namespace Model_GUI
 
         private void timerChart_Tick(object sender, EventArgs e)
         {
-            labelDebug.Text = "time left: " + Math.Round(Disturbance.time_left, 1);
-
-            // sample states
+            // sample states for plotting
             SampleStates(plant);
 
             // draw chart
@@ -204,31 +205,14 @@ namespace Model_GUI
             UpdateChart(perturbationChart, perturbations);
 
             // update time axis minimum and maximum
-            Helpers.UpdateChartAxes(dataChart, chart_history);
-            Helpers.UpdateChartAxes(perturbationChart, chart_history);
+            Charting.UpdateChartAxes(dataChart, chart_history);
+            Charting.UpdateChartAxes(perturbationChart, chart_history);
 
             // draw animation
             Helpers.DrawTanks(this);
 
             // update labels
             Helpers.UpdatePerturbationLabels(this, Disturbance);
-        }
-
-        private void ApplyDisturbance(Plant plant)
-        {
-            if (Disturbance.time_left > 0)
-            {
-                Disturbance.PerturbationNext();
-
-                if (checkBoxInstant.Checked == true)
-                {
-                    plant.change_state(Disturbance.value);
-                    Disturbance.Stop();
-                }
-                else plant.update_state(Disturbance.value);
-            }
-            else plant.update_state(new double[] { 0, 0, 0, 0 });
-
         }
 
         private void UpdatePerturbation(Perturbation perturbation)
@@ -247,7 +231,7 @@ namespace Model_GUI
             foreach (string key in keys)
             {
                 // if series does not exist, add it
-                if (chart_.Series.IndexOf(key) == -1) Helpers.AddChartSeries(key, chart_);
+                if (chart_.Series.IndexOf(key) == -1) Charting.AddChartSeries(this, key, chart_);
 
                 int i = dict[key].time.Length - 1;
                 if (dict[key].time[i] != null)
@@ -277,54 +261,78 @@ namespace Model_GUI
                 states["yc" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), plant.get_yc()[i].ToString());
             }
 
-            // disturbances
-            for (int i = 0; i < Disturbance.value.Length; i++)
+            // control signal 
+            int j = 0;
+            var keys = package_last.Keys.ToList();
+            foreach (string key in keys)
             {
-                Helpers.CheckKey(perturbations, "dist." + (i + 1), Constants.n_steps);
-                perturbations["dist." + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Disturbance.value[i].ToString());
+                Helpers.CheckKey(states, "u" + (j + 1), Constants.n_steps);
+                states["u" + (j + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), package_last[key]);
+                j++;
+            }
+
+            // disturbances
+            Helpers.CheckKey(perturbations, "dist", Constants.n_steps);
+            perturbations["dist"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Disturbance.value_disturbance.ToString());
+            
+        }
+
+        public void ProcessArguments(string[] args)
+        {
+            // controller end-point (controller IP, controller Port, listening Port on this module)
+            EP_Controller = new ConnectionParameters(args[1], Convert.ToInt16(args[2]), Convert.ToInt16(args[3]));
+
+            // model type (e.g. dwt)
+            string model_type = args[4];
+
+            if (args.Length == 5 || args.Length == 5 + 4)
+            {
+                // 5 or 9 arguments --> direct communication
+                EP = new AddressEndPoint(EP_Controller.IP, EP_Controller.Port);
+            }
+            else if (args.Length == 7 || args.Length == 7 + 4)
+            {
+                // 7 or 11 arguments --> canal is used
+                EP = new AddressEndPoint(args[5], Convert.ToInt16(args[6]));
+                using_canal = true;
+            }
+
+            // store the model in a container which generically send and access values 
+            switch (model_type)
+            {
+                case "dwt":
+                    model_parameters = new double[] { 15, 0.3, 50, 0.2 };
+                    if (args.Length == 9) model_parameters = new double[] { Convert.ToDouble(args[5]), Convert.ToDouble(args[6]), Convert.ToDouble(args[7]), Convert.ToDouble(args[8]) };
+                    if (args.Length == 11) model_parameters = new double[] { Convert.ToDouble(args[7]), Convert.ToDouble(args[8]), Convert.ToDouble(args[9]), Convert.ToDouble(args[10]) };
+                    plant = new Plant(new DoubleWatertank(model_parameters));
+                    break;
+                case "qwt":
+                    model_parameters = new double[] { 15, 0.3, 50, 0.2, 15, 0.3, 50, 0.2 };
+                    if (args.Length == 15) model_parameters = new double[] { Convert.ToDouble(args[7]), Convert.ToDouble(args[8]), Convert.ToDouble(args[9]), Convert.ToDouble(args[10]), Convert.ToDouble(args[11]), Convert.ToDouble(args[12]), Convert.ToDouble(args[13]), Convert.ToDouble(args[14]) };
+                    if (args.Length == 15) model_parameters = new double[] { Convert.ToDouble(args[7]), Convert.ToDouble(args[8]), Convert.ToDouble(args[9]), Convert.ToDouble(args[10]), Convert.ToDouble(args[11]), Convert.ToDouble(args[12]), Convert.ToDouble(args[13]), Convert.ToDouble(args[14]) };
+                    plant = new Plant(new QuadWatertank(model_parameters));
+                    break;
+                case "ipsiso": plant = new Plant(new InvertedPendulumSISO()); break;
             }
         }
 
-        public class Perturbation
+        private void checkedListBox1_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            public string type;
-            public double time_left;
-            public double time_elapsed;
-            public double frequency;
-            public double time_const;
-            public double[] amplitude;
-            public int[] tanks;
-            public double[] value = new double[] { 0, 0, 0, 0 };
-            DateTime time_stamp = DateTime.Now;
+            // list all checked items
+            List<string> checkedItems = new List<string>();
+            foreach (var item in clbSeries.CheckedItems) checkedItems.Add(item.ToString());
 
-            public void PerturbationNext()
+            // also consider the new state of the checked item
+            if (e.NewValue == CheckState.Checked)
+                checkedItems.Add(clbSeries.Items[e.Index].ToString());
+            else
+                checkedItems.Remove(clbSeries.Items[e.Index].ToString());
+
+            // enable or disable series
+            foreach (var series in dataChart.Series)
             {
-                switch (type)
-                {
-                    case "constant":
-                        value = amplitude;
-                        break;
-                    case "transient":
-                        for (int i = 0; i < value.Length; i++) value[i] = amplitude[i] * Math.Exp(-time_elapsed / time_const);
-                        break;
-                    case "sinusoid":
-                        for (int i = 0; i < value.Length; i++) value[i] = amplitude[i] * Math.Sin(frequency * time_elapsed * 2 * Math.PI);
-                        break;
-                }
-
-                double elapsed_time = (DateTime.Now - time_stamp).TotalMilliseconds;
-                time_elapsed += Convert.ToDouble(elapsed_time) / 1000;
-                time_left -= Convert.ToDouble(elapsed_time) / 1000;
-                time_stamp = DateTime.Now;
-
-                if (time_left <= 0) Stop();
-            }
-
-            public void Stop()
-            {
-                time_elapsed = 0;
-                time_left = 0;
-                value = new double[] { 0, 0, 0, 0 };
+                if (checkedItems.Contains(series.Name)) dataChart.Series[series.Name].Enabled = true;
+                else dataChart.Series[series.Name].Enabled = false;
             }
         }
 
@@ -352,24 +360,6 @@ namespace Model_GUI
             Environment.Exit(0);
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-            if (checkBoxInstant.Checked == true)
-            {
-                numUpDownDisturbanceDuration.Enabled = false;
-                numUpDownDisturbanceFrequency.Enabled = false;
-                numUpDownDisturbanceTimeConst.Enabled = false;
-                label3.Text = "Amplitude [cm]";
-            }
-            else
-            {
-                numUpDownDisturbanceDuration.Enabled = true;
-                numUpDownDisturbanceFrequency.Enabled = true;
-                numUpDownDisturbanceTimeConst.Enabled = true;
-                label3.Text = "Amplitude [cm3/s]";
-            }
-        }
-
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
             chart_history = Convert.ToInt16(numericUpDown1.Value);
@@ -383,17 +373,19 @@ namespace Model_GUI
 
         private void buttonApplyDisturbance_Click(object sender, EventArgs e)
         {
-            if (rBtnDisturbanceConstant.Checked == true) Disturbance.type = "constant";
-            if (rBtnDisturbanceTransient.Checked == true) Disturbance.type = "transient";
-            if (rBtnDisturbanceSinusoid.Checked == true) Disturbance.type = "sinusoid";
+            string type = "";
+            if (rbConstant.Checked == true) type = "constant";
+            if (rbTransientDecrease.Checked == true) type = "transient";
+            if (rbSinusoid.Checked == true) type = "sinusoid";
+            if (rbInstant.Checked == true) type = "instant";
 
-            Disturbance.time_left = Convert.ToDouble(numUpDownDisturbanceDuration.Value);
-            Disturbance.frequency = Convert.ToDouble(numUpDownDisturbanceFrequency.Value);
-            Disturbance.amplitude = new double[] { Convert.ToDouble(numUpDownDisturbanceAmplitude11.Value), Convert.ToDouble(numUpDownDisturbanceAmplitude21.Value), Convert.ToDouble(numUpDownDisturbanceAmplitude12.Value), Convert.ToDouble(numUpDownDisturbanceAmplitude22.Value) };
-            Disturbance.time_const = Convert.ToDouble(numUpDownDisturbanceTimeConst.Value);
-            Disturbance.value = new double[] { 0, 0, 0, 0 };
+            double duration = Convert.ToDouble(nudDuration.Value);
+            double frequency = Convert.ToDouble(nudFrequency.Value);
+            double amplitude_disturbance = Convert.ToDouble(nudAmplitude.Value);
+            double time_const = Convert.ToDouble(nudTimeConst.Value);
+            string target_state = tbTargetState.Text;
 
-            Disturbance.time_elapsed = 0;
+            Disturbance = new Perturbation(target_state, type, duration, amplitude_disturbance, time_const, frequency);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -405,14 +397,49 @@ namespace Model_GUI
         private void timerUpdateGUI_Tick_1(object sender, EventArgs e)
         {
             // scale y-axis for the charts
-            Helpers.ChangeYScale(dataChart, "");
-            Helpers.ChangeYScale(perturbationChart, "");
+            Charting.ChangeYScale(dataChart, "");
+            Charting.ChangeYScale(perturbationChart, "");
         }
 
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
         {
             dataChart.SaveImage(folderName + "\\chart_model_main.png", ChartImageFormat.Png);
             perturbationChart.SaveImage(folderName + "\\chart_model_disturbance.png", ChartImageFormat.Png);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Disturbance.Stop();
+        }
+
+        private void rBtnDisturbanceConstant_CheckedChanged(object sender, EventArgs e)
+        {
+            Helpers.ManageNumericalUpdowns(this);
+        }
+
+        private void rBtnDisturbanceSinusoid_CheckedChanged(object sender, EventArgs e)
+        {
+            Helpers.ManageNumericalUpdowns(this);
+        }
+
+        private void rBtnDisturbanceTransient_CheckedChanged(object sender, EventArgs e)
+        {
+            Helpers.ManageNumericalUpdowns(this);
+        }
+
+        private void rBtnDisturbanceInstant_CheckedChanged(object sender, EventArgs e)
+        {
+            Helpers.ManageNumericalUpdowns(this);
+        }
+
+        private void setDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DialogResult result = folderBrowserDialog1.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                folderName = folderBrowserDialog1.SelectedPath;
+                toolStripLabel.Text = "Dir: " + folderName;
+            }
         }
     }
 }

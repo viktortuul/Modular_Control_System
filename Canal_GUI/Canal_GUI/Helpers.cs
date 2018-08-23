@@ -48,7 +48,6 @@ namespace Canal_GUI
 
         public static void AddKey(Dictionary<string, DataContainer> dict, string key, int n_steps)
         {
-            // if the key doesn't exist, add it
             if (dict.ContainsKey(key) == false) dict.Add(key, new DataContainer(n_steps));
         }
 
@@ -66,16 +65,19 @@ namespace Canal_GUI
             }
             else if (Main.rbTransientIncrease.Checked == true)
             {
+                Main.nudAmplitude.Enabled = true;
                 Main.nudTimeConst.Enabled = true;
                 Main.nudFrequency.Enabled = false;
             }
             else if (Main.rbTransientDecrease.Checked == true)
             {
+                Main.nudAmplitude.Enabled = true;
                 Main.nudTimeConst.Enabled = true;
                 Main.nudFrequency.Enabled = false;
             }
             else if (Main.rbSinusoid.Checked == true)
             {
+                Main.nudAmplitude.Enabled = true;
                 Main.nudTimeConst.Enabled = false;
                 Main.nudFrequency.Enabled = true;
             }
@@ -150,6 +152,13 @@ namespace Canal_GUI
                 chart_.Series[key].ChartType = SeriesChartType.Line;
                 chart_.Series[key].BorderWidth = 2;
 
+                if (chart_.Name == "packageChart")
+                {
+                    chart_.Series[key].ChartType = SeriesChartType.Point;
+                    chart_.Series[key].MarkerSize = 5;
+                    chart_.Series[key].MarkerStyle = MarkerStyle.Circle;
+                }
+
                 if (key == "u1") chart_.Series[key].Color = Color.Orange;
                 else if (key == "u2") chart_.Series[key].Color = Color.Magenta;
                 else if (key == "yo1") chart_.Series[key].Color = Color.Black;
@@ -164,12 +173,19 @@ namespace Canal_GUI
 
         public static void InitialChartSettings(CanalGUI Main)
         {
-            Main.perturbationChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
-            Main.perturbationChart.ChartAreas["ChartArea1"].AxisY.Title = "";
-            Main.perturbationChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
-            Main.perturbationChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
-            Main.perturbationChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
-            Main.perturbationChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
+            Main.attackChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
+            Main.attackChart.ChartAreas["ChartArea1"].AxisY.Title = "";
+            Main.attackChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
+            Main.attackChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
+            Main.attackChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
+            Main.attackChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
+
+            Main.packageChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
+            Main.packageChart.ChartAreas["ChartArea1"].AxisY.Title = "";
+            Main.packageChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
+            Main.packageChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
+            Main.packageChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
+            Main.packageChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
         }
     }
 
