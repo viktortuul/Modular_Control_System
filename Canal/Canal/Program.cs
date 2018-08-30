@@ -36,7 +36,7 @@ namespace Canal
             }
 
             // create a new thread for the listener
-            Thread thread_listener = new Thread(() => Listener("ANY", port_recieve)); // listen on port 8000 (packages from any IP address)
+            Thread thread_listener = new Thread(() => Listener("ANY_IP", port_recieve)); // listen on port 8000 (packages from any IP address)
             thread_listener.Start();
         }
 
@@ -87,6 +87,10 @@ namespace Canal
                     SendMessage(IP, Port, submessage);
                     return; // no need to keep parsing the message
                 }
+                //if (key == "ORIGIN") // detect the ORIGIN
+                //{
+                //    string origin_ID = value;
+                //}
             }
         }
 

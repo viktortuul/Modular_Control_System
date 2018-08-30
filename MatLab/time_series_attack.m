@@ -131,7 +131,7 @@ N = T/dt;               % number of discrete time steps
 t = dt*(0:N-1);         % time axis
 
 % attack parameters
-r0 = 5;               % steady state control signal
+r0 = 6;               % steady state control signal
 r = r0*ones(1, N);      % control signal time series
 
 % reference signal attack
@@ -156,7 +156,7 @@ q = 0.01;       % FIR smoothing parameter
 variables = struct('I', I, 'e', e, 'ep', ep, 'de', de, 'dE', dE, 'de_temp', de_temp, 'u', u);
 parameters = struct('Kp', Kp, 'Ki', Ki, 'Kd', Kd, 'u_min', u_min, 'u_max', u_max, 'q', q);
 
-x0 = [3; 5];                              % initial state vector
+x0 = [3; 6];                              % initial state vector
 y = x0;
 for i = 1:N-1
     y_temp = SimulatePlant(1, dt, a1, a2, y(1:2,i), g, A1, A2, k, variables.u);

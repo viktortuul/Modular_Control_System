@@ -183,6 +183,7 @@ namespace Controller
 
             // if a canal is used, append the end-point address
             if (using_canal == true) message += Convert.ToString("EP_" + EP_Plant.IP + ":" + EP_Plant.Port + "#");
+            // message += Convert.ToString("ORIGIN_" + 67 + "#"); // ADD THE ORIGIN_ID (IN THIS CASE 67)
 
             int index = 0;
             foreach (PID controller in PIDList)

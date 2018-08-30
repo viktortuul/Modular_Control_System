@@ -17,6 +17,43 @@ namespace Canal_GUI
         public const int n_steps = 5000;
     }
 
+    public struct AttackParameters
+    {
+        public string target_tag;
+        public string target_ip;
+        public string target_port;
+
+        // specify attack type
+        public string attack_type;
+        public double[] time_series;       // empty array which is used ONLY if a manual attack is conduced
+                                            // bool which determine if the attack adds a value or sets a value
+        public bool integrity_add;
+
+        // attack parameters
+        public double duration;
+        public double amplitude;
+        public double time_constant;
+        public double frequency;
+        public bool all_IPs;
+        public bool all_Ports;
+
+        public AttackParameters(string target_tag, string target_ip, string target_port, string attack_type, double[] time_series, bool integrity_add, double duration, double amplitude, double time_constant, double frequency, bool all_IPs, bool all_Ports)
+        {
+            this.target_tag = target_tag;
+            this.target_ip = target_ip;
+            this.target_port = target_port;
+            this.attack_type = attack_type;
+            this.time_series = time_series;
+            this.integrity_add = integrity_add;
+            this.duration = duration;
+            this.amplitude = amplitude;
+            this.time_constant = time_constant;
+            this.frequency = frequency;
+            this.all_IPs = all_IPs;
+            this.all_Ports = all_Ports;
+        }
+    }
+
     static class Helpers
     {
         public static double[] DecodeTimeSeries(string text)

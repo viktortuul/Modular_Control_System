@@ -28,7 +28,10 @@ namespace Canal_GUI
 
         // end-point addresses
         public List<AddressEndPoint> end_points = new List<AddressEndPoint>();
-         
+
+        // container for attack settings
+        AttackParameters attack_parameters = new AttackParameters();
+
         // chart settings
         public static int n_steps = 100;
         public int time_chart = 60;
@@ -47,26 +50,6 @@ namespace Canal_GUI
 
         // folder setting for chart image save
         public string folderName = "";
-
-        // attack settings
-                // specify target package
-                string target_tag = "";
-                string target_ip = "";
-                string target_port = "";
-
-                // specify attack type
-                string attack_type = "";
-                double[] time_series = new double[0];       // empty array which is used ONLY if a manual attack is conduced
-                                                            // bool which determine if the attack adds a value or sets a value
-                bool integrity_add = true;
-
-                // attack parameters
-                double duration = 0;
-                double amplitude = 0;
-                double time_constant = 0;
-                double frequency = 0;
-                bool all_IPs = false;
-                bool all_Ports = false;
 
         public CanalGUI()
         {
@@ -236,14 +219,14 @@ namespace Canal_GUI
         {
             // add new attack model
             GetAttackSettings();
-            if ((attack_model_container.ContainsKey(target_tag) || target_tag == "") == false)
+            if ((attack_model_container.ContainsKey(attack_parameters.target_tag) || attack_parameters.target_tag == "") == false)
             {
-                AttackModel new_attack_model = new AttackModel(target_ip, target_port, all_IPs, all_Ports, target_tag, attack_type, integrity_add, duration, amplitude, time_constant, frequency, time_series);
-                attack_model_container.Add(target_tag, new_attack_model);
-                clbAttackModels.Items.Add(target_tag);
+                AttackModel new_attack_model = new AttackModel(attack_parameters.target_ip, attack_parameters.target_port, attack_parameters.all_IPs, attack_parameters.all_Ports, attack_parameters.target_tag, attack_parameters.attack_type, attack_parameters.integrity_add, attack_parameters.duration, attack_parameters.amplitude, attack_parameters.time_constant, attack_parameters.frequency, attack_parameters.time_series);
+                attack_model_container.Add(attack_parameters.target_tag, new_attack_model);
+                clbAttackModels.Items.Add(attack_parameters.target_tag);
                 clbAttackModels.SelectedIndex = clbAttackModels.Items.Count - 1;
                 selected_attack_model = clbAttackModels.SelectedItem.ToString();
-                Helpers.AddKey(attack_timeseries, target_tag, n_steps);
+                Helpers.AddKey(attack_timeseries, attack_parameters.target_tag, n_steps);
 
                 tbTargetTag.Text = "";
             }
@@ -253,7 +236,7 @@ namespace Canal_GUI
         {
             // update selected attack model
             GetAttackSettings();
-            attack_model_container[selected_attack_model].UpdateModel(tbTargetIP.Text, tbTargetPort.Text, all_IPs, all_Ports, attack_type, integrity_add, duration, amplitude, time_constant, frequency, time_series);
+            attack_model_container[selected_attack_model].UpdateModel(attack_parameters.target_ip, attack_parameters.target_port, attack_parameters.all_IPs, attack_parameters.all_Ports, attack_parameters.attack_type, attack_parameters.integrity_add, attack_parameters.duration, attack_parameters.amplitude, attack_parameters.time_constant, attack_parameters.frequency, attack_parameters.time_series);
         }
 
         private void UpdateDroupOutModel()
@@ -367,11 +350,13 @@ namespace Canal_GUI
         private void GetAttackSettings()
         {
             // specify target package
-            target_tag = tbTargetTag.Text;
-            target_ip = tbTargetIP.Text;
-            target_port = tbTargetPort.Text;
+            string target_tag = tbTargetTag.Text;
+            string target_ip = tbTargetIP.Text;
+            string target_port = tbTargetPort.Text;
 
             // specify attack type
+            string attack_type = "";
+            double[] time_series = new double[0];
             if (rbBias.Checked == true) attack_type = "bias";
             if (rbTransientDecrease.Checked == true) attack_type = "transient_decr";
             if (rbTransientIncrease.Checked == true) attack_type = "transient_incr";
@@ -384,17 +369,19 @@ namespace Canal_GUI
             if (rbDelay.Checked == true) attack_type = "delay";
 
             // bool which determine if the attack adds a value or sets a value
-            integrity_add = true;
+            bool integrity_add = true;
             if (rbAddValue.Checked == true) integrity_add = true;
             else if (rbSetValue.Checked == true) integrity_add = false;
 
             // attack parameters
-            duration = Convert.ToDouble(nudDuration.Value);
-            amplitude = Convert.ToDouble(nudAmplitude.Value);
-            time_constant = Convert.ToDouble(nudTimeConst.Value);
-            frequency = Convert.ToDouble(nudFrequency.Value);
-            all_IPs = cbAllIPs.Checked == true;
-            all_Ports = cbAllPorts.Checked == true;
+            double duration = Convert.ToDouble(nudDuration.Value);
+            double amplitude = Convert.ToDouble(nudAmplitude.Value);
+            double time_constant = Convert.ToDouble(nudTimeConst.Value);
+            double frequency = Convert.ToDouble(nudFrequency.Value);
+            bool all_IPs = cbAllIPs.Checked;
+            bool all_Ports = cbAllPorts.Checked;
+
+            attack_parameters = new AttackParameters(target_tag, target_ip, target_port, attack_type, time_series, integrity_add, duration, amplitude, time_constant, frequency, all_IPs, all_Ports);
         }
 
         private void nudHistory_ValueChanged(object sender, EventArgs e)
