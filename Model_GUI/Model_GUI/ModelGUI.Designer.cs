@@ -63,19 +63,19 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.rbInstant = new System.Windows.Forms.RadioButton();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripSplitButton1 = new System.Windows.Forms.ToolStripSplitButton();
             this.setDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.label27 = new System.Windows.Forms.Label();
             this.perturbationChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.dataChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.clbSeries = new System.Windows.Forms.CheckedListBox();
-            this.label3 = new System.Windows.Forms.Label();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudDuration)).BeginInit();
@@ -133,7 +133,7 @@
             this.label17.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label17.AutoSize = true;
             this.label17.BackColor = System.Drawing.SystemColors.Control;
-            this.label17.Location = new System.Drawing.Point(846, 24);
+            this.label17.Location = new System.Drawing.Point(848, 24);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(53, 13);
             this.label17.TabIndex = 25;
@@ -142,7 +142,7 @@
             // numericUpDown1
             // 
             this.numericUpDown1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.numericUpDown1.Location = new System.Drawing.Point(907, 20);
+            this.numericUpDown1.Location = new System.Drawing.Point(909, 20);
             this.numericUpDown1.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -161,7 +161,7 @@
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(962, 20);
+            this.button1.Location = new System.Drawing.Point(964, 20);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(74, 21);
             this.button1.TabIndex = 28;
@@ -297,7 +297,7 @@
             // 
             this.label16.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(845, 46);
+            this.label16.Location = new System.Drawing.Point(847, 46);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(90, 13);
             this.label16.TabIndex = 29;
@@ -332,7 +332,7 @@
             this.groupBox1.Controls.Add(this.groupBox5);
             this.groupBox1.Controls.Add(this.labelDebug);
             this.groupBox1.Controls.Add(this.labelDisturbance);
-            this.groupBox1.Location = new System.Drawing.Point(849, 169);
+            this.groupBox1.Location = new System.Drawing.Point(851, 169);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(290, 217);
             this.groupBox1.TabIndex = 12;
@@ -409,15 +409,25 @@
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Parameters";
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 60);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(64, 13);
+            this.label3.TabIndex = 45;
+            this.label3.Text = "Disturbance";
+            // 
             // statusStrip1
             // 
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripLabel,
-            this.toolStripSplitButton1});
+            this.toolStripSplitButton1,
+            this.toolStripStatusLabel1});
             this.statusStrip1.Location = new System.Drawing.Point(0, 497);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1170, 26);
+            this.statusStrip1.Size = new System.Drawing.Size(1172, 26);
             this.statusStrip1.TabIndex = 35;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -446,16 +456,6 @@
             this.setDirectoryToolStripMenuItem.Text = "Set directory";
             this.setDirectoryToolStripMenuItem.Click += new System.EventHandler(this.setDirectoryToolStripMenuItem_Click);
             // 
-            // label27
-            // 
-            this.label27.AutoSize = true;
-            this.label27.BackColor = System.Drawing.SystemColors.Control;
-            this.label27.Location = new System.Drawing.Point(71, 10);
-            this.label27.Name = "label27";
-            this.label27.Size = new System.Drawing.Size(53, 13);
-            this.label27.TabIndex = 37;
-            this.label27.Text = "Animation";
-            // 
             // perturbationChart
             // 
             this.perturbationChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -469,7 +469,7 @@
             this.perturbationChart.Legends.Add(legend1);
             this.perturbationChart.Location = new System.Drawing.Point(5, 3);
             this.perturbationChart.Name = "perturbationChart";
-            this.perturbationChart.Size = new System.Drawing.Size(632, 392);
+            this.perturbationChart.Size = new System.Drawing.Size(650, 436);
             this.perturbationChart.TabIndex = 21;
             this.perturbationChart.Text = "chart1";
             title1.Name = "Title1";
@@ -506,7 +506,7 @@
             this.tabControl1.Margin = new System.Windows.Forms.Padding(2);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(662, 470);
+            this.tabControl1.Size = new System.Drawing.Size(664, 470);
             this.tabControl1.TabIndex = 38;
             // 
             // tabPage1
@@ -528,7 +528,7 @@
             this.tabPage2.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage2.Size = new System.Drawing.Size(641, 444);
+            this.tabPage2.Size = new System.Drawing.Size(656, 444);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Disturbance";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -538,26 +538,28 @@
             this.clbSeries.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.clbSeries.CheckOnClick = true;
             this.clbSeries.FormattingEnabled = true;
-            this.clbSeries.Location = new System.Drawing.Point(849, 62);
+            this.clbSeries.Location = new System.Drawing.Point(851, 62);
             this.clbSeries.Name = "clbSeries";
             this.clbSeries.Size = new System.Drawing.Size(114, 94);
             this.clbSeries.TabIndex = 39;
             this.clbSeries.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.checkedListBox1_ItemCheck);
             // 
-            // label3
+            // toolStripStatusLabel1
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 60);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(64, 13);
-            this.label3.TabIndex = 45;
-            this.label3.Text = "Disturbance";
+            this.toolStripStatusLabel1.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.toolStripStatusLabel1.BorderStyle = System.Windows.Forms.Border3DStyle.RaisedOuter;
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(114, 21);
+            this.toolStripStatusLabel1.Text = "Toggle visual mode";
+            this.toolStripStatusLabel1.Click += new System.EventHandler(this.toolStripStatusLabel1_Click);
             // 
             // ModelGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1170, 523);
+            this.ClientSize = new System.Drawing.Size(1172, 523);
             this.Controls.Add(this.clbSeries);
             this.Controls.Add(this.label17);
             this.Controls.Add(this.label16);
@@ -565,7 +567,6 @@
             this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.tabControl1);
-            this.Controls.Add(this.label27);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.groupBox1);
             this.MinimumSize = new System.Drawing.Size(600, 350);
@@ -614,7 +615,6 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripLabel;
         private System.Windows.Forms.ToolStripSplitButton toolStripSplitButton1;
         private System.Windows.Forms.ToolStripMenuItem setDirectoryToolStripMenuItem;
-        private System.Windows.Forms.Label label27;
         private System.Windows.Forms.DataVisualization.Charting.Chart perturbationChart;
         private System.Windows.Forms.DataVisualization.Charting.Chart dataChart;
         private System.Windows.Forms.TabControl tabControl1;
@@ -638,6 +638,7 @@
         public System.Windows.Forms.CheckedListBox clbSeries;
         public System.Windows.Forms.Label label3;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
     }
 }
 

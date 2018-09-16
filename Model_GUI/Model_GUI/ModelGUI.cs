@@ -43,6 +43,9 @@ namespace Model_GUI
         // model parameters from command line arguments
         public double[] model_parameters = new double[0];
 
+        // control/obsrver mode
+        public bool control_mode = true;
+
         public ModelGUI()
         {
             InitializeComponent();
@@ -75,6 +78,8 @@ namespace Model_GUI
             // application directory
             folderName = Directory.GetCurrentDirectory();
             toolStripLabel.Text = "Dir: " + folderName;
+
+            toggleControlMode();
         }
 
         public void Process(Plant plant, int dt)
@@ -439,6 +444,48 @@ namespace Model_GUI
             {
                 folderName = folderBrowserDialog1.SelectedPath;
                 toolStripLabel.Text = "Dir: " + folderName;
+            }
+        }
+
+        private void toggleControlMode()
+        {
+            foreach (Control c in this.Controls)
+            {
+                c.Visible = true; //or true.
+            }
+
+            tabControl1.Width = this.Width - 325 - pictureBox1.Width - 20;
+            tabControl1.Height = this.Height - 70;
+            pictureBox1.Height = this.Height - 70 - 23;
+        }
+
+        private void toggleObserverMode()
+        {
+            string[] visible_controls = new string[] {"tabControl1", "dataChart", "pictureBox1", "statusStrip1" };
+            foreach (Control c in this.Controls)
+            {
+                if (visible_controls.Contains(c.Name) == false)
+                {
+                    c.Visible = false; //or true.
+                }
+            }
+
+            tabControl1.Width = this.Width - pictureBox1.Width - 25;
+            tabControl1.Height = this.Height - 70;
+            pictureBox1.Height = this.Height - 70 - 23;
+        }
+
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
+        {
+            if (control_mode == true)
+            {
+                toggleObserverMode();
+                control_mode = false;
+            }
+            else
+            {
+                toggleControlMode();
+                control_mode = true;
             }
         }
     }

@@ -31,7 +31,7 @@ namespace Canal
             {
                 double P_pd = Convert.ToDouble(args[1]);
                 double P_dp = Convert.ToDouble(args[2]);
-                Markov = new MarkovChain(1, P_pd / 100, P_dp / 100);
+                Markov = new MarkovChain(1, (100 - P_pd) / 100, (100 - P_dp) / 100);
                 DropOutModel = Markov;
             }
 

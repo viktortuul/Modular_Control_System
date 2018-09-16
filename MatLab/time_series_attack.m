@@ -38,35 +38,35 @@ kc = 1;       % V/cm
 % Acceleration of gravity
 g = 981;        % cm/s^2
 
-% Time constants
-T1 = A1/a1*sqrt(2*h10/g);   % s
-T2 = A2/a2*sqrt(2*h20/g);   % s
-
-% System matrices
-A = [-1/T1      0;   
-     A1/(A2*T1) -1/T2];   
-B = [k/A1;
-     0];  
-C = [kc 0;
-     0  kc];
-D = zeros(2,1);
-
-% Create state-space model
-sys = ss(A,B,C,D)
-
-% % controller
-% K = 1;
-% C = K*(1+s/0.2)/s; % PI-controller, cancel slow process pole ("lambda tuning")
-% C = ss(C);
+% % Time constants
+% T1 = A1/a1*sqrt(2*h10/g);   % s
+% T2 = A2/a2*sqrt(2*h20/g);   % s
 % 
-% Go = C * sys_tf
-% GC = feedback(sys, 1);
-
-% plotting
-% opt = stepDataOptions('InputOffset',0, 'StepAmplitude',5);
-% [y,t] = step(sys,opt);
-% figure
-% plot(t,y)
+% % System matrices
+% A = [-1/T1      0;   
+%      A1/(A2*T1) -1/T2];   
+% B = [k/A1;
+%      0];  
+% C = [kc 0;
+%      0  kc];
+% D = zeros(2,1);
+% 
+% % Create state-space model
+% sys = ss(A,B,C,D)
+% 
+% % % controller
+% % K = 1;
+% % C = K*(1+s/0.2)/s; % PI-controller, cancel slow process pole ("lambda tuning")
+% % C = ss(C);
+% % 
+% % Go = C * sys_tf
+% % GC = feedback(sys, 1);
+% 
+% % plotting
+% % opt = stepDataOptions('InputOffset',0, 'StepAmplitude',5);
+% % [y,t] = step(sys,opt);
+% % figure
+% % plot(t,y)
 
 
 %% [Control & Measurement] time-series attack
@@ -126,16 +126,16 @@ clear y
 
 T = 180;                 % total simulation time
 T_atk_start = 60;        % attack start time
-dt = 0.1;               % simulation time interval
-N = T/dt;               % number of discrete time steps
-t = dt*(0:N-1);         % time axis
+dt = 0.1;                % simulation time interval
+N = T/dt;                % number of discrete time steps
+t = dt*(0:N-1);          % time axis
 
 % attack parameters
-r0 = 6;               % steady state control signal
+r0 = 6;                 % steady state control signal
 r = r0*ones(1, N);      % control signal time series
 
 % reference signal attack
-r_atk = 10;                                  % attack control signal
+r_atk = 10;                                 % attack control signal
 atk_start = round((T_atk_start)/dt + 1);    % attack start index
 r(atk_start:end) = r_atk;                   % attack control signal time series
 
@@ -156,24 +156,28 @@ q = 0.01;       % FIR smoothing parameter
 variables = struct('I', I, 'e', e, 'ep', ep, 'de', de, 'dE', dE, 'de_temp', de_temp, 'u', u);
 parameters = struct('Kp', Kp, 'Ki', Ki, 'Kd', Kd, 'u_min', u_min, 'u_max', u_max, 'q', q);
 
-x0 = [3; 6];                              % initial state vector
+x0 = [3; 6];    % initial state vector
 y = x0;
+u = 0;
 for i = 1:N-1
     y_temp = SimulatePlant(1, dt, a1, a2, y(1:2,i), g, A1, A2, k, variables.u);
     y(:,i+1) = y_temp;
     variables = ComputeControlSignal(r(i), y(2,i+1), dt, variables, parameters);
+    u(i+1) = variables.u;
 end
 
 % extract attack time series
-y_ref = y(2,atk_start);                     % state value before attack initialized
-y_atk = -(y(2,atk_start:end) - y_ref);      % output the attack - "compensation"
+y_0 = y(2,atk_start);                     % state value before attack initialized
+u_0 = u(atk_start);                     % control signal value before attack initialized
+y_atk = -(y(2,atk_start:end) - y_0);      % output the sensor attack - "compensation"
+u_atk = -(u(atk_start:end) - u_0);      % output the coontrol attack - "compensation"
         
 figure
 subplot(2,1,1)
 xlim([50 T]); ylim([4 12])
 hold on
 plot(t,y(2,:), 'b', 'LineWidth', 2)
-plot([t(atk_start) t(end)], [y_ref y_ref], '--b', 'LineWidth', 2)
+plot([t(atk_start) t(end)], [y_0 y_0], '--b', 'LineWidth', 2)
 plot(t,r, 'r')
 lgd = legend('y', '$\tilde{y}_{desired}$', '$\tilde{r}$');
 set(lgd,'Interpreter','latex');
@@ -184,10 +188,12 @@ xlabel('Time [s]')
 subplot(2,1,2)
 xlim([50 T]); ylim([-6 6])
 hold on
-plot(t(atk_start:end), y_atk, 'b', 'LineWidth', 2)
 plot(t,r - r0, 'r', 'LineWidth', 2)
-lgd = legend('$a_y$', '$a_r$');
+plot(t(atk_start:end), y_atk, 'b', 'LineWidth', 2)
+plot(t(atk_start:end), u_atk, 'g', 'LineWidth', 2)
+lgd = legend('$a_r$', '$a_y$', '$a_u$');
 set(lgd,'Interpreter','latex');
 set(lgd,'FontSize',textsize);
 title('Integrity attack')
 xlabel('Time [s]')
+u_atk = -(u(atk_start + 1:end) - u_0);      % output the coontrol attack - "compensation"

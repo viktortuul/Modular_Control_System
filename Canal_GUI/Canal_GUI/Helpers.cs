@@ -202,6 +202,7 @@ namespace Canal_GUI
                 else if (key == "yo2") chart_.Series[key].Color = Color.Gray;
                 else if (key == "yc1") chart_.Series[key].Color = Color.Blue;
                 else if (key == "yc2") chart_.Series[key].Color = Color.Green;
+                else if (key == "r1") chart_.Series[key].Color = Color.Red;
 
                 // set the x-axis type to DateTime
                 chart_.Series[key].XValueType = ChartValueType.DateTime;

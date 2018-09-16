@@ -40,6 +40,9 @@ namespace HMI
         // debug log
         public string debugLog = "";
 
+        // control/obsrver mode
+        public bool control_mode = true;
+
         public FrameGUI()
         {
             InitializeComponent();
@@ -71,6 +74,8 @@ namespace HMI
             double a2 = Properties.Settings.Default.SA2;
             tankDimensions = new TankDimensions(A1, a1, A2, a2);
             log("Settings loaded");
+
+            toggleControlMode();
         }
 
         private void timerCharts_Tick(object sender, EventArgs e)
@@ -416,12 +421,22 @@ namespace HMI
 
         private void FrameGUI_Resize(object sender, EventArgs e)
         {
+            ManageChartSize();
+        }
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ManageChartSize();
+        }
+
+        private void ManageChartSize()
+        {
             try
             {
                 int y_start = residualChart.Location.Y;
                 int height_total = tabControl1.Height - y_start;
                 residualChart.Height = height_total / 2 - y_start;
-                securityChart.Location = new Point(6, + y_start + height_total / 2);
+                securityChart.Location = new Point(6, +y_start + height_total / 2);
                 securityChart.Height = height_total / 2 - y_start;
             }
             catch { }
@@ -432,6 +447,57 @@ namespace HMI
             FormSettings form_settnings = new FormSettings();
             form_settnings.Main = this;
             form_settnings.Show();
+
+        }
+
+        private void toggleControlMode()
+        {
+            foreach (Control c in this.Controls)
+            {
+                c.Visible = true; //or true.
+            }
+
+            tabControl1.Location = new Point(228, 136);
+            tabControl1.Width = this.Width - 228 - pictureBox1.Width - 20;
+            tabControl1.Height = this.Height - 136 - 70;
+            pictureBox1.Location = new Point(tabControl1.Location.X + tabControl1.Width - 3, 157);
+            pictureBox1.Height = tabControl1.Height - 23;
+        }
+
+        private void toggleObserverMode()
+        {
+            string[] visible_controls = new string[] { "tabControl1", "dataChart", "pictureBox1", "statusStrip1" };
+            foreach (Control c in this.Controls)
+            {
+                if (visible_controls.Contains(c.Name) == false)
+                {
+                    c.Visible = false; //or true.
+                }
+            }
+
+            tabControl1.Location = new Point(3, 3);
+            tabControl1.Width = this.Width - pictureBox1.Width - 25;
+            tabControl1.Height = this.Height - 70;
+            pictureBox1.Location = new Point(tabControl1.Location.X + tabControl1.Width - 3, 3 + 21);
+            pictureBox1.Height = this.Height - 70 - 23;
+        }
+
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
+        {
+            if (control_mode == true)
+            {
+                toggleObserverMode();
+                control_mode = false;
+            }
+            else
+            {
+                toggleControlMode();
+                control_mode = true;
+            }
+        }
+
+        private void clbSeries_SelectedIndexChanged(object sender, EventArgs e)
+        {
 
         }
     }

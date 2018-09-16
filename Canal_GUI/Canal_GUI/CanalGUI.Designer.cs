@@ -105,6 +105,7 @@
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.setDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.label15 = new System.Windows.Forms.Label();
             this.groupBox2.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -289,7 +290,7 @@
             this.tabControl1.Location = new System.Drawing.Point(6, 6);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(875, 519);
+            this.tabControl1.Size = new System.Drawing.Size(875, 442);
             this.tabControl1.TabIndex = 1;
             // 
             // tabPage2
@@ -306,14 +307,14 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(867, 493);
+            this.tabPage2.Size = new System.Drawing.Size(867, 416);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Canal settings";
             // 
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(12, 181);
+            this.label14.Location = new System.Drawing.Point(12, 162);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(53, 13);
             this.label14.TabIndex = 36;
@@ -321,7 +322,7 @@
             // 
             // nudHistory1
             // 
-            this.nudHistory1.Location = new System.Drawing.Point(71, 179);
+            this.nudHistory1.Location = new System.Drawing.Point(71, 160);
             this.nudHistory1.Maximum = new decimal(new int[] {
             2000,
             0,
@@ -347,9 +348,9 @@
             this.packageChart.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
             this.packageChart.Legends.Add(legend1);
-            this.packageChart.Location = new System.Drawing.Point(7, 204);
+            this.packageChart.Location = new System.Drawing.Point(7, 185);
             this.packageChart.Name = "packageChart";
-            this.packageChart.Size = new System.Drawing.Size(854, 283);
+            this.packageChart.Size = new System.Drawing.Size(854, 228);
             this.packageChart.TabIndex = 34;
             this.packageChart.Text = "chart1";
             title1.Name = "Title1";
@@ -362,7 +363,7 @@
             this.groupBox4.Controls.Add(this.clbDropOutTarget);
             this.groupBox4.Location = new System.Drawing.Point(254, 33);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(232, 140);
+            this.groupBox4.Size = new System.Drawing.Size(232, 125);
             this.groupBox4.TabIndex = 11;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "End-point addresses";
@@ -370,7 +371,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(6, 104);
+            this.label13.Location = new System.Drawing.Point(6, 90);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(208, 26);
             this.label13.TabIndex = 10;
@@ -382,7 +383,7 @@
             this.clbDropOutTarget.FormattingEnabled = true;
             this.clbDropOutTarget.Location = new System.Drawing.Point(6, 21);
             this.clbDropOutTarget.Name = "clbDropOutTarget";
-            this.clbDropOutTarget.Size = new System.Drawing.Size(220, 79);
+            this.clbDropOutTarget.Size = new System.Drawing.Size(220, 64);
             this.clbDropOutTarget.TabIndex = 23;
             // 
             // btnStartListener
@@ -397,25 +398,26 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.nudBernoulliPass);
+            this.groupBox1.Controls.Add(this.label7);
+            this.groupBox1.Controls.Add(this.rbBernoulli);
+            this.groupBox1.Controls.Add(this.label15);
             this.groupBox1.Controls.Add(this.nudStayDrop);
             this.groupBox1.Controls.Add(this.btnUpdateDropoutModel);
             this.groupBox1.Controls.Add(this.label9);
             this.groupBox1.Controls.Add(this.nudStayPass);
             this.groupBox1.Controls.Add(this.rbMarkov);
             this.groupBox1.Controls.Add(this.label8);
-            this.groupBox1.Controls.Add(this.nudBernoulliPass);
-            this.groupBox1.Controls.Add(this.label7);
-            this.groupBox1.Controls.Add(this.rbBernoulli);
             this.groupBox1.Location = new System.Drawing.Point(7, 33);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(240, 140);
+            this.groupBox1.Size = new System.Drawing.Size(240, 125);
             this.groupBox1.TabIndex = 8;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Drop out model";
             // 
             // nudStayDrop
             // 
-            this.nudStayDrop.Location = new System.Drawing.Point(172, 73);
+            this.nudStayDrop.Location = new System.Drawing.Point(172, 67);
             this.nudStayDrop.Name = "nudStayDrop";
             this.nudStayDrop.Size = new System.Drawing.Size(41, 20);
             this.nudStayDrop.TabIndex = 7;
@@ -427,7 +429,7 @@
             // 
             // btnUpdateDropoutModel
             // 
-            this.btnUpdateDropoutModel.Location = new System.Drawing.Point(121, 99);
+            this.btnUpdateDropoutModel.Location = new System.Drawing.Point(121, 93);
             this.btnUpdateDropoutModel.Name = "btnUpdateDropoutModel";
             this.btnUpdateDropoutModel.Size = new System.Drawing.Size(92, 23);
             this.btnUpdateDropoutModel.TabIndex = 9;
@@ -438,7 +440,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(77, 75);
+            this.label9.Location = new System.Drawing.Point(77, 69);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(94, 13);
             this.label9.TabIndex = 6;
@@ -446,7 +448,7 @@
             // 
             // nudStayPass
             // 
-            this.nudStayPass.Location = new System.Drawing.Point(172, 52);
+            this.nudStayPass.Location = new System.Drawing.Point(172, 46);
             this.nudStayPass.Name = "nudStayPass";
             this.nudStayPass.Size = new System.Drawing.Size(41, 20);
             this.nudStayPass.TabIndex = 5;
@@ -459,7 +461,7 @@
             // rbMarkov
             // 
             this.rbMarkov.AutoSize = true;
-            this.rbMarkov.Location = new System.Drawing.Point(6, 52);
+            this.rbMarkov.Location = new System.Drawing.Point(6, 46);
             this.rbMarkov.Name = "rbMarkov";
             this.rbMarkov.Size = new System.Drawing.Size(64, 17);
             this.rbMarkov.TabIndex = 1;
@@ -469,7 +471,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(77, 54);
+            this.label8.Location = new System.Drawing.Point(77, 48);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(91, 13);
             this.label8.TabIndex = 4;
@@ -562,7 +564,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(867, 493);
+            this.tabPage1.Size = new System.Drawing.Size(867, 416);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Attack settings";
             // 
@@ -605,7 +607,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(370, 170);
+            this.button2.Location = new System.Drawing.Point(368, 170);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(74, 23);
             this.button2.TabIndex = 30;
@@ -704,7 +706,7 @@
             // 
             // btnAttack
             // 
-            this.btnAttack.Location = new System.Drawing.Point(370, 147);
+            this.btnAttack.Location = new System.Drawing.Point(368, 147);
             this.btnAttack.Name = "btnAttack";
             this.btnAttack.Size = new System.Drawing.Size(74, 23);
             this.btnAttack.TabIndex = 23;
@@ -733,7 +735,7 @@
             this.attackChart.Legends.Add(legend2);
             this.attackChart.Location = new System.Drawing.Point(6, 222);
             this.attackChart.Name = "attackChart";
-            this.attackChart.Size = new System.Drawing.Size(854, 265);
+            this.attackChart.Size = new System.Drawing.Size(854, 188);
             this.attackChart.TabIndex = 21;
             this.attackChart.Text = "chart1";
             title2.Name = "Title1";
@@ -872,7 +874,7 @@
             // 
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(867, 493);
+            this.tabPage3.Size = new System.Drawing.Size(867, 400);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Statistics";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -891,7 +893,7 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripLabel,
             this.toolStripDropDownButton1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 528);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 451);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(888, 26);
             this.statusStrip1.TabIndex = 2;
@@ -918,15 +920,24 @@
             // setDirectoryToolStripMenuItem
             // 
             this.setDirectoryToolStripMenuItem.Name = "setDirectoryToolStripMenuItem";
-            this.setDirectoryToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.setDirectoryToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.setDirectoryToolStripMenuItem.Text = "Set directory";
             this.setDirectoryToolStripMenuItem.Click += new System.EventHandler(this.setDirectoryToolStripMenuItem_Click);
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(4, 32);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(211, 13);
+            this.label15.TabIndex = 10;
+            this.label15.Text = "....................................................................";
             // 
             // CanalGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(888, 554);
+            this.ClientSize = new System.Drawing.Size(888, 477);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.tabControl1);
             this.MinimumSize = new System.Drawing.Size(550, 350);
@@ -1035,6 +1046,7 @@
         public System.Windows.Forms.NumericUpDown nudHistory1;
         public System.Windows.Forms.DataVisualization.Charting.Chart packageChart;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.Label label15;
     }
 }
 

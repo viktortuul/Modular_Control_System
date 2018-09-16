@@ -258,6 +258,8 @@ namespace HMI
     {
         public static void AddChartSeries(FrameGUI Main, string key, object chart)
         {
+            string[] unchecked_keys = new string[] {"yo1", "yo2"};
+
             Chart chart_ = (Chart)chart;
 
             // add a new time series
@@ -267,7 +269,11 @@ namespace HMI
                 if (chart_.Name == "dataChart")
                 {
                     Main.clbSeries.Items.Add(key);
-                    Main.clbSeries.SetItemChecked(Main.clbSeries.Items.Count - 1, true);
+
+                    if (unchecked_keys.Contains(key) == false)
+                        Main.clbSeries.SetItemChecked(Main.clbSeries.Items.Count - 1, true);
+                    else
+                        Main.clbSeries.SetItemChecked(Main.clbSeries.Items.Count - 1, false);
                 }
 
                 // add the to the chart

@@ -286,6 +286,7 @@ namespace Canal_GUI
             nudAmplitude.Value = Convert.ToDecimal(attack_model_container[selected_attack_model].amplitude_attack);
             nudTimeConst.Value = Convert.ToDecimal(attack_model_container[selected_attack_model].time_const);
             nudFrequency.Value = Convert.ToDecimal(attack_model_container[selected_attack_model].frequency);
+            //tbTimeSeries.Text = attack_model_container[selected_attack_model].time_series;
 
             // check boxes
             cbAllIPs.Checked = attack_model_container[selected_attack_model].all_IPs;
