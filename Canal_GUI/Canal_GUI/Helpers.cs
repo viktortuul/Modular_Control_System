@@ -26,7 +26,9 @@ namespace Canal_GUI
         // specify attack type
         public string attack_type;
         public double[] time_series;       // empty array which is used ONLY if a manual attack is conduced
-                                            // bool which determine if the attack adds a value or sets a value
+                                           // bool which determine if the attack adds a value or sets a value
+        public string time_series_raw;
+
         public bool integrity_add;
 
         // attack parameters
@@ -37,13 +39,14 @@ namespace Canal_GUI
         public bool all_IPs;
         public bool all_Ports;
 
-        public AttackParameters(string target_tag, string target_ip, string target_port, string attack_type, double[] time_series, bool integrity_add, double duration, double amplitude, double time_constant, double frequency, bool all_IPs, bool all_Ports)
+        public AttackParameters(string target_tag, string target_ip, string target_port, string attack_type, double[] time_series, string time_series_raw, bool integrity_add, double duration, double amplitude, double time_constant, double frequency, bool all_IPs, bool all_Ports)
         {
             this.target_tag = target_tag;
             this.target_ip = target_ip;
             this.target_port = target_port;
             this.attack_type = attack_type;
             this.time_series = time_series;
+            this.time_series_raw = time_series_raw;
             this.integrity_add = integrity_add;
             this.duration = duration;
             this.amplitude = amplitude;

@@ -300,11 +300,11 @@ namespace HMI
                         chart_.Series[key].BorderWidth = 1;
                         break;
                     case "yo1":
-                        chart_.Series[key].Color = Color.Black;
+                        chart_.Series[key].Color = Color.Gray;
                         chart_.Series[key].BorderWidth = 2;
                         break;
                     case "yo1_hat":
-                        chart_.Series[key].Color = Color.Gray;
+                        chart_.Series[key].Color = Color.Black;
                         chart_.Series[key].BorderWidth = 2;
                         break;
                     case "yo2":

@@ -120,7 +120,6 @@ namespace Canal_GUI
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
-                    textBox2.Text += ex.ToString();
                 }
             }
         }
@@ -221,7 +220,7 @@ namespace Canal_GUI
             GetAttackSettings();
             if ((attack_model_container.ContainsKey(attack_parameters.target_tag) || attack_parameters.target_tag == "") == false)
             {
-                AttackModel new_attack_model = new AttackModel(attack_parameters.target_ip, attack_parameters.target_port, attack_parameters.all_IPs, attack_parameters.all_Ports, attack_parameters.target_tag, attack_parameters.attack_type, attack_parameters.integrity_add, attack_parameters.duration, attack_parameters.amplitude, attack_parameters.time_constant, attack_parameters.frequency, attack_parameters.time_series);
+                AttackModel new_attack_model = new AttackModel(attack_parameters.target_ip, attack_parameters.target_port, attack_parameters.all_IPs, attack_parameters.all_Ports, attack_parameters.target_tag, attack_parameters.attack_type, attack_parameters.integrity_add, attack_parameters.duration, attack_parameters.amplitude, attack_parameters.time_constant, attack_parameters.frequency, attack_parameters.time_series, attack_parameters.time_series_raw);
                 attack_model_container.Add(attack_parameters.target_tag, new_attack_model);
                 clbAttackModels.Items.Add(attack_parameters.target_tag);
                 clbAttackModels.SelectedIndex = clbAttackModels.Items.Count - 1;
@@ -236,7 +235,7 @@ namespace Canal_GUI
         {
             // update selected attack model
             GetAttackSettings();
-            attack_model_container[selected_attack_model].UpdateModel(attack_parameters.target_ip, attack_parameters.target_port, attack_parameters.all_IPs, attack_parameters.all_Ports, attack_parameters.attack_type, attack_parameters.integrity_add, attack_parameters.duration, attack_parameters.amplitude, attack_parameters.time_constant, attack_parameters.frequency, attack_parameters.time_series);
+            attack_model_container[selected_attack_model].UpdateModel(attack_parameters.target_ip, attack_parameters.target_port, attack_parameters.all_IPs, attack_parameters.all_Ports, attack_parameters.attack_type, attack_parameters.integrity_add, attack_parameters.duration, attack_parameters.amplitude, attack_parameters.time_constant, attack_parameters.frequency, attack_parameters.time_series, attack_parameters.time_series_raw);
         }
 
         private void UpdateDroupOutModel()
@@ -286,6 +285,7 @@ namespace Canal_GUI
             nudAmplitude.Value = Convert.ToDecimal(attack_model_container[selected_attack_model].amplitude_attack);
             nudTimeConst.Value = Convert.ToDecimal(attack_model_container[selected_attack_model].time_const);
             nudFrequency.Value = Convert.ToDecimal(attack_model_container[selected_attack_model].frequency);
+            tbTimeSeries.Text = attack_model_container[selected_attack_model].time_series_raw;
             //tbTimeSeries.Text = attack_model_container[selected_attack_model].time_series;
 
             // check boxes
@@ -362,10 +362,11 @@ namespace Canal_GUI
             if (rbTransientDecrease.Checked == true) attack_type = "transient_decr";
             if (rbTransientIncrease.Checked == true) attack_type = "transient_incr";
             if (rbSinusoid.Checked == true) attack_type = "sinusoid";
+            string time_series_raw = tbTimeSeries.Text;
             if (rbManual.Checked == true)
             {
                 attack_type = "manual";
-                time_series = Helpers.DecodeTimeSeries(tbTimeSeries.Text);
+                time_series = Helpers.DecodeTimeSeries(time_series_raw);
             }
             if (rbDelay.Checked == true) attack_type = "delay";
 
@@ -382,7 +383,7 @@ namespace Canal_GUI
             bool all_IPs = cbAllIPs.Checked;
             bool all_Ports = cbAllPorts.Checked;
 
-            attack_parameters = new AttackParameters(target_tag, target_ip, target_port, attack_type, time_series, integrity_add, duration, amplitude, time_constant, frequency, all_IPs, all_Ports);
+            attack_parameters = new AttackParameters(target_tag, target_ip, target_port, attack_type, time_series, time_series_raw, integrity_add, duration, amplitude, time_constant, frequency, all_IPs, all_Ports);
         }
 
         private void nudHistory_ValueChanged(object sender, EventArgs e)
@@ -478,6 +479,11 @@ namespace Canal_GUI
                 folderName = folderBrowserDialog1.SelectedPath;
                 toolStripLabel.Text = "Dir: " + folderName;
             }
+        }
+
+        private void label14_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

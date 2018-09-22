@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title4 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title3 = new System.Windows.Forms.DataVisualization.Charting.Title();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CanalGUI));
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
@@ -61,15 +61,16 @@
             this.clbDropOutTarget = new System.Windows.Forms.CheckedListBox();
             this.btnStartListener = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.nudBernoulliPass = new System.Windows.Forms.NumericUpDown();
+            this.label7 = new System.Windows.Forms.Label();
+            this.rbBernoulli = new System.Windows.Forms.RadioButton();
+            this.label15 = new System.Windows.Forms.Label();
             this.nudStayDrop = new System.Windows.Forms.NumericUpDown();
             this.btnUpdateDropoutModel = new System.Windows.Forms.Button();
             this.label9 = new System.Windows.Forms.Label();
             this.nudStayPass = new System.Windows.Forms.NumericUpDown();
             this.rbMarkov = new System.Windows.Forms.RadioButton();
             this.label8 = new System.Windows.Forms.Label();
-            this.nudBernoulliPass = new System.Windows.Forms.NumericUpDown();
-            this.label7 = new System.Windows.Forms.Label();
-            this.rbBernoulli = new System.Windows.Forms.RadioButton();
             this.tbCanalPort = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -77,7 +78,6 @@
             this.nudHistory = new System.Windows.Forms.NumericUpDown();
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
-            this.textBox2 = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.rbSetValue = new System.Windows.Forms.RadioButton();
             this.rbAddValue = new System.Windows.Forms.RadioButton();
@@ -105,7 +105,6 @@
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.setDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.label15 = new System.Windows.Forms.Label();
             this.groupBox2.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -113,9 +112,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.packageChart)).BeginInit();
             this.groupBox4.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudBernoulliPass)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudStayDrop)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudStayPass)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudBernoulliPass)).BeginInit();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudHistory)).BeginInit();
             this.groupBox3.SuspendLayout();
@@ -314,15 +313,17 @@
             // label14
             // 
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(12, 162);
+            this.label14.BackColor = System.Drawing.Color.White;
+            this.label14.Location = new System.Drawing.Point(11, 168);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(53, 13);
             this.label14.TabIndex = 36;
             this.label14.Text = "History [s]";
+            this.label14.Click += new System.EventHandler(this.label14_Click);
             // 
             // nudHistory1
             // 
-            this.nudHistory1.Location = new System.Drawing.Point(71, 160);
+            this.nudHistory1.Location = new System.Drawing.Point(70, 165);
             this.nudHistory1.Maximum = new decimal(new int[] {
             2000,
             0,
@@ -343,19 +344,19 @@
             this.packageChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea1.Name = "ChartArea1";
-            this.packageChart.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.packageChart.Legends.Add(legend1);
-            this.packageChart.Location = new System.Drawing.Point(7, 185);
+            chartArea4.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea4.Name = "ChartArea1";
+            this.packageChart.ChartAreas.Add(chartArea4);
+            legend4.Name = "Legend1";
+            this.packageChart.Legends.Add(legend4);
+            this.packageChart.Location = new System.Drawing.Point(7, 164);
             this.packageChart.Name = "packageChart";
-            this.packageChart.Size = new System.Drawing.Size(854, 228);
+            this.packageChart.Size = new System.Drawing.Size(854, 249);
             this.packageChart.TabIndex = 34;
             this.packageChart.Text = "chart1";
-            title1.Name = "Title1";
-            title1.Text = "Package status";
-            this.packageChart.Titles.Add(title1);
+            title4.Name = "Title1";
+            title4.Text = "Package status";
+            this.packageChart.Titles.Add(title4);
             // 
             // groupBox4
             // 
@@ -414,6 +415,48 @@
             this.groupBox1.TabIndex = 8;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Drop out model";
+            // 
+            // nudBernoulliPass
+            // 
+            this.nudBernoulliPass.Location = new System.Drawing.Point(172, 19);
+            this.nudBernoulliPass.Name = "nudBernoulliPass";
+            this.nudBernoulliPass.Size = new System.Drawing.Size(41, 20);
+            this.nudBernoulliPass.TabIndex = 3;
+            this.nudBernoulliPass.Value = new decimal(new int[] {
+            95,
+            0,
+            0,
+            0});
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(77, 21);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(47, 13);
+            this.label7.TabIndex = 2;
+            this.label7.Text = "Pass [%]";
+            // 
+            // rbBernoulli
+            // 
+            this.rbBernoulli.AutoSize = true;
+            this.rbBernoulli.Checked = true;
+            this.rbBernoulli.Location = new System.Drawing.Point(6, 19);
+            this.rbBernoulli.Name = "rbBernoulli";
+            this.rbBernoulli.Size = new System.Drawing.Size(65, 17);
+            this.rbBernoulli.TabIndex = 0;
+            this.rbBernoulli.TabStop = true;
+            this.rbBernoulli.Text = "Bernoulli";
+            this.rbBernoulli.UseVisualStyleBackColor = true;
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(4, 32);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(211, 13);
+            this.label15.TabIndex = 10;
+            this.label15.Text = "....................................................................";
             // 
             // nudStayDrop
             // 
@@ -477,39 +520,6 @@
             this.label8.TabIndex = 4;
             this.label8.Text = "p(Pass->Pass) [%]";
             // 
-            // nudBernoulliPass
-            // 
-            this.nudBernoulliPass.Location = new System.Drawing.Point(172, 19);
-            this.nudBernoulliPass.Name = "nudBernoulliPass";
-            this.nudBernoulliPass.Size = new System.Drawing.Size(41, 20);
-            this.nudBernoulliPass.TabIndex = 3;
-            this.nudBernoulliPass.Value = new decimal(new int[] {
-            95,
-            0,
-            0,
-            0});
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(77, 21);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(47, 13);
-            this.label7.TabIndex = 2;
-            this.label7.Text = "Pass [%]";
-            // 
-            // rbBernoulli
-            // 
-            this.rbBernoulli.AutoSize = true;
-            this.rbBernoulli.Checked = true;
-            this.rbBernoulli.Location = new System.Drawing.Point(6, 19);
-            this.rbBernoulli.Name = "rbBernoulli";
-            this.rbBernoulli.Size = new System.Drawing.Size(65, 17);
-            this.rbBernoulli.TabIndex = 0;
-            this.rbBernoulli.TabStop = true;
-            this.rbBernoulli.Text = "Bernoulli";
-            this.rbBernoulli.UseVisualStyleBackColor = true;
-            // 
             // tbCanalPort
             // 
             this.tbCanalPort.Location = new System.Drawing.Point(80, 6);
@@ -534,7 +544,6 @@
             this.tabPage1.Controls.Add(this.nudHistory);
             this.tabPage1.Controls.Add(this.button3);
             this.tabPage1.Controls.Add(this.button2);
-            this.tabPage1.Controls.Add(this.textBox2);
             this.tabPage1.Controls.Add(this.groupBox3);
             this.tabPage1.Controls.Add(this.btnClear);
             this.tabPage1.Controls.Add(this.labelTimeSeries);
@@ -571,7 +580,8 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(11, 199);
+            this.label12.BackColor = System.Drawing.Color.White;
+            this.label12.Location = new System.Drawing.Point(8, 201);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(53, 13);
             this.label12.TabIndex = 33;
@@ -579,7 +589,7 @@
             // 
             // nudHistory
             // 
-            this.nudHistory.Location = new System.Drawing.Point(70, 197);
+            this.nudHistory.Location = new System.Drawing.Point(67, 198);
             this.nudHistory.Maximum = new decimal(new int[] {
             2000,
             0,
@@ -614,16 +624,6 @@
             this.button2.Text = "Stop attack";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click_1);
-            // 
-            // textBox2
-            // 
-            this.textBox2.Location = new System.Drawing.Point(618, 8);
-            this.textBox2.Margin = new System.Windows.Forms.Padding(2);
-            this.textBox2.Multiline = true;
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(227, 165);
-            this.textBox2.TabIndex = 29;
-            this.textBox2.Visible = false;
             // 
             // groupBox3
             // 
@@ -665,7 +665,7 @@
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(544, 37);
+            this.btnClear.Location = new System.Drawing.Point(555, 37);
             this.btnClear.Margin = new System.Windows.Forms.Padding(2);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(56, 19);
@@ -678,7 +678,7 @@
             // labelTimeSeries
             // 
             this.labelTimeSeries.AutoSize = true;
-            this.labelTimeSeries.Location = new System.Drawing.Point(439, 42);
+            this.labelTimeSeries.Location = new System.Drawing.Point(450, 42);
             this.labelTimeSeries.Name = "labelTimeSeries";
             this.labelTimeSeries.Size = new System.Drawing.Size(94, 13);
             this.labelTimeSeries.TabIndex = 26;
@@ -687,11 +687,11 @@
             // 
             // tbTimeSeries
             // 
-            this.tbTimeSeries.Location = new System.Drawing.Point(441, 57);
+            this.tbTimeSeries.Location = new System.Drawing.Point(452, 57);
             this.tbTimeSeries.Margin = new System.Windows.Forms.Padding(2);
             this.tbTimeSeries.Multiline = true;
             this.tbTimeSeries.Name = "tbTimeSeries";
-            this.tbTimeSeries.Size = new System.Drawing.Size(160, 59);
+            this.tbTimeSeries.Size = new System.Drawing.Size(160, 135);
             this.tbTimeSeries.TabIndex = 25;
             this.tbTimeSeries.Visible = false;
             // 
@@ -719,7 +719,7 @@
             this.clbAttackModels.FormattingEnabled = true;
             this.clbAttackModels.Location = new System.Drawing.Point(278, 57);
             this.clbAttackModels.Name = "clbAttackModels";
-            this.clbAttackModels.Size = new System.Drawing.Size(159, 49);
+            this.clbAttackModels.Size = new System.Drawing.Size(164, 49);
             this.clbAttackModels.TabIndex = 22;
             this.clbAttackModels.SelectedIndexChanged += new System.EventHandler(this.clbAttackModels_SelectedIndexChanged);
             // 
@@ -728,19 +728,19 @@
             this.attackChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea2.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea2.Name = "ChartArea1";
-            this.attackChart.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.attackChart.Legends.Add(legend2);
-            this.attackChart.Location = new System.Drawing.Point(6, 222);
+            chartArea3.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea3.Name = "ChartArea1";
+            this.attackChart.ChartAreas.Add(chartArea3);
+            legend3.Name = "Legend1";
+            this.attackChart.Legends.Add(legend3);
+            this.attackChart.Location = new System.Drawing.Point(6, 197);
             this.attackChart.Name = "attackChart";
-            this.attackChart.Size = new System.Drawing.Size(854, 188);
+            this.attackChart.Size = new System.Drawing.Size(854, 213);
             this.attackChart.TabIndex = 21;
             this.attackChart.Text = "chart1";
-            title2.Name = "Title1";
-            title2.Text = "Attack states";
-            this.attackChart.Titles.Add(title2);
+            title3.Name = "Title1";
+            title3.Text = "Attack states";
+            this.attackChart.Titles.Add(title3);
             // 
             // cbAllPorts
             // 
@@ -874,7 +874,7 @@
             // 
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(867, 400);
+            this.tabPage3.Size = new System.Drawing.Size(867, 416);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Statistics";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -924,15 +924,6 @@
             this.setDirectoryToolStripMenuItem.Text = "Set directory";
             this.setDirectoryToolStripMenuItem.Click += new System.EventHandler(this.setDirectoryToolStripMenuItem_Click);
             // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(4, 32);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(211, 13);
-            this.label15.TabIndex = 10;
-            this.label15.Text = "....................................................................";
-            // 
             // CanalGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -956,9 +947,9 @@
             this.groupBox4.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudBernoulliPass)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudStayDrop)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudStayPass)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudBernoulliPass)).EndInit();
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudHistory)).EndInit();
@@ -1030,7 +1021,6 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.RadioButton rbSetValue;
         private System.Windows.Forms.RadioButton rbAddValue;
-        private System.Windows.Forms.TextBox textBox2;
         public System.Windows.Forms.RadioButton rbDelay;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;

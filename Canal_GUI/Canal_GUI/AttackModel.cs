@@ -30,6 +30,7 @@ namespace Canal_GUI
         public double time_const;           // time constant (transient)
         public double frequency;            // sinusoid frequency
         public double[] time_series;        // vector for a manual time series attack
+        public string time_series_raw;      // raw time series
         public double value_attack;         // contemporary attack value
 
         // attack variables
@@ -39,7 +40,7 @@ namespace Canal_GUI
         // 
         DateTime time_stamp_last;
 
-        public AttackModel(string target_IP, string target_port, bool all_IPs, bool all_ports, string target_tag, string type, bool integrity_add, double duration, double amplitude_attack, double time_const, double frequency, double[] time_series)
+        public AttackModel(string target_IP, string target_port, bool all_IPs, bool all_ports, string target_tag, string type, bool integrity_add, double duration, double amplitude_attack, double time_const, double frequency, double[] time_series, string time_series_raw)
         {
             this.target_IP = target_IP;
             this.target_port = target_port;
@@ -52,10 +53,11 @@ namespace Canal_GUI
             this.time_const = time_const;
             this.frequency = frequency;
             this.time_series = time_series;
+            this.time_series_raw = time_series_raw;
             this.integrity_add = integrity_add;
         }
 
-        public void UpdateModel(string target_IP, string target_port, bool all_IPs, bool all_ports, string type, bool integrity_add, double duration, double amplitude_attack, double time_const, double frequency, double[] time_series)
+        public void UpdateModel(string target_IP, string target_port, bool all_IPs, bool all_ports, string type, bool integrity_add, double duration, double amplitude_attack, double time_const, double frequency, double[] time_series, string time_series_raw)
         {
             this.target_IP = target_IP;
             this.target_port = target_port;
@@ -67,6 +69,7 @@ namespace Canal_GUI
             this.time_const = time_const;
             this.frequency = frequency;
             this.time_series = time_series;
+            this.time_series_raw = time_series_raw;
             this.integrity_add = integrity_add;
         }
 
@@ -83,7 +86,6 @@ namespace Canal_GUI
                 int idx = Math.Min(Convert.ToInt32((time_elapsed / duration) * (time_series.Length - 1)), time_series.Length - 1);
                 value_attack = time_series[idx];
             }
-            else if (type == "delay") value_attack = time_const;
 
             // time management 
             double elapsed_time = (DateTime.Now - time_stamp_last).TotalMilliseconds;
@@ -143,9 +145,6 @@ namespace Canal_GUI
                     if (IP == target_IP && Port == target_port && key == target_tag) result = ApplyPerturbation(value);
                 }
             }
-
-            // if attack type is "delay", sleep the thread
-            if (type == "delay") Thread.Sleep(Convert.ToInt16(time_const));
 
             return result.ToString();
         }
