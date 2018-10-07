@@ -344,14 +344,14 @@ namespace Model_GUI
         private void InitialSettings()
         {
             // chart settings
-            dataChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
+            //dataChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
             dataChart.ChartAreas["ChartArea1"].AxisY.Title = "";
             dataChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
             dataChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
             dataChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
             dataChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
 
-            perturbationChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
+            //perturbationChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
             perturbationChart.ChartAreas["ChartArea1"].AxisY.Title = "";
             perturbationChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
             perturbationChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;

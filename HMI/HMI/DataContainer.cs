@@ -19,9 +19,12 @@ namespace HMI
         // residual setting
         public bool has_residual = false;
 
+        int size = 0;
+
         // constructor
         public DataContainer(int size)
         {
+            this.size = size;
             time = new string[size];
             value = new string[size];
             residual = new string[size];
@@ -67,6 +70,13 @@ namespace HMI
 
             Array.Copy(value, 1, value, 0, value.Length - 1);
             value[value.Length - 1] = value[value.Length - 2];
+        }
+
+        public void Clear()
+        {
+            time = new string[size];
+            value = new string[size];
+            residual = new string[size];
         }
     }
 }

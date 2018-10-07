@@ -142,6 +142,10 @@ namespace HMI
                             securityChart.Series["Sec_" + key].Points.AddXY(time.ToOADate(), connection_current.kalman_filter.security_metric);
                         }
                     }
+                    else
+                    {
+                        log("null time");
+                    }
                 }
 
                 // remove old data points
@@ -167,6 +171,9 @@ namespace HMI
                 // enable or disable reference track bars
                 Helpers.ManageTrackbars(this);
 
+                // update GUI values according to the connected controller
+                Helpers.UpdateGuiControls(this, connection_current);
+
                 // clear charts
                 dataChart.Series.Clear();
                 residualChart.Series.Clear();
@@ -183,8 +190,7 @@ namespace HMI
                 Charting.ChangeYScale(dataChart, treshold_interval : "one", grid_interval : "one");
                 Charting.ChangeYScale(residualChart, treshold_interval: "one", grid_interval: "one");
 
-                // update GUI values according to the connected controller
-                Helpers.UpdateGuiControls(this, connection_current);
+
 
                 // select the corresponding item in the treeview
                 treeViewControllers.SelectedNode = treeViewControllers.Nodes[connection_current.name];
@@ -295,6 +301,10 @@ namespace HMI
         {
             foreach (var series in dataChart.Series) series.Points.Clear();
             foreach (var series in residualChart.Series) series.Points.Clear();
+
+            foreach (string key in connection_current.recieved_packages.Keys) connection_current.recieved_packages[key].Clear();
+            foreach (string key in connection_current.estimates.Keys) connection_current.estimates[key].Clear();
+
         }
 
         private void clbSeries_ItemCheck(object sender, ItemCheckEventArgs e)

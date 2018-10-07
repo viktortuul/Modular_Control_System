@@ -80,6 +80,7 @@ namespace Controller
                     // send time, u, and y
                     string message = ConstructMessageGUI(PIDList);
                     sender.Send(message);
+                    Console.WriteLine("to GUI: " + message);
                 }
             }
         }
@@ -95,6 +96,7 @@ namespace Controller
                 {
                     listener.Listen();
                     ParseMessage(listener.last_recieved);
+                    Console.WriteLine("from GUI: " + listener.last_recieved);
 
                     // update controller settings (reference set-point and PID parameters)
                     ManageControllers(PIDList, flag : "GUI");
@@ -120,6 +122,7 @@ namespace Controller
                     // send control signal u to the plant
                     string message = ConstructMessagePlant(PIDList);
                     Sender.Send(message);
+                    //Console.WriteLine("to plant: " + message);
                 }
             }
         }
@@ -135,6 +138,7 @@ namespace Controller
                 {
                     listener.Listen();
                     ParseMessage(listener.last_recieved);
+                    //Console.WriteLine("from plant: " + listener.last_recieved);
 
                     // compute the new control signal for each controller
                     ManageControllers(PIDList, flag : "Plant");
@@ -231,7 +235,12 @@ namespace Controller
                     received_packages.Add(key, new DataContainer(Constants.n_steps));
 
                     // add controller if the tag corresponds to a controlled state
-                    if (flag_controlled_states.Contains(key)) PIDList.Add(new PID());
+                    if (flag_controlled_states.Contains(key))
+                    {
+                        Console.WriteLine("PID added");
+                        PIDList.Add(new PID());
+                    }
+
                 }
 
                 // insert the recieved data to corresponding tag
@@ -265,6 +274,7 @@ namespace Controller
                         double reference = Convert.ToDouble(received_packages["r" + index].GetLastValue());
                         double measurement = Convert.ToDouble(received_packages["yc" + index].GetLastValue());
                         controller.ComputeControlSignal(reference, measurement);
+
                     }
                 }
             }

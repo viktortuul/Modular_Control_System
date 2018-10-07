@@ -81,6 +81,8 @@ namespace HMI
             {
                 GUI.trackBarReference1.Enabled = true;
                 GUI.numUpDownRef1.Enabled = true;
+                GUI.trackBarReference1.Value = Convert.ToInt16(GUI.connection_current.references["r1"].GetLastValue());
+                GUI.numUpDownRef1.Value = Convert.ToInt16(GUI.connection_current.references["r1"].GetLastValue());
             }
             else if (GUI.connection_current.n_controlled_states == 2)
             {
@@ -88,6 +90,8 @@ namespace HMI
                 GUI.trackBarReference2.Visible = true;
                 GUI.numUpDownRef1.Enabled = true;
                 GUI.numUpDownRef2.Visible = true;
+                GUI.trackBarReference2.Value = Convert.ToInt16(GUI.connection_current.references["r2"].GetLastValue());
+                GUI.numUpDownRef2.Value = Convert.ToInt16(GUI.connection_current.references["r2"].GetLastValue());
             }
             else
             {
@@ -96,6 +100,16 @@ namespace HMI
                 GUI.numUpDownRef1.Enabled = false;
                 GUI.numUpDownRef2.Visible = false;
             }
+        }
+
+        public static void UpdateGuiControls(FrameGUI GUI, CommunicationManager connection_current)
+        {
+            GUI.numUpDownKp.Value = Convert.ToDecimal(connection_current.ControllerParameters.Kp);
+            GUI.numUpDownKi.Value = Convert.ToDecimal(connection_current.ControllerParameters.Ki);
+            GUI.numUpDownKd.Value = Convert.ToDecimal(connection_current.ControllerParameters.Kd);
+            GUI.textBox_ip_send.Text = connection_current.ConnectionParameters.IP;
+            GUI.numericUpDown_port_send.Text = connection_current.ConnectionParameters.Port.ToString();
+            GUI.numericUpDown_port_recieve.Text = connection_current.ConnectionParameters.PortThis.ToString();
         }
 
         public static void UpdateTree(FrameGUI GUI, CommunicationManager controller)
@@ -237,20 +251,6 @@ namespace HMI
             g.DrawLine(pen_r, reference_l, reference_r);
 
             GUI.pictureBox1.Image = bm;
-        }
-
-        public static void UpdateGuiControls(FrameGUI GUI, CommunicationManager connection_current)
-        {
-            GUI.trackBarReference1.Value = Convert.ToInt16(connection_current.references["r1"].GetLastValue());
-            GUI.trackBarReference2.Value = Convert.ToInt16(connection_current.references["r2"].GetLastValue());
-            GUI.numUpDownRef1.Value = Convert.ToInt16(connection_current.references["r1"].GetLastValue());
-            GUI.numUpDownRef2.Value = Convert.ToInt16(connection_current.references["r2"].GetLastValue());
-            GUI.numUpDownKp.Value = Convert.ToDecimal(connection_current.ControllerParameters.Kp);
-            GUI.numUpDownKi.Value = Convert.ToDecimal(connection_current.ControllerParameters.Ki);
-            GUI.numUpDownKd.Value = Convert.ToDecimal(connection_current.ControllerParameters.Kd);
-            GUI.textBox_ip_send.Text = connection_current.ConnectionParameters.IP;
-            GUI.numericUpDown_port_send.Text = connection_current.ConnectionParameters.Port.ToString();
-            GUI.numericUpDown_port_recieve.Text = connection_current.ConnectionParameters.PortThis.ToString();
         }
     }
 
@@ -422,7 +422,7 @@ namespace HMI
 
         public static void ChartSettings(Chart chart, string title)
         {
-            chart.ChartAreas[0].AxisX.Title = "Time";
+            //chart.ChartAreas[0].AxisX.Title = "Time";
             chart.ChartAreas[0].AxisY.Title = title;
             chart.ChartAreas[0].AxisX.LabelStyle.Format = "hh:mm:ss";
             chart.ChartAreas[0].AxisX.IntervalType = DateTimeIntervalType.Seconds;

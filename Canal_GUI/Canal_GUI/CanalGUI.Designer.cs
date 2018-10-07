@@ -29,17 +29,16 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title4 = new System.Windows.Forms.DataVisualization.Charting.Title();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title3 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CanalGUI));
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.rbDelay = new System.Windows.Forms.RadioButton();
             this.rbManual = new System.Windows.Forms.RadioButton();
             this.rbTransientIncrease = new System.Windows.Forms.RadioButton();
             this.rbSinusoid = new System.Windows.Forms.RadioButton();
@@ -146,7 +145,6 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Controls.Add(this.rbDelay);
             this.groupBox2.Controls.Add(this.rbManual);
             this.groupBox2.Controls.Add(this.rbTransientIncrease);
             this.groupBox2.Controls.Add(this.rbSinusoid);
@@ -154,26 +152,15 @@
             this.groupBox2.Controls.Add(this.rbBias);
             this.groupBox2.Location = new System.Drawing.Point(6, 50);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(122, 144);
+            this.groupBox2.Size = new System.Drawing.Size(122, 139);
             this.groupBox2.TabIndex = 7;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Attack characteristic";
             // 
-            // rbDelay
-            // 
-            this.rbDelay.AutoSize = true;
-            this.rbDelay.Location = new System.Drawing.Point(6, 116);
-            this.rbDelay.Name = "rbDelay";
-            this.rbDelay.Size = new System.Drawing.Size(52, 17);
-            this.rbDelay.TabIndex = 5;
-            this.rbDelay.Text = "Delay";
-            this.rbDelay.UseVisualStyleBackColor = true;
-            this.rbDelay.CheckedChanged += new System.EventHandler(this.rbDelay_CheckedChanged);
-            // 
             // rbManual
             // 
             this.rbManual.AutoSize = true;
-            this.rbManual.Location = new System.Drawing.Point(6, 97);
+            this.rbManual.Location = new System.Drawing.Point(6, 102);
             this.rbManual.Name = "rbManual";
             this.rbManual.Size = new System.Drawing.Size(60, 17);
             this.rbManual.TabIndex = 4;
@@ -184,7 +171,7 @@
             // rbTransientIncrease
             // 
             this.rbTransientIncrease.AutoSize = true;
-            this.rbTransientIncrease.Location = new System.Drawing.Point(6, 58);
+            this.rbTransientIncrease.Location = new System.Drawing.Point(6, 60);
             this.rbTransientIncrease.Name = "rbTransientIncrease";
             this.rbTransientIncrease.Size = new System.Drawing.Size(99, 17);
             this.rbTransientIncrease.TabIndex = 3;
@@ -195,7 +182,7 @@
             // rbSinusoid
             // 
             this.rbSinusoid.AutoSize = true;
-            this.rbSinusoid.Location = new System.Drawing.Point(6, 77);
+            this.rbSinusoid.Location = new System.Drawing.Point(6, 81);
             this.rbSinusoid.Name = "rbSinusoid";
             this.rbSinusoid.Size = new System.Drawing.Size(65, 17);
             this.rbSinusoid.TabIndex = 2;
@@ -206,7 +193,7 @@
             // rbTransientDecrease
             // 
             this.rbTransientDecrease.AutoSize = true;
-            this.rbTransientDecrease.Location = new System.Drawing.Point(6, 37);
+            this.rbTransientDecrease.Location = new System.Drawing.Point(6, 39);
             this.rbTransientDecrease.Name = "rbTransientDecrease";
             this.rbTransientDecrease.Size = new System.Drawing.Size(104, 17);
             this.rbTransientDecrease.TabIndex = 1;
@@ -229,7 +216,7 @@
             // 
             // btnAddAttackModel
             // 
-            this.btnAddAttackModel.Location = new System.Drawing.Point(277, 147);
+            this.btnAddAttackModel.Location = new System.Drawing.Point(273, 89);
             this.btnAddAttackModel.Name = "btnAddAttackModel";
             this.btnAddAttackModel.Size = new System.Drawing.Size(88, 23);
             this.btnAddAttackModel.TabIndex = 6;
@@ -255,7 +242,7 @@
             // 
             // tbTargetPort
             // 
-            this.tbTargetPort.Location = new System.Drawing.Point(152, 5);
+            this.tbTargetPort.Location = new System.Drawing.Point(164, 5);
             this.tbTargetPort.Name = "tbTargetPort";
             this.tbTargetPort.Size = new System.Drawing.Size(44, 20);
             this.tbTargetPort.TabIndex = 3;
@@ -265,7 +252,7 @@
             // 
             this.tbTargetIP.Location = new System.Drawing.Point(81, 5);
             this.tbTargetIP.Name = "tbTargetIP";
-            this.tbTargetIP.Size = new System.Drawing.Size(70, 20);
+            this.tbTargetIP.Size = new System.Drawing.Size(82, 20);
             this.tbTargetIP.TabIndex = 2;
             this.tbTargetIP.Text = "127.0.0.1";
             // 
@@ -344,19 +331,19 @@
             this.packageChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea4.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea4.Name = "ChartArea1";
-            this.packageChart.ChartAreas.Add(chartArea4);
-            legend4.Name = "Legend1";
-            this.packageChart.Legends.Add(legend4);
+            chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea1.Name = "ChartArea1";
+            this.packageChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.packageChart.Legends.Add(legend1);
             this.packageChart.Location = new System.Drawing.Point(7, 164);
             this.packageChart.Name = "packageChart";
             this.packageChart.Size = new System.Drawing.Size(854, 249);
             this.packageChart.TabIndex = 34;
             this.packageChart.Text = "chart1";
-            title4.Name = "Title1";
-            title4.Text = "Package status";
-            this.packageChart.Titles.Add(title4);
+            title1.Name = "Title1";
+            title1.Text = "Package status";
+            this.packageChart.Titles.Add(title1);
             // 
             // groupBox4
             // 
@@ -607,7 +594,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(277, 170);
+            this.button3.Location = new System.Drawing.Point(273, 112);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(88, 23);
             this.button3.TabIndex = 31;
@@ -617,9 +604,9 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(368, 170);
+            this.button2.Location = new System.Drawing.Point(273, 170);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(74, 23);
+            this.button2.Size = new System.Drawing.Size(88, 23);
             this.button2.TabIndex = 30;
             this.button2.Text = "Stop attack";
             this.button2.UseVisualStyleBackColor = true;
@@ -665,7 +652,7 @@
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(555, 37);
+            this.btnClear.Location = new System.Drawing.Point(648, 49);
             this.btnClear.Margin = new System.Windows.Forms.Padding(2);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(56, 19);
@@ -678,7 +665,7 @@
             // labelTimeSeries
             // 
             this.labelTimeSeries.AutoSize = true;
-            this.labelTimeSeries.Location = new System.Drawing.Point(450, 42);
+            this.labelTimeSeries.Location = new System.Drawing.Point(543, 54);
             this.labelTimeSeries.Name = "labelTimeSeries";
             this.labelTimeSeries.Size = new System.Drawing.Size(94, 13);
             this.labelTimeSeries.TabIndex = 26;
@@ -687,18 +674,18 @@
             // 
             // tbTimeSeries
             // 
-            this.tbTimeSeries.Location = new System.Drawing.Point(452, 57);
+            this.tbTimeSeries.Location = new System.Drawing.Point(545, 68);
             this.tbTimeSeries.Margin = new System.Windows.Forms.Padding(2);
             this.tbTimeSeries.Multiline = true;
             this.tbTimeSeries.Name = "tbTimeSeries";
-            this.tbTimeSeries.Size = new System.Drawing.Size(160, 135);
+            this.tbTimeSeries.Size = new System.Drawing.Size(160, 125);
             this.tbTimeSeries.TabIndex = 25;
             this.tbTimeSeries.Visible = false;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(274, 42);
+            this.label2.Location = new System.Drawing.Point(372, 53);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(107, 13);
             this.label2.TabIndex = 24;
@@ -706,9 +693,9 @@
             // 
             // btnAttack
             // 
-            this.btnAttack.Location = new System.Drawing.Point(368, 147);
+            this.btnAttack.Location = new System.Drawing.Point(273, 147);
             this.btnAttack.Name = "btnAttack";
-            this.btnAttack.Size = new System.Drawing.Size(74, 23);
+            this.btnAttack.Size = new System.Drawing.Size(88, 23);
             this.btnAttack.TabIndex = 23;
             this.btnAttack.Text = "Start attack";
             this.btnAttack.UseVisualStyleBackColor = true;
@@ -717,9 +704,9 @@
             // clbAttackModels
             // 
             this.clbAttackModels.FormattingEnabled = true;
-            this.clbAttackModels.Location = new System.Drawing.Point(278, 57);
+            this.clbAttackModels.Location = new System.Drawing.Point(376, 68);
             this.clbAttackModels.Name = "clbAttackModels";
-            this.clbAttackModels.Size = new System.Drawing.Size(164, 49);
+            this.clbAttackModels.Size = new System.Drawing.Size(164, 124);
             this.clbAttackModels.TabIndex = 22;
             this.clbAttackModels.SelectedIndexChanged += new System.EventHandler(this.clbAttackModels_SelectedIndexChanged);
             // 
@@ -728,24 +715,24 @@
             this.attackChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea3.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea3.Name = "ChartArea1";
-            this.attackChart.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            this.attackChart.Legends.Add(legend3);
+            chartArea2.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea2.Name = "ChartArea1";
+            this.attackChart.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.attackChart.Legends.Add(legend2);
             this.attackChart.Location = new System.Drawing.Point(6, 197);
             this.attackChart.Name = "attackChart";
             this.attackChart.Size = new System.Drawing.Size(854, 213);
             this.attackChart.TabIndex = 21;
             this.attackChart.Text = "chart1";
-            title3.Name = "Title1";
-            title3.Text = "Attack states";
-            this.attackChart.Titles.Add(title3);
+            title2.Name = "Title1";
+            title2.Text = "Attack states";
+            this.attackChart.Titles.Add(title2);
             // 
             // cbAllPorts
             // 
             this.cbAllPorts.AutoSize = true;
-            this.cbAllPorts.Location = new System.Drawing.Point(202, 20);
+            this.cbAllPorts.Location = new System.Drawing.Point(214, 20);
             this.cbAllPorts.Name = "cbAllPorts";
             this.cbAllPorts.Size = new System.Drawing.Size(113, 17);
             this.cbAllPorts.TabIndex = 20;
@@ -755,7 +742,7 @@
             // cbAllIPs
             // 
             this.cbAllIPs.AutoSize = true;
-            this.cbAllIPs.Location = new System.Drawing.Point(202, 5);
+            this.cbAllIPs.Location = new System.Drawing.Point(214, 5);
             this.cbAllIPs.Name = "cbAllIPs";
             this.cbAllIPs.Size = new System.Drawing.Size(107, 17);
             this.cbAllIPs.TabIndex = 19;
@@ -864,7 +851,7 @@
             // labelStatus
             // 
             this.labelStatus.AutoSize = true;
-            this.labelStatus.Location = new System.Drawing.Point(276, 119);
+            this.labelStatus.Location = new System.Drawing.Point(272, 55);
             this.labelStatus.Name = "labelStatus";
             this.labelStatus.Size = new System.Drawing.Size(76, 26);
             this.labelStatus.TabIndex = 12;
@@ -1021,7 +1008,6 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.RadioButton rbSetValue;
         private System.Windows.Forms.RadioButton rbAddValue;
-        public System.Windows.Forms.RadioButton rbDelay;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
         public System.Windows.Forms.TextBox tbTimeSeries;

@@ -17,7 +17,7 @@ namespace Controller
         public string[] value;
 
         // constraints
-        double max_delay = 1000; // [ms] 
+        double max_delay = 90000000; // [ms] 
 
         // constructor
         public DataContainer(int size)

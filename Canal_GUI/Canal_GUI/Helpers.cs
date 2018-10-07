@@ -131,13 +131,6 @@ namespace Canal_GUI
                 Main.btnClear.Visible = true;
                 Main.labelTimeSeries.Visible = true;
             }
-            else if (Main.rbDelay.Checked == true)
-            {
-                Main.nudDuration.Enabled = true;
-                Main.nudAmplitude.Enabled = false;
-                Main.nudTimeConst.Enabled = true;
-                Main.nudFrequency.Enabled = false;
-            }
         }
     }
 
@@ -195,7 +188,7 @@ namespace Canal_GUI
                 if (chart_.Name == "packageChart")
                 {
                     chart_.Series[key].ChartType = SeriesChartType.Point;
-                    chart_.Series[key].MarkerSize = 5;
+                    chart_.Series[key].MarkerSize = 7;
                     chart_.Series[key].MarkerStyle = MarkerStyle.Circle;
                 }
 
@@ -214,14 +207,14 @@ namespace Canal_GUI
 
         public static void InitialChartSettings(CanalGUI Main)
         {
-            Main.attackChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
+            //Main.attackChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
             Main.attackChart.ChartAreas["ChartArea1"].AxisY.Title = "";
             Main.attackChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
             Main.attackChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
             Main.attackChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
             Main.attackChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
 
-            Main.packageChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
+            //Main.packageChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
             Main.packageChart.ChartAreas["ChartArea1"].AxisY.Title = "";
             Main.packageChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
             Main.packageChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;

@@ -75,6 +75,10 @@ namespace HMI
 
             UpdateAnomalyDetector();
 
+            if (x[0, 0] > 100) x[0, 0] = 0;
+            if (x[1, 0] > 100) x[1, 0] = 0;
+
+
             return x;
         }
 

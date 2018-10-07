@@ -29,6 +29,10 @@ namespace Canal_GUI
         // end-point addresses
         public List<AddressEndPoint> end_points = new List<AddressEndPoint>();
 
+        // end-point addresses --> y deviation in plot
+        public Dictionary<string, double> end_point_ydev = new Dictionary<string, double>();
+        public double y_incr = 0;
+
         // container for attack settings
         AttackParameters attack_parameters = new AttackParameters();
 
@@ -157,9 +161,15 @@ namespace Canal_GUI
                 else
                 {
                     // perform attack
-                    if (attack_model_container.ContainsKey(key) && Helpers.isDouble(value) == true)
-                        value = attack_model_container[key].IntegrityAttack(EP_IP, EP_Port, key, value);
-
+                    // if (attack_model_container.ContainsKey(key) && Helpers.isDouble(value) == true)
+                    // if (attack_model_container.Any(kvp => kvp.Key.Contains(key)) && Helpers.isDouble(value) == true)
+               
+                    foreach (string dict_key in attack_model_container.Keys)
+                    {
+                        if (dict_key.Contains(key))
+                            value = attack_model_container[dict_key].IntegrityAttack(EP_IP, EP_Port, key, value);
+                    }
+                       
                     reconstruction += "#" + key + "_" + value;
                 }
             }
@@ -176,6 +186,10 @@ namespace Canal_GUI
             {
                 end_points.Add(EP);
                 clbDropOutTarget.Items.Add(EP);
+
+                // manage the y-deviation in the plot
+                end_point_ydev.Add(EP.ToString(), y_incr);
+                y_incr += 0.04;
             }
 
             // initialize a sender
@@ -196,12 +210,12 @@ namespace Canal_GUI
                     Sender.Send(message);
 
                     // mark package as passed
-                    package_timeseries[EP.ToString()].InsertData(DateTime.UtcNow.ToString(Constants.FMT), "1");
+                    package_timeseries[EP.ToString()].InsertData(DateTime.UtcNow.ToString(Constants.FMT), (1 + end_point_ydev[EP.ToString()]).ToString());
                 }
                 else
                 {
                     // mark package as dropped
-                    package_timeseries[EP.ToString()].InsertData(DateTime.UtcNow.ToString(Constants.FMT), "0");
+                    package_timeseries[EP.ToString()].InsertData(DateTime.UtcNow.ToString(Constants.FMT), (0 + end_point_ydev[EP.ToString()]).ToString());
                 }
             }
             else
@@ -210,7 +224,7 @@ namespace Canal_GUI
                 Sender.Send(message);
 
                 // mark package as passed
-                package_timeseries[EP.ToString()].InsertData(DateTime.UtcNow.ToString(Constants.FMT), "1");
+                package_timeseries[EP.ToString()].InsertData(DateTime.UtcNow.ToString(Constants.FMT), (1 + end_point_ydev[EP.ToString()]).ToString());
             }
         }
 
@@ -221,11 +235,11 @@ namespace Canal_GUI
             if ((attack_model_container.ContainsKey(attack_parameters.target_tag) || attack_parameters.target_tag == "") == false)
             {
                 AttackModel new_attack_model = new AttackModel(attack_parameters.target_ip, attack_parameters.target_port, attack_parameters.all_IPs, attack_parameters.all_Ports, attack_parameters.target_tag, attack_parameters.attack_type, attack_parameters.integrity_add, attack_parameters.duration, attack_parameters.amplitude, attack_parameters.time_constant, attack_parameters.frequency, attack_parameters.time_series, attack_parameters.time_series_raw);
-                attack_model_container.Add(attack_parameters.target_tag, new_attack_model);
-                clbAttackModels.Items.Add(attack_parameters.target_tag);
+                attack_model_container.Add(attack_parameters.target_tag + " @" + attack_parameters.target_ip + ":" + attack_parameters.target_port, new_attack_model);
+                clbAttackModels.Items.Add(attack_parameters.target_tag + " @" + attack_parameters.target_ip + ":" + attack_parameters.target_port);
                 clbAttackModels.SelectedIndex = clbAttackModels.Items.Count - 1;
                 selected_attack_model = clbAttackModels.SelectedItem.ToString();
-                Helpers.AddKey(attack_timeseries, attack_parameters.target_tag, n_steps);
+                Helpers.AddKey(attack_timeseries, attack_parameters.target_tag + " @" + attack_parameters.target_ip + ":" + attack_parameters.target_port, n_steps);
 
                 tbTargetTag.Text = "";
             }
@@ -286,6 +300,8 @@ namespace Canal_GUI
             nudTimeConst.Value = Convert.ToDecimal(attack_model_container[selected_attack_model].time_const);
             nudFrequency.Value = Convert.ToDecimal(attack_model_container[selected_attack_model].frequency);
             tbTimeSeries.Text = attack_model_container[selected_attack_model].time_series_raw;
+            tbTargetIP.Text = attack_model_container[selected_attack_model].target_IP;
+            tbTargetPort.Text = attack_model_container[selected_attack_model].target_port;
             //tbTimeSeries.Text = attack_model_container[selected_attack_model].time_series;
 
             // check boxes
@@ -352,8 +368,14 @@ namespace Canal_GUI
         {
             // specify target package
             string target_tag = tbTargetTag.Text;
-            string target_ip = tbTargetIP.Text;
-            string target_port = tbTargetPort.Text;
+
+            string target_ip = "";
+            string target_port = "";
+
+            if (cbAllIPs.Checked == true) target_ip = "<any IP>";
+            else  target_ip = tbTargetIP.Text;
+            if (cbAllPorts.Checked == true) target_port = "<any Port>";
+            else  target_port = tbTargetPort.Text;
 
             // specify attack type
             string attack_type = "";
@@ -368,7 +390,6 @@ namespace Canal_GUI
                 attack_type = "manual";
                 time_series = Helpers.DecodeTimeSeries(time_series_raw);
             }
-            if (rbDelay.Checked == true) attack_type = "delay";
 
             // bool which determine if the attack adds a value or sets a value
             bool integrity_add = true;
