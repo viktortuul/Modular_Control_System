@@ -354,16 +354,16 @@
             this.groupBox4.Size = new System.Drawing.Size(232, 125);
             this.groupBox4.TabIndex = 11;
             this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "End-point addresses";
+            this.groupBox4.Text = "Channels";
             // 
             // label13
             // 
             this.label13.AutoSize = true;
             this.label13.Location = new System.Drawing.Point(6, 90);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(208, 26);
+            this.label13.Size = new System.Drawing.Size(216, 26);
             this.label13.TabIndex = 10;
-            this.label13.Text = "Checked: packages are considered by the\r\ndrop-out model";
+            this.label13.Text = "Packages in a checked channel are subject\r\nto the drop-out model.";
             // 
             // clbDropOutTarget
             // 
@@ -401,7 +401,7 @@
             this.groupBox1.Size = new System.Drawing.Size(240, 125);
             this.groupBox1.TabIndex = 8;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Drop out model";
+            this.groupBox1.Text = "Package drop-out models";
             // 
             // nudBernoulliPass
             // 

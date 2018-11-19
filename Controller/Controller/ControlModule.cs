@@ -4,11 +4,16 @@ using System.Linq;
 using System.Threading;
 using Communication;
 using System.Globalization;
+using System.Text;
+using System.IO;
 
 namespace Controller
 {
     public class ControlModule
     {
+        // logger
+        static StringBuilder sb = new StringBuilder();
+
         // data containers (dictionaries)
         static Dictionary<string, DataContainer> received_packages = new Dictionary<string, DataContainer>();
         static Dictionary<string, DataContainer> references = new Dictionary<string, DataContainer>();
@@ -34,21 +39,7 @@ namespace Controller
         static void Main(string[] args)
         {
             // parse the command line arguments
-            EP_GUI = new ConnectionParameters(args[0], Convert.ToInt16(args[1]), Convert.ToInt16(args[2]));
-            EP_Plant = new ConnectionParameters(args[3], Convert.ToInt16(args[4]), Convert.ToInt16(args[5]));
-
-            // 6 arguments --> no canal. 10 arguments --> canal
-            if (args.Length == 6)
-            {
-                EP_Send_GUI = new AddressEndPoint(EP_GUI.IP, EP_GUI.Port);
-                EP_Send_Plant = new AddressEndPoint(EP_Plant.IP, EP_Plant.Port);
-            }
-            else if (args.Length == 10)
-            {
-                EP_Send_GUI = new AddressEndPoint(args[6], Convert.ToInt16(args[7]));
-                EP_Send_Plant = new AddressEndPoint(args[8], Convert.ToInt16(args[9]));
-                using_canal = true;
-            }
+            ParseArgs(args);
 
             // create a thread for sending to the GUI
             Thread thread_send_GUI = new Thread(() => SenderGUI(EP_Send_GUI.IP, EP_Send_GUI.Port, PIDList));
@@ -96,7 +87,6 @@ namespace Controller
                 {
                     listener.Listen();
                     ParseMessage(listener.last_recieved);
-                    Console.WriteLine("from GUI: " + listener.last_recieved);
 
                     // update controller settings (reference set-point and PID parameters)
                     ManageControllers(PIDList, flag : "GUI");
@@ -122,7 +112,11 @@ namespace Controller
                     // send control signal u to the plant
                     string message = ConstructMessagePlant(PIDList);
                     Sender.Send(message);
-                    //Console.WriteLine("to plant: " + message);
+
+                    // logging
+                    sb.Append(message + "\n");
+                    File.AppendAllText("log_sent.txt", sb.ToString());
+                    sb.Clear();
                 }
             }
         }
@@ -159,6 +153,8 @@ namespace Controller
 
             // if a canal is used, append the end-point address
             if (using_canal == true) message += Convert.ToString("EP_" + EP_GUI.IP + ":" + EP_GUI.Port + "#");
+
+            // add time-stamp
             message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT));
 
             // append control signals
@@ -187,17 +183,17 @@ namespace Controller
 
             // if a canal is used, append the end-point address
             if (using_canal == true) message += Convert.ToString("EP_" + EP_Plant.IP + ":" + EP_Plant.Port + "#");
-            // message += Convert.ToString("ORIGIN_" + 67 + "#"); // ADD THE ORIGIN_ID (IN THIS CASE 67)
 
+            // add time-stamp
+            message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT));
+
+            // append control signals
             int index = 0;
             foreach (PID controller in PIDList)
             {
                 index++;
-                message += "u" + index + "_" + controller.get_u() + "#";
+                message += "#u" + index + "_" + controller.get_u();
             }
-
-            // remove the redundant delimiter
-            message = message.Substring(0, message.LastIndexOf('#'));
 
             return message;
         }
@@ -277,6 +273,25 @@ namespace Controller
 
                     }
                 }
+            }
+        }
+
+        public static void ParseArgs(string[] args)
+        {
+            EP_GUI = new ConnectionParameters(args[0], Convert.ToInt16(args[1]), Convert.ToInt16(args[2]));
+            EP_Plant = new ConnectionParameters(args[3], Convert.ToInt16(args[4]), Convert.ToInt16(args[5]));
+
+            // 6 arguments --> no canal. 10 arguments --> canal
+            if (args.Length == 6)
+            {
+                EP_Send_GUI = new AddressEndPoint(EP_GUI.IP, EP_GUI.Port);
+                EP_Send_Plant = new AddressEndPoint(EP_Plant.IP, EP_Plant.Port);
+            }
+            else if (args.Length == 10)
+            {
+                EP_Send_GUI = new AddressEndPoint(args[6], Convert.ToInt16(args[7]));
+                EP_Send_Plant = new AddressEndPoint(args[8], Convert.ToInt16(args[9]));
+                using_canal = true;
             }
         }
     }

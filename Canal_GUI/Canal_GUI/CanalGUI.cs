@@ -111,7 +111,7 @@ namespace Canal_GUI
 
         public void Listener(string IP, int port)
         {
-            // initialize a connection to the GUI
+            // initialize a new listener
             Server Listener = new Server(IP, port);
 
             while (true)
@@ -119,7 +119,7 @@ namespace Canal_GUI
                 try
                 {
                     Listener.Listen();
-                    ParseMessage(Listener.last_recieved);
+                    ParseMessage(Listener.last_recieved, Listener.last_ip);
                 }
                 catch (Exception ex)
                 {
@@ -128,7 +128,7 @@ namespace Canal_GUI
             }
         }
 
-        public void ParseMessage(string message)
+        public void ParseMessage(string message, string sender_IP)
         {
             // end point address
             string EP_IP = "";
@@ -175,13 +175,13 @@ namespace Canal_GUI
             }
 
             if (reconstruction[0] == '#') reconstruction = reconstruction.Substring(1);
-            SendMessage(EP_IP, Convert.ToInt16(EP_Port), reconstruction);
+            SendMessage(EP_IP, Convert.ToInt16(EP_Port), reconstruction, sender_IP);
         }
 
-        public void SendMessage(string IP, int port, string message)
+        public void SendMessage(string IP, int port, string message, string sender_IP)
         {
             // append each destination to the checked listbox
-            AddressEndPoint EP = new AddressEndPoint(IP, port);
+            AddressEndPoint EP = new AddressEndPoint(sender_IP + " >> " + IP, port);
             if (end_points.Contains(EP) == false)
             {
                 end_points.Add(EP);

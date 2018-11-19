@@ -10,13 +10,21 @@ using PhysicalProcesses;
 using System.Globalization;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
+using System.IO;
 
 namespace Model_GUI
 {
     public partial class ModelGUI : Form
     {
+        // logger
+        static StringBuilder sb = new StringBuilder();
+
         // chart settings
         public int chart_history = 60;
+
+        // flag specific keys with pre-defined meanings
+        static string[] flag_control_signal = new string[] { "u1", "u2" };
 
         // data containers (dictionaries)
         public Dictionary<string, string> package_last = new Dictionary<string, string>(); // recieved package <tag, value>
@@ -138,6 +146,11 @@ namespace Model_GUI
 
                     // update actuators
                     plant.set_u(u);
+
+                    // logging
+                    sb.Append(listener.last_recieved + "\n");
+                    File.AppendAllText("log_received.txt", sb.ToString());
+                    sb.Clear();
                 }
                 catch (Exception ex)
                 {
@@ -161,7 +174,12 @@ namespace Model_GUI
 
                 // attach observed states measurement 
                 for (int i = 0; i < plant.get_yo().Length; i++)
-                    message += "yo" + (i + 1) + "_" + plant.get_yo()[i].ToString() + "#";      
+                {
+                    // apply measurement noise
+                    var r = new GaussianRandom();
+                    double noise = r.NextGaussian(0, 0.1);
+                    message += "yo" + (i + 1) + "_" + (plant.get_yo()[i] + noise).ToString() + "#";
+                }  
 
                 // attach controlled states measurement
                 for (int i = 0; i < plant.get_yc().Length; i++)
@@ -169,7 +187,6 @@ namespace Model_GUI
                     // apply measurement noise
                     var r = new GaussianRandom();
                     double noise = r.NextGaussian(0, 0.1);
-
                     message += "yc" + (i + 1) + "_" + (plant.get_yc()[i] + noise).ToString() + "#";
                 }
 
@@ -194,9 +211,11 @@ namespace Model_GUI
                 string key = subitem[0];
                 string value = subitem[1];
 
-                if (package_last.ContainsKey(key) == false) package_last.Add(key, value);
-                
-                package_last[key] = value;
+                if (flag_control_signal.Contains(key))
+                {
+                    if (package_last.ContainsKey(key) == false) package_last.Add(key, value);
+                    package_last[key] = value;
+                }     
             }
         }
 
@@ -241,6 +260,7 @@ namespace Model_GUI
                 int i = dict[key].time.Length - 1;
                 if (dict[key].time[i] != null)
                 {
+                    Console.WriteLine(dict[key].value[i]);
                     DateTime time = DateTime.ParseExact(dict[key].time[i], Constants.FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
                     chart_.Series[key].Points.AddXY(time.ToOADate(), Convert.ToDouble(dict[key].value[i]));
                 }
@@ -281,6 +301,8 @@ namespace Model_GUI
             perturbations["dist"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Disturbance.value_disturbance.ToString());
             
         }
+
+        // HELPERS BELOW ##########################################################################################################
 
         public void ProcessArguments(string[] args)
         {

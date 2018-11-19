@@ -26,7 +26,7 @@ namespace Controller
         private double Kp;              // proportional
         private double Ki;              // integral
         private double Kd;              // derivative
-        private double q = 0.01;        // FIR smoothing factor
+        private double q = 0.1;        // FIR smoothing factor
 
         // actuator limitations
         private double u_max = 7.5;

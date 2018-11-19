@@ -30,6 +30,7 @@ namespace Communication
     public class Server
     {
         public string last_recieved = "0";
+        public string last_ip = "0";
         UdpClient listener;
         IPEndPoint serverEP;
 
@@ -48,6 +49,7 @@ namespace Communication
         {
             byte[] receivedBytes = listener.Receive(ref serverEP);
             last_recieved = Encoding.ASCII.GetString(receivedBytes);
+            last_ip = serverEP.Address.ToString();
         } 
     }
 

@@ -52,28 +52,13 @@ namespace HMI
         {
             // two (3) command line arguments corresponds to using the canal
             string[] args = Environment.GetCommandLineArgs();
-            if (args.Length == 3)
-            {
-                canalEP = new AddressEndPoint(args[1], Convert.ToInt16(args[2]));
-                usingCanal = true;
-                log("Using canal: <" + args[1] + ">, <" + args[2] + ">");
-            }
-            else
-            {
-                log("Direct module communication (no canal)");
-            }
-
+            ParseArgs(args);
 
             // folder and chart settings
             InitalSetting();
 
             // load saved settings
-            double A1 = Properties.Settings.Default.BA1;
-            double a1 = Properties.Settings.Default.SA1;
-            double A2 = Properties.Settings.Default.BA2;
-            double a2 = Properties.Settings.Default.SA2;
-            tankDimensions = new TankDimensions(A1, a1, A2, a2);
-            log("Settings loaded");
+            LoadTankSettings();
 
             toggleControlMode();
         }
@@ -144,7 +129,7 @@ namespace HMI
                     }
                     else
                     {
-                        log("null time");
+                        //log("null time");
                     }
                 }
 
@@ -281,6 +266,8 @@ namespace HMI
                                  "Status: " + connection_current.kalman_filter.security_status;
         }
 
+        // HELPERS BELOW ##########################################################################################################
+
         private void InitalSetting()
         {
             // application directory
@@ -304,7 +291,30 @@ namespace HMI
 
             foreach (string key in connection_current.recieved_packages.Keys) connection_current.recieved_packages[key].Clear();
             foreach (string key in connection_current.estimates.Keys) connection_current.estimates[key].Clear();
+        }
 
+        private void ParseArgs(string[] args)
+        {
+            if (args.Length == 3)
+            {
+                canalEP = new AddressEndPoint(args[1], Convert.ToInt16(args[2]));
+                usingCanal = true;
+                log("Using canal: <" + args[1] + ">, <" + args[2] + ">");
+            }
+            else
+            {
+                log("Direct module communication (no canal)");
+            }
+        }
+
+        private void LoadTankSettings()
+        {
+            double A1 = Properties.Settings.Default.BA1;
+            double a1 = Properties.Settings.Default.SA1;
+            double A2 = Properties.Settings.Default.BA2;
+            double a2 = Properties.Settings.Default.SA2;
+            tankDimensions = new TankDimensions(A1, a1, A2, a2);
+            log("Settings loaded");
         }
 
         private void clbSeries_ItemCheck(object sender, ItemCheckEventArgs e)
