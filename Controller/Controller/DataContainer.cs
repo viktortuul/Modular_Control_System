@@ -16,6 +16,9 @@ namespace Controller
         public string[] time;
         public string[] value;
 
+        // received counter
+        int counter = 0;
+
         // constraints
         double max_delay = 90000000; // [ms] 
 
@@ -34,6 +37,8 @@ namespace Controller
                 // check if the new data is up to date
                 if (isMostRecent(time) == true)
                 {
+                    counter += 1;
+
                     Array.Copy(this.time, 1, this.time, 0, this.time.Length - 1);
                     this.time[this.time.Length - 1] = time;
 
@@ -78,6 +83,13 @@ namespace Controller
             else return false;
         }
 
+        public bool hasChanged(int idx1, int idx2)
+        {
+            // checks wether the values of the two items are the same or not
+            return (value[value.Length - 1 - idx1] != value[value.Length - 1 - idx2]);
+        }
+
+
         public string GetLastTime()
         {
             return time[time.Length - 1];
@@ -85,6 +97,11 @@ namespace Controller
         public string GetLastValue()
         {
             return value[value.Length - 1];
+        }
+
+        public int getCounter()
+        {
+            return counter;
         }
 
         public void CopyAndPushArray()

@@ -102,6 +102,24 @@ namespace PhysicalProcesses
             }
         }
 
+        // measure the actuator state
+        public double[] get_uc()
+        {
+            switch (model_type)
+            {
+                case "DoubleWatertank":
+                    return doubleWatertank.get_uc();
+                    /*
+                case "QuadWatertank":
+                    return quadWatertank.get_uc();
+                case "InvertedPendulum":
+                    return InvPendulumSISO.get_uc();
+                    */
+                default:
+                    return new double[2];
+            }
+        }
+
         // update the control input value
         public void set_u(double[] u_)
         {

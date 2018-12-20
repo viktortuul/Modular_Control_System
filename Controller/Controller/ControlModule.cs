@@ -11,22 +11,27 @@ namespace Controller
 {
     public class ControlModule
     {
-        // logger
-        static StringBuilder sb = new StringBuilder();
+
 
         // data containers (dictionaries)
         static Dictionary<string, DataContainer> received_packages = new Dictionary<string, DataContainer>();
-        static Dictionary<string, DataContainer> references = new Dictionary<string, DataContainer>();
 
         // flag specific keys with pre-defined meanings
-        static string[] flag_controlled_states = new string[] { "yc1", "yc2" };
+        static string[] def_controlled_states = new string[] { "yc1", "yc2" };
 
         // container for all controllers in the module
         private static List<PID> PIDList = new List<PID>();
 
-        // state variables
+        // communication states
         static bool listening_on_plant = false;
         static public bool using_canal = false;
+
+        // controller type
+        static string controller_type = "PID_normal";
+
+        // logger (write to file)
+        static string log_flag = "log_false";
+        static StringBuilder sb = new StringBuilder();
 
         // GUI and Plant endpoints
         static ConnectionParameters EP_GUI = new ConnectionParameters();
@@ -71,7 +76,7 @@ namespace Controller
                     // send time, u, and y
                     string message = ConstructMessageGUI(PIDList);
                     sender.Send(message);
-                    Console.WriteLine("to GUI: " + message);
+                    //Console.WriteLine("to GUI: " + message);
                 }
             }
         }
@@ -114,9 +119,13 @@ namespace Controller
                     Sender.Send(message);
 
                     // logging
-                    sb.Append(message + "\n");
-                    File.AppendAllText("log_sent.txt", sb.ToString());
-                    sb.Clear();
+                    if (log_flag == "log_true")
+                    {
+                        sb.Append(message + "\n");
+                        File.AppendAllText("log_sent.txt", sb.ToString());
+                        sb.Clear();
+                    }
+            
                 }
             }
         }
@@ -135,7 +144,7 @@ namespace Controller
                     //Console.WriteLine("from plant: " + listener.last_recieved);
 
                     // compute the new control signal for each controller
-                    ManageControllers(PIDList, flag : "Plant");
+                    ManageControllers(PIDList, flag : "plant");
 
                     // flag that packages from the plant are being received
                     listening_on_plant = true;
@@ -212,7 +221,7 @@ namespace Controller
                 string[] subitem = item.Split('_');
 
                 // extract key and value
-                string key = subitem[0];
+                string key = subitem[0]; // yo1, yc1, uc1, (yo2, yc1, uc1)
                 string value = subitem[1];
 
                 // detect the time (don't add it as a separate key)
@@ -231,10 +240,10 @@ namespace Controller
                     received_packages.Add(key, new DataContainer(Constants.n_steps));
 
                     // add controller if the tag corresponds to a controlled state
-                    if (flag_controlled_states.Contains(key))
+                    if (def_controlled_states.Contains(key))
                     {
                         Console.WriteLine("PID added");
-                        PIDList.Add(new PID());
+                        PIDList.Add(new PID(controller_type));
                     }
 
                 }
@@ -264,13 +273,23 @@ namespace Controller
                                                     Convert.ToDouble(received_packages["Ki"].GetLastValue()),
                                                     Convert.ToDouble(received_packages["Kd"].GetLastValue()));
                     }
-                    else if (flag == "Plant")
+                    else if (flag == "plant")
                     {
                         // update control signal
                         double reference = Convert.ToDouble(received_packages["r" + index].GetLastValue());
                         double measurement = Convert.ToDouble(received_packages["yc" + index].GetLastValue());
-                        controller.ComputeControlSignal(reference, measurement);
 
+                        // detect if actuator signal actually has moved (would indicate the control signals are beging transmitted)
+                        if (received_packages["uc" + index].hasChanged(0, 2) || received_packages["uc" + index].getCounter() < 5)
+                        {
+                            controller.ComputeControlSignal(reference, measurement, new_value_flag: true);
+                            Console.WriteLine("normal operation");
+                        }
+                        else
+                        {
+                            controller.ComputeControlSignal(reference, measurement, new_value_flag: false);
+                            Console.WriteLine("no integral action");
+                        }
                     }
                 }
             }
@@ -282,17 +301,23 @@ namespace Controller
             EP_Plant = new ConnectionParameters(args[3], Convert.ToInt16(args[4]), Convert.ToInt16(args[5]));
 
             // 6 arguments --> no canal. 10 arguments --> canal
-            if (args.Length == 6)
+            if (args.Length == 8)
             {
                 EP_Send_GUI = new AddressEndPoint(EP_GUI.IP, EP_GUI.Port);
                 EP_Send_Plant = new AddressEndPoint(EP_Plant.IP, EP_Plant.Port);
+                controller_type = args[6];
+                log_flag = args[7];
             }
-            else if (args.Length == 10)
+            else if (args.Length == 12)
             {
                 EP_Send_GUI = new AddressEndPoint(args[6], Convert.ToInt16(args[7]));
                 EP_Send_Plant = new AddressEndPoint(args[8], Convert.ToInt16(args[9]));
                 using_canal = true;
+                controller_type = args[10];
+                log_flag = args[11];
             }
+
+
         }
     }
 }

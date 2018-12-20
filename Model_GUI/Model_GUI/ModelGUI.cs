@@ -188,6 +188,9 @@ namespace Model_GUI
                     var r = new GaussianRandom();
                     double noise = r.NextGaussian(0, 0.1);
                     message += "yc" + (i + 1) + "_" + (plant.get_yc()[i] + noise).ToString() + "#";
+
+                    // append the last actuator state
+                    message += "uc" + (i + 1) + "_" + plant.get_uc()[i].ToString() + "#";
                 }
 
                 // remove the redundant delimiter

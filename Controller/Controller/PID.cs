@@ -8,6 +8,9 @@ namespace Controller
 {
     public class PID
     {
+        // controller type
+        private string controller_type = ""; // PID_normal; PID_plus
+
         // anti wind-up
         private bool anti_wind_up = true;
 
@@ -20,22 +23,29 @@ namespace Controller
         private double de = 0;          // error derivative
         private double dE = 0;          // error derivative (low passed)
         private double u = 0;           // control signal
+        private double F = 0;           // control signal filtered
+        private double F_prev = 0;      // control signal filtered previous calculation
+
         private DateTime time_previous = DateTime.Now; // time stamp of prior execution
 
         // controller coefficients
         private double Kp;              // proportional
         private double Ki;              // integral
         private double Kd;              // derivative
-        private double q = 0.1;        // FIR smoothing factor
+        private double q = 0.05;         // FIR smoothing factor
+        private double T_reset = 0.05;   // filter reset factor  
 
         // actuator limitations
         private double u_max = 7.5;
         private double u_min = -7.5 * 0;
 
         // empty constructor
-        public PID() { }
+        public PID(string controller_type)
+        {
+            this.controller_type = controller_type;
+        }
 
-        public void ComputeControlSignal(double r, double y)
+        public void ComputeControlSignal(double r, double y, bool new_value_flag)
         {
             // calculate the dime duration from the last update
             DateTime time_now = DateTime.Now;
@@ -53,7 +63,18 @@ namespace Controller
                     // integral part with anti wind-up (only add intergral action if the control signal is not saturated)
                     if (anti_wind_up == true)
                     {
-                        if (u > u_min && u < u_max) I += dt * e;                 
+                        if (controller_type == "PID_normal")
+                        {
+                            if (u > u_min && u < u_max) I += dt * e;
+                        }
+                        else if (controller_type == "PID_plus")
+                        {
+                            // only add integral action if the communication is established
+                            if (new_value_flag == true)
+                            {
+                                if (u > u_min && u < u_max) I += dt * e;
+                            }
+                        }
                     }
                     else I += dt * e;
 
@@ -63,6 +84,15 @@ namespace Controller
 
                     // resulting control signal
                     u = Kp * e + Ki * I + Kd * dE;
+                    
+                    if (controller_type == "PIDplus")
+                    {
+                        // if communication is lost, don't include the derivative term
+                        if (new_value_flag == false)
+                        {
+                            u = Kp * e + Ki * I;
+                        }
+                    }
 
                     // save the prior error for the next update
                     ep = e; 
@@ -70,6 +100,14 @@ namespace Controller
                     // saturation
                     if (u > u_max) u = u_max;
                     if (u < u_min) u = u_min;
+
+                    // PIDplus filter
+                    if (controller_type == "PID_plus")
+                    {
+                        Console.WriteLine(dt);
+                        F = F_prev + (u - F_prev) * (1 - Math.Exp(-dt / T_reset));
+                        F_prev = F;
+                    }
                 }
             }
 
@@ -87,7 +125,18 @@ namespace Controller
 
         public double get_u()
         {
-            return u;
+            if (controller_type == "PID_normal")
+            {
+                return u;
+            }
+            else if (controller_type == "PID_plus")
+            {
+                return F;
+            }  
+            else
+            {
+                return u;
+            }       
         }
     }
 }

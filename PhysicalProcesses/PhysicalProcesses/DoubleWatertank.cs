@@ -98,6 +98,11 @@ namespace PhysicalProcesses
             return new double[] { h2 };
         }
 
+        public double[] get_uc()
+        {
+            return new double[] { u };
+        }
+
         public void set_u(double[] _u)
         {
             u = _u[0];
