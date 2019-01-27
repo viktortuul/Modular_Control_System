@@ -37,6 +37,8 @@ namespace Model_GUI
         // initialize perturbation settings
         Perturbation Disturbance = new Perturbation();
 
+        double noise_std = 0.1; // measurement noise standard deviation
+
         // initialize an empty plant class
         Plant plant = new Plant();
 
@@ -177,7 +179,7 @@ namespace Model_GUI
                 {
                     // apply measurement noise
                     var r = new GaussianRandom();
-                    double noise = r.NextGaussian(0, 0.1);
+                    double noise = r.NextGaussian(0, noise_std);
                     message += "yo" + (i + 1) + "_" + (plant.get_yo()[i] + noise).ToString() + "#";
                 }  
 
@@ -186,7 +188,7 @@ namespace Model_GUI
                 {
                     // apply measurement noise
                     var r = new GaussianRandom();
-                    double noise = r.NextGaussian(0, 0.1);
+                    double noise = r.NextGaussian(0, noise_std);
                     message += "yc" + (i + 1) + "_" + (plant.get_yc()[i] + noise).ToString() + "#";
 
                     // append the last actuator state
@@ -315,12 +317,12 @@ namespace Model_GUI
             // model type (e.g. dwt)
             string model_type = args[4];
 
-            if (args.Length == 5 || args.Length == 5 + 4)
+            if (args.Length == 6 || args.Length == 6 + 4)
             {
                 // 5 or 9 arguments --> direct communication
                 EP = new AddressEndPoint(EP_Controller.IP, EP_Controller.Port);
             }
-            else if (args.Length == 7 || args.Length == 7 + 4)
+            else if (args.Length == 8 || args.Length == 8 + 4)
             {
                 // 7 or 11 arguments --> canal is used
                 EP = new AddressEndPoint(args[5], Convert.ToInt16(args[6]));
@@ -332,15 +334,17 @@ namespace Model_GUI
             {
                 case "dwt":
                     model_parameters = new double[] { 15, 0.3, 50, 0.2 };
-                    if (args.Length == 9) model_parameters = new double[] { Convert.ToDouble(args[5]), Convert.ToDouble(args[6]), Convert.ToDouble(args[7]), Convert.ToDouble(args[8]) };
-                    if (args.Length == 11) model_parameters = new double[] { Convert.ToDouble(args[7]), Convert.ToDouble(args[8]), Convert.ToDouble(args[9]), Convert.ToDouble(args[10]) };
+                    if (args.Length == 10) model_parameters = new double[] { Convert.ToDouble(args[5]), Convert.ToDouble(args[6]), Convert.ToDouble(args[7]), Convert.ToDouble(args[8]) };
+                    if (args.Length == 12) model_parameters = new double[] { Convert.ToDouble(args[7]), Convert.ToDouble(args[8]), Convert.ToDouble(args[9]), Convert.ToDouble(args[10]) };
                     plant = new Plant(new DoubleWatertank(model_parameters));
+                    noise_std = Convert.ToDouble(args[11]); 
                     break;
                 case "qwt":
                     model_parameters = new double[] { 15, 0.3, 50, 0.2, 15, 0.3, 50, 0.2 };
-                    if (args.Length == 15) model_parameters = new double[] { Convert.ToDouble(args[7]), Convert.ToDouble(args[8]), Convert.ToDouble(args[9]), Convert.ToDouble(args[10]), Convert.ToDouble(args[11]), Convert.ToDouble(args[12]), Convert.ToDouble(args[13]), Convert.ToDouble(args[14]) };
-                    if (args.Length == 15) model_parameters = new double[] { Convert.ToDouble(args[7]), Convert.ToDouble(args[8]), Convert.ToDouble(args[9]), Convert.ToDouble(args[10]), Convert.ToDouble(args[11]), Convert.ToDouble(args[12]), Convert.ToDouble(args[13]), Convert.ToDouble(args[14]) };
+                    if (args.Length == 16) model_parameters = new double[] { Convert.ToDouble(args[7]), Convert.ToDouble(args[8]), Convert.ToDouble(args[9]), Convert.ToDouble(args[10]), Convert.ToDouble(args[11]), Convert.ToDouble(args[12]), Convert.ToDouble(args[13]), Convert.ToDouble(args[14]) };
+                    if (args.Length == 16) model_parameters = new double[] { Convert.ToDouble(args[7]), Convert.ToDouble(args[8]), Convert.ToDouble(args[9]), Convert.ToDouble(args[10]), Convert.ToDouble(args[11]), Convert.ToDouble(args[12]), Convert.ToDouble(args[13]), Convert.ToDouble(args[14]) };
                     plant = new Plant(new QuadWatertank(model_parameters));
+                    noise_std = Convert.ToDouble(args[15]);
                     break;
                 case "ipsiso": plant = new Plant(new InvertedPendulumSISO()); break;
             }

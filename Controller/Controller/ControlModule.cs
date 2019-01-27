@@ -6,6 +6,7 @@ using Communication;
 using System.Globalization;
 using System.Text;
 using System.IO;
+using GlobalComponents;
 
 namespace Controller
 {
@@ -61,13 +62,27 @@ namespace Controller
             // create a thread for listening on the plant
             Thread thread_listen_plant = new Thread(() => ListenerPlant(EP_Send_Plant.IP, EP_Plant.PortThis, PIDList));
             thread_listen_plant.Start();
+
+
+            // create a thread for listening on the plant
+            Thread thread_loop = new Thread(() => loop());
+            thread_loop.Start();
+        }
+
+        public static void loop()
+        {
+            while (true)
+            {
+                Thread.Sleep(50);
+                ManageControllers(PIDList, flag: "loop");
+            }
         }
 
         public static void SenderGUI(string IP, int port, List<PID> PIDList)
         {
             // initialize a connection to the GUI
             Client sender = new Client(IP, port);
-
+       
             while (true)
             {
                 Thread.Sleep(100);
@@ -273,22 +288,31 @@ namespace Controller
                                                     Convert.ToDouble(received_packages["Ki"].GetLastValue()),
                                                     Convert.ToDouble(received_packages["Kd"].GetLastValue()));
                     }
-                    else if (flag == "plant")
+                    else
                     {
                         // update control signal
                         double reference = Convert.ToDouble(received_packages["r" + index].GetLastValue());
                         double measurement = Convert.ToDouble(received_packages["yc" + index].GetLastValue());
 
-                        // detect if actuator signal actually has moved (would indicate the control signals are beging transmitted)
-                        if (received_packages["uc" + index].hasChanged(0, 2) || received_packages["uc" + index].getCounter() < 5)
+
+                        if (controller_type == "PID_normal" && flag == "loop")
                         {
-                            controller.ComputeControlSignal(reference, measurement, new_value_flag: true);
-                            Console.WriteLine("normal operation");
+                            // continous constant interval loop when a standard PID is used
+                            controller.ComputeControlSignal(reference, measurement, new_actuator_flag: false, new_measurement_flag: false, actuator_position: 0);
                         }
-                        else
+                        else if (controller_type == "PID_plus" && flag == "plant")
                         {
-                            controller.ComputeControlSignal(reference, measurement, new_value_flag: false);
-                            Console.WriteLine("no integral action");
+                            // detect if actuator signal actually has moved (would indicate the control signals are beging transmitted)
+                            if (received_packages["uc" + index].hasChanged(0, 2) || received_packages["uc" + index].getCounter() < 5)
+                            {
+                                // PIDplus update (new actuator flag)
+                                controller.ComputeControlSignal(reference, measurement, new_actuator_flag: true, new_measurement_flag: true, actuator_position: Convert.ToDouble(received_packages["uc" + index].GetLastValue()));
+                            }
+                            else
+                            {
+                                // PIDplus update (actuator communication lost)
+                                controller.ComputeControlSignal(reference, measurement, new_actuator_flag: false, new_measurement_flag: true, actuator_position: 0);
+                            }
                         }
                     }
                 }
@@ -316,6 +340,54 @@ namespace Controller
                 controller_type = args[10];
                 log_flag = args[11];
             }
+
+            foreach (string arg in args)
+            {
+                string[] arg_separated = Tools.ArgsParser(arg);
+                string arg_name = arg_separated[0];
+                string arg_value = arg_separated[1];
+
+                switch (arg_name)
+                {
+                    case "ip_gui":
+                        break;
+                    case "port_gui":
+                        break;
+                    case "port_gui_this":
+                        break;
+
+                    case "ip_plant":
+                        break;
+                    case "port_plant":
+                        break;
+                    case "port_plant_this":
+                        break;
+
+                    case "ip_canal_gui":
+                        break;
+                    case "port_canal_gui":
+                        break;
+
+                    case "ip_canal_plant":
+                        break;
+                    case "port_canal_plant":
+                        break;
+
+                    case "controller":
+                        //if (arg_value == "PIDPlus") 
+                        //else 
+                        break;
+
+                    case "log":
+                        //if (arg_value == "true") 
+                        //else
+                        break;
+
+
+                }
+            }
+
+            // Start Controller\Controller\bin\Debug\Controller.exe 127.0.0.1 8100 8200 127.0.0.1 8300 8400 127.0.0.1 8111 127.0.0.1 8222 PID_normal log_false
 
 
         }
