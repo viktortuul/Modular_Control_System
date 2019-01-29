@@ -73,6 +73,7 @@ namespace Controller
                     }
                     else if (controller_type == "PID_plus")
                     {
+                        Console.WriteLine("inne i pidplus");
                         // calculate time since last actuator update         
                         if (new_actuator_flag == true)
                         {

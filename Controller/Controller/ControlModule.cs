@@ -294,7 +294,6 @@ namespace Controller
                         double reference = Convert.ToDouble(received_packages["r" + index].GetLastValue());
                         double measurement = Convert.ToDouble(received_packages["yc" + index].GetLastValue());
 
-
                         if (controller_type == "PID_normal" && flag == "loop")
                         {
                             // continous constant interval loop when a standard PID is used
@@ -303,7 +302,7 @@ namespace Controller
                         else if (controller_type == "PID_plus" && flag == "plant")
                         {
                             // detect if actuator signal actually has moved (would indicate the control signals are beging transmitted)
-                            if (received_packages["uc" + index].hasChanged(0, 2) || received_packages["uc" + index].getCounter() < 5)
+                            if (received_packages["uc" + index].hasChanged(0, 2) || received_packages["uc" + index].getCounter() < 5 || received_packages["uc" + index].GetLastValue() == "0")
                             {
                                 // PIDplus update (new actuator flag)
                                 controller.ComputeControlSignal(reference, measurement, new_actuator_flag: true, new_measurement_flag: true, actuator_position: Convert.ToDouble(received_packages["uc" + index].GetLastValue()));
@@ -321,75 +320,36 @@ namespace Controller
 
         public static void ParseArgs(string[] args)
         {
-            EP_GUI = new ConnectionParameters(args[0], Convert.ToInt16(args[1]), Convert.ToInt16(args[2]));
-            EP_Plant = new ConnectionParameters(args[3], Convert.ToInt16(args[4]), Convert.ToInt16(args[5]));
-
-            // 6 arguments --> no canal. 10 arguments --> canal
-            if (args.Length == 8)
-            {
-                EP_Send_GUI = new AddressEndPoint(EP_GUI.IP, EP_GUI.Port);
-                EP_Send_Plant = new AddressEndPoint(EP_Plant.IP, EP_Plant.Port);
-                controller_type = args[6];
-                log_flag = args[7];
-            }
-            else if (args.Length == 12)
-            {
-                EP_Send_GUI = new AddressEndPoint(args[6], Convert.ToInt16(args[7]));
-                EP_Send_Plant = new AddressEndPoint(args[8], Convert.ToInt16(args[9]));
-                using_canal = true;
-                controller_type = args[10];
-                log_flag = args[11];
-            }
-
             foreach (string arg in args)
             {
-                string[] arg_separated = Tools.ArgsParser(arg);
-                string arg_name = arg_separated[0];
-                string arg_value = arg_separated[1];
+                List<string> arg_sep = Tools.ArgsParser(arg);
+                string arg_name = arg_sep[0];
 
                 switch (arg_name)
                 {
-                    case "ip_gui":
-                        break;
-                    case "port_gui":
-                        break;
-                    case "port_gui_this":
-                        break;
-
-                    case "ip_plant":
-                        break;
-                    case "port_plant":
-                        break;
-                    case "port_plant_this":
-                        break;
-
-                    case "ip_canal_gui":
-                        break;
-                    case "port_canal_gui":
-                        break;
-
-                    case "ip_canal_plant":
-                        break;
-                    case "port_canal_plant":
-                        break;
-
                     case "controller":
-                        //if (arg_value == "PIDPlus") 
-                        //else 
+                        controller_type = arg_sep[1];
                         break;
-
                     case "log":
-                        //if (arg_value == "true") 
-                        //else
+                        log_flag = arg_sep[1];
+                        break;
+        
+                    case "canal_gui":
+                        EP_Send_GUI = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
+                        using_canal = true;
+                        break;
+                    case "canal_plant":
+                        EP_Send_Plant = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
                         break;
 
-
+                    case "gui_ep":
+                        EP_GUI = new ConnectionParameters(arg_sep[1], Convert.ToInt16(arg_sep[2]), Convert.ToInt16(arg_sep[3]));
+                        break;
+                    case "plant_ep":
+                        EP_Plant = new ConnectionParameters(arg_sep[1], Convert.ToInt16(arg_sep[2]), Convert.ToInt16(arg_sep[3]));
+                        break;
                 }
             }
-
-            // Start Controller\Controller\bin\Debug\Controller.exe 127.0.0.1 8100 8200 127.0.0.1 8300 8400 127.0.0.1 8111 127.0.0.1 8222 PID_normal log_false
-
-
         }
     }
 }

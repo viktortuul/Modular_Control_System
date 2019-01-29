@@ -11,7 +11,7 @@ using System.Globalization;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.IO;
+using GlobalComponents;
 
 namespace Model_GUI
 {
@@ -64,7 +64,7 @@ namespace Model_GUI
         private void Form1_Load(object sender, EventArgs e)
         {
             string[] args = Environment.GetCommandLineArgs();
-            ProcessArguments(args);
+            ParseArgs(args);
 
             // create a thread for listening on the controller
             Thread thread_listener = new Thread(() => Listener(EP.IP, EP_Controller.PortThis, plant));
@@ -309,44 +309,47 @@ namespace Model_GUI
 
         // HELPERS BELOW ##########################################################################################################
 
-        public void ProcessArguments(string[] args)
+        public void ParseArgs(string[] args)
         {
-            // controller end-point (controller IP, controller Port, listening Port on this module)
-            EP_Controller = new ConnectionParameters(args[1], Convert.ToInt16(args[2]), Convert.ToInt16(args[3]));
-
-            // model type (e.g. dwt)
-            string model_type = args[4];
-
-            if (args.Length == 6 || args.Length == 6 + 4)
+            foreach (string arg in args)
             {
-                // 5 or 9 arguments --> direct communication
-                EP = new AddressEndPoint(EP_Controller.IP, EP_Controller.Port);
-            }
-            else if (args.Length == 8 || args.Length == 8 + 4)
-            {
-                // 7 or 11 arguments --> canal is used
-                EP = new AddressEndPoint(args[5], Convert.ToInt16(args[6]));
-                using_canal = true;
-            }
+                List<string> arg_sep = Tools.ArgsParser(arg);
 
-            // store the model in a container which generically send and access values 
-            switch (model_type)
-            {
-                case "dwt":
-                    model_parameters = new double[] { 15, 0.3, 50, 0.2 };
-                    if (args.Length == 10) model_parameters = new double[] { Convert.ToDouble(args[5]), Convert.ToDouble(args[6]), Convert.ToDouble(args[7]), Convert.ToDouble(args[8]) };
-                    if (args.Length == 12) model_parameters = new double[] { Convert.ToDouble(args[7]), Convert.ToDouble(args[8]), Convert.ToDouble(args[9]), Convert.ToDouble(args[10]) };
-                    plant = new Plant(new DoubleWatertank(model_parameters));
-                    noise_std = Convert.ToDouble(args[11]); 
-                    break;
-                case "qwt":
-                    model_parameters = new double[] { 15, 0.3, 50, 0.2, 15, 0.3, 50, 0.2 };
-                    if (args.Length == 16) model_parameters = new double[] { Convert.ToDouble(args[7]), Convert.ToDouble(args[8]), Convert.ToDouble(args[9]), Convert.ToDouble(args[10]), Convert.ToDouble(args[11]), Convert.ToDouble(args[12]), Convert.ToDouble(args[13]), Convert.ToDouble(args[14]) };
-                    if (args.Length == 16) model_parameters = new double[] { Convert.ToDouble(args[7]), Convert.ToDouble(args[8]), Convert.ToDouble(args[9]), Convert.ToDouble(args[10]), Convert.ToDouble(args[11]), Convert.ToDouble(args[12]), Convert.ToDouble(args[13]), Convert.ToDouble(args[14]) };
-                    plant = new Plant(new QuadWatertank(model_parameters));
-                    noise_std = Convert.ToDouble(args[15]);
-                    break;
-                case "ipsiso": plant = new Plant(new InvertedPendulumSISO()); break;
+                if (arg_sep.Count() == 0) continue;
+
+                string arg_name = arg_sep[0];
+
+                switch (arg_name)
+                {
+                    case "canal_controller":
+                        EP = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
+                        using_canal = true;
+                        break;
+                
+                    case "controller_ep":
+                        EP_Controller = new ConnectionParameters(arg_sep[1], Convert.ToInt16(arg_sep[2]), Convert.ToInt16(arg_sep[3]));
+                        break;
+                       
+                    case "model":
+                        string model_type = arg_sep[1];
+                        switch (model_type)
+                        {
+                            case "dwt":
+                                model_parameters = new double[] { Convert.ToDouble(arg_sep[2]), Convert.ToDouble(arg_sep[3]), Convert.ToDouble(arg_sep[4]), Convert.ToDouble(arg_sep[5]) };
+                                plant = new Plant(new DoubleWatertank(model_parameters));
+                                noise_std = Convert.ToDouble(arg_sep[6]);
+                                break;
+                            case "qwt":
+                                model_parameters = new double[] { Convert.ToDouble(arg_sep[2]), Convert.ToDouble(arg_sep[3]), Convert.ToDouble(arg_sep[4]), Convert.ToDouble(arg_sep[5]), Convert.ToDouble(arg_sep[6]) , Convert.ToDouble(arg_sep[7]), Convert.ToDouble(arg_sep[8]), Convert.ToDouble(arg_sep[9]) };
+                                plant = new Plant(new QuadWatertank(model_parameters));
+                                noise_std = Convert.ToDouble(arg_sep[10]);
+                                break;
+                            case "ipsiso":
+                                plant = new Plant(new InvertedPendulumSISO());
+                                break;
+                        }
+                        break;
+                }
             }
         }
 

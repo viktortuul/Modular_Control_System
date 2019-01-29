@@ -1,5 +1,7 @@
 ﻿
 
+using System.Collections.Generic;
+
 namespace GlobalComponents
 {
     public class Animation
@@ -9,37 +11,34 @@ namespace GlobalComponents
 
     public struct Tools
     {
-        /*
-        public class Arg
+       
+        public static List<string> ArgsParser(string arg)
         {
-            public string name;
-            public string value;
+            List<string> args_parsed = new List<string>();
 
-            public Arg(string name, string value)
+            if (arg.Contains("="))
             {
-                this.name = name;
-                this.value = value;
+                string[] arg_strings = arg.Split('=');
+                string name = arg_strings[0]; // argument name
+                string value = arg_strings[1]; // argument value
+                args_parsed.Add(name);
+
+                if (value.Contains(":")) // splits if the argument contains several values
+                {
+                    string[] value_strings;
+                    value_strings = value.Split(':');
+
+                    foreach (string item in value_strings)
+                    {
+                        args_parsed.Add(item);
+                    }
+                }
+                else
+                {
+                    args_parsed.Add(value);
+                }           
             }
-        }
-        */
-
-        /*
-        public Arg argsParser(string arg)
-        {
-            string[] arg_string = arg.Split(':');
-            string name = arg_string[0];
-            string value = arg_string[1];
-
-            Arg arg_val = new Arg(name, value);
-            return arg_val;
-        }
-        */
-        public static string[] ArgsParser(string arg)
-        {
-            string[] arg_string = arg.Split(':');
-            string name = arg_string[0];
-            string value = arg_string[1];
-            return new string[] { name, value };
+            return args_parsed;
         }
     }
 }
