@@ -1,9 +1,11 @@
 # Modular_Control_System
-The basis for this project is in a developed networked control system simulation environment created in C# which allow for studying attack and defence mechanism. Several modules which each has critical components make up the whole system. Section \ref{sec:HMI_Module} presents the \textit{Human Machine Interface} (HMI) module which correspond to the control center where the rest of the system can be monitored and managed. Then in Section \ref{sec:Control_Module} the \textit{Control Module} is presented which produces the actuator signals to control the plant. Section \ref{sec:Plant_Module} introduces the \textit{Plant Module} which is a simulated dynamical process which the experiments are conducted on. Then Section \ref{sec:Canal_Module} shows the \textit{Channel Module} which can be considered as a router which routes traffic between the other modules. This is also where many of the conduced attacks takes place.
+The basis for this project is in a developed networked control system simulation environment created in C# which allow for studying attack and defence mechanism. Several modules make up the whole system and are each described in sections below. In total there are four modules: HMI, Control, Plant, and Channel.
 
 An overview of the modular control system is presented below, where two communication channels enable communication between the modules. 
-![Image description](overview_single.pdf)
-![Image description](overview_parallel.pdf)
+![overview_parallel](https://user-images.githubusercontent.com/25713113/52146560-61265d00-2664-11e9-9ac2-a5fe33445829.png)
+
+The system can also by scaled up as an arbitrary number of plants can be controlled in parallel from one single HMI, illustrated below.
+![overview_single](https://user-images.githubusercontent.com/25713113/52146563-61265d00-2664-11e9-82ae-dfa381d4701c.png)
 
 ## Modules
 ### HMI
