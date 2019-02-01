@@ -3,7 +3,7 @@ This project is conducted at the department of automatic control at KTH, Stockho
 
 An overview of the modular control system is presented below, where two communication channels enable communication between the modules. The system can be scaled up as an arbitrary number of plants can be controlled in parallel from one single HMI, illustrated in the figure.
 
-![mcs_basic_overview](https://user-images.githubusercontent.com/25713113/52147284-81efb200-2666-11e9-8dd5-610fe3d6c98d.png)
+![mcs_basic_overview](https://user-images.githubusercontent.com/25713113/52147441-03474480-2667-11e9-9cef-200f0cba1618.png)
 
 ## Modules
 ### HMI
