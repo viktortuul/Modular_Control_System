@@ -47,11 +47,17 @@ Start Controller\Controller\bin\Debug\Controller.exe gui_ep=127.0.0.1:8100:8200 
 The Plant module requires three arguments in total when using the Channel module. Firstly, the Control module end-point must be specified, along with the Channel module IP:port pair, e.g. `controller_ep=127.0.0.1:8400:8300` and `canal_controller=127.0.0.1:8222` respectively. Furthermore, the parameters for the simulated physical model must be specified, e.g. `model=dwt:5,0:0,3:5,0:0,2:0,00001`.
 
 Below is an example of how the Plant module can be executed.
-```Start Model_GUI\Model_GUI\bin\Debug\Model_GUI.exe controller_ep=127.0.0.1:8400:8300 canal_controller=127.0.0.1:8222 model=dwt:5,0:0,3:5,0:0,2:0,00001 log=false```
+```
+Start Model_GUI\Model_GUI\bin\Debug\Model_GUI.exe controller_ep=127.0.0.1:8400:8300 canal_controller=127.0.0.1:8222 model=dwt:5,0:0,3:5,0:0,2:0,00001 log=false
+```
 
 #### Channel
 When executing the Channel module the receiving port must be specified. Optionally, drop-out parameters for the Markov model can be specified.
 
-Below is an example of how the Channel module can be executed.
-```Start Canal_GUI\Canal_GUI\bin\Debug\Canal_GUI.exe port_receive=8111 markov=90:98```
-```Start Canal_GUI\Canal_GUI\bin\Debug\Canal_GUI.exe port_receive=8111 bernoulli=80```
+Below are two examples of how the Channel module can be executed.
+```
+Start Canal_GUI\Canal_GUI\bin\Debug\Canal_GUI.exe port_receive=8111 markov=90:98
+```
+```
+Start Canal_GUI\Canal_GUI\bin\Debug\Canal_GUI.exe port_receive=8111 bernoulli=80
+```
