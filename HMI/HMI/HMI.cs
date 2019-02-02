@@ -14,6 +14,7 @@ using System.Net;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.IO;
 using Communication;
+using GlobalComponents;
 
 namespace HMI
 {
@@ -32,7 +33,7 @@ namespace HMI
 
         // canal flag
         public bool usingCanal = false;
-        AddressEndPoint canalEP = new AddressEndPoint();
+        AddressEndPoint EP = new AddressEndPoint();
 
         // tank dimensions
         public TankDimensions tankDimensions = new TankDimensions(0,0,0,0);
@@ -218,7 +219,7 @@ namespace HMI
 
                 // create and add controller
                 PIDparameters controllerParameters = new PIDparameters(Convert.ToDouble(numUpDownKp.Value), Convert.ToDouble(numUpDownKi.Value), Convert.ToDouble(numUpDownKd.Value));
-                CommunicationManager controller_connection = new CommunicationManager(this, name, controllerParameters, canalEP, connectionParameters);
+                CommunicationManager controller_connection = new CommunicationManager(this, name, controllerParameters, EP, connectionParameters);
                 connections.Add(controller_connection);
                 connection_current = controller_connection;
                 listBoxModules.Items.Add(name);
@@ -295,16 +296,30 @@ namespace HMI
 
         private void ParseArgs(string[] args)
         {
-            if (args.Length == 3)
+
+            if (args.Length > 1)
             {
-                canalEP = new AddressEndPoint(args[1], Convert.ToInt16(args[2]));
-                usingCanal = true;
-                log("Using canal: <" + args[1] + ">, <" + args[2] + ">");
+                foreach (string arg in args)
+                {
+                    List<string> arg_sep = Tools.ArgsParser(arg);
+                    string arg_name = arg_sep[0];
+
+                    switch (arg_name)
+                    {
+                        case "canal_controller":
+                            EP = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
+                            usingCanal = true;
+                            log("Using channel: <" + arg_sep[1] + ">, <" + arg_sep[2] + ">");
+                            break;
+                    }
+                }
             }
             else
             {
-                log("Direct module communication (no canal)");
+                log("No channel in use");
             }
+
+
         }
 
         private void LoadTankSettings()

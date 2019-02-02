@@ -35,6 +35,9 @@
     <Reference Include="Communication">
       <HintPath>..\..\Communication\Communication\bin\Debug\Communication.dll</HintPath>
     </Reference>
+    <Reference Include="GlobalComponents">
+      <HintPath>..\..\GlobalComponents\GlobalComponents\bin\Debug\netstandard2.0\GlobalComponents.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms.DataVisualization" />

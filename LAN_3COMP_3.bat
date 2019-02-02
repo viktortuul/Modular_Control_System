@@ -1,2 +1,0 @@
-Start Model_GUI\Model_GUI\bin\Debug\Model_GUI.exe 192.168.0.103 8400 8300 dwt 192.168.0.103 8222 15 0,3 50 0,2
-Start Model_GUI\Model_GUI\bin\Debug\Model_GUI.exe 192.168.0.103 8401 8301 dwt 192.168.0.103 8222 15 0,3 50 0,2

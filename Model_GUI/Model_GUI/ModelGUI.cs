@@ -17,7 +17,8 @@ namespace Model_GUI
 {
     public partial class ModelGUI : Form
     {
-        // logger
+        // logger (write to file)
+        static string log_flag = "false";
         static StringBuilder sb = new StringBuilder();
 
         // chart settings
@@ -150,9 +151,12 @@ namespace Model_GUI
                     plant.set_u(u);
 
                     // logging
-                    sb.Append(listener.last_recieved + "\n");
-                    File.AppendAllText("log_received.txt", sb.ToString());
-                    sb.Clear();
+                    if (log_flag == "true")
+                    {
+                        sb.Append(listener.last_recieved + "\n");
+                        File.AppendAllText("log_received.txt", sb.ToString());
+                        sb.Clear();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -348,6 +352,10 @@ namespace Model_GUI
                                 plant = new Plant(new InvertedPendulumSISO());
                                 break;
                         }
+                        break;
+
+                    case "log":
+                        log_flag = arg_sep[1];
                         break;
                 }
             }

@@ -13,6 +13,7 @@ using Communication;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Globalization;
 using System.IO;
+using GlobalComponents;
 
 namespace Canal_GUI
 {
@@ -64,24 +65,7 @@ namespace Canal_GUI
         {
             // read command line arguments
             string[] args = Environment.GetCommandLineArgs();
-            port_recieve = Convert.ToInt16(args[1]);
-
-            // start listening on corresponding port
-            tbCanalPort.Text = port_recieve.ToString();
-            StartListener();
-
-            // choose drop out model depending on the number of command line arguments
-            if (args.Length == 3)
-            {
-                nudBernoulliPass.Value = Convert.ToInt16(args[2]);
-                rbBernoulli.Checked = true;
-            }
-            else if (args.Length == 4)
-            {
-                nudStayPass.Value = Convert.ToInt16(args[2]);
-                nudStayDrop.Value = Convert.ToInt16(args[3]);
-                rbMarkov.Checked = true;
-            }
+            ParseArgs(args);
 
             UpdateDroupOutModel();
 
@@ -405,6 +389,35 @@ namespace Canal_GUI
             bool all_Ports = cbAllPorts.Checked;
 
             attack_parameters = new AttackParameters(target_tag, target_ip, target_port, attack_type, time_series, time_series_raw, integrity_add, duration, amplitude, time_constant, frequency, all_IPs, all_Ports);
+        }
+
+        private void ParseArgs(string[] args)
+        {
+            foreach (string arg in args)
+            {
+                List<string> arg_sep = Tools.ArgsParser(arg);
+                string arg_name = arg_sep[0];
+
+                switch (arg_name)
+                {
+                    case "port_receive":
+                        // start listening on corresponding port
+                        tbCanalPort.Text = arg_sep[1].ToString();
+                        StartListener();
+                        break;
+
+                    case "bernoulli":
+                        nudBernoulliPass.Value = Convert.ToInt16(arg_sep[1]);
+                        rbBernoulli.Checked = true;
+                        break;
+
+                    case "markov":
+                        nudStayPass.Value = Convert.ToInt16(arg_sep[1]);
+                        nudStayDrop.Value = Convert.ToInt16(arg_sep[2]);
+                        rbMarkov.Checked = true;
+                        break;
+                }
+            }
         }
 
         private void nudHistory_ValueChanged(object sender, EventArgs e)

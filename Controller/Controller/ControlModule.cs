@@ -31,7 +31,7 @@ namespace Controller
         static string controller_type = "PID_normal";
 
         // logger (write to file)
-        static string log_flag = "log_false";
+        static string log_flag = "false";
         static StringBuilder sb = new StringBuilder();
 
         // GUI and Plant endpoints
@@ -134,7 +134,7 @@ namespace Controller
                     Sender.Send(message);
 
                     // logging
-                    if (log_flag == "log_true")
+                    if (log_flag == "true")
                     {
                         sb.Append(message + "\n");
                         File.AppendAllText("log_sent.txt", sb.ToString());

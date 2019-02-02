@@ -1,1 +1,0 @@
-Start HMI\HMI\bin\Debug\HMI.exe 192.168.0.103 8111

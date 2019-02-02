@@ -38,6 +38,10 @@ namespace GlobalComponents
                     args_parsed.Add(value);
                 }           
             }
+            else
+            {
+                args_parsed.Add("ARG_INVALID");
+            }
             return args_parsed;
         }
     }
