@@ -49,7 +49,7 @@ namespace HMI
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void FrameGUI_Load(object sender, EventArgs e)
         {
             // two (3) command line arguments corresponds to using the canal
             string[] args = Environment.GetCommandLineArgs();

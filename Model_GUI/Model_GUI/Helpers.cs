@@ -7,52 +7,10 @@ using System.Windows.Forms.DataVisualization.Charting;
 using System.Threading;
 using System.Drawing;
 using System.Globalization;
-
+using GlobalComponents;
 
 namespace Model_GUI
 {
-    public struct Constants
-    {
-        // time format
-        public const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
-
-        // chart settings
-        public const int n_steps = 5000;
-    }
-
-    public class DataContainer
-    {
-        // store the time:value pair in string arrays
-        public string[] time;
-        public string[] value;
-
-        // constructor
-        public DataContainer(int size)
-        {
-            time = new string[size];
-            value = new string[size];
-        }
-
-        // instert a new time:value pair data point
-        public void InsertData(string time_, string value_)
-        {
-            Array.Copy(time, 1, time, 0, time.Length - 1);
-            time[time.Length - 1] = time_;
-
-            Array.Copy(value, 1, value, 0, value.Length - 1);
-            value[value.Length - 1] = value_;
-        }
-
-        public string GetLastTime()
-        {
-            return time[time.Length - 1];
-        }
-        public string GetLastValue()
-        {
-            return value[value.Length - 1];
-        }
-    }
-
     public static class Helpers
     {
         // drawing

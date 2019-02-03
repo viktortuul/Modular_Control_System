@@ -4,6 +4,7 @@ using System.Threading;
 using Communication;
 using System.Diagnostics;
 using System.Linq;
+using GlobalComponents;
 
 namespace HMI
 {
@@ -34,9 +35,9 @@ namespace HMI
         public Dictionary<string, DataContainer> estimates = new Dictionary<string, DataContainer>();
 
         // flag specific keys with pre-defined meanings
-        string[] flag_residual_states = new string[] { "yc1" };
-        string[] flag_plant_states = new string[] { "yo1", "yc1", "yo2", "yc2" };
-        string[] flag_controlled_states = new string[] { "yc1", "yc2" };
+        string[] flag_plant_states = new string[] { "yo1", "yc1", "yo2", "yc2" }; // observed and controlled states
+        string[] flag_controlled_states = new string[] { "yc1", "yc2" }; // states that can be controlled
+        string[] flag_residual_states = new string[] { "yc1" }; // states that will have residuals calculated 
 
         // controller parameters
         public PIDparameters ControllerParameters;

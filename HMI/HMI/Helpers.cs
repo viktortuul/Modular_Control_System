@@ -7,31 +7,10 @@ using System.Windows.Forms.DataVisualization.Charting;
 using System.Threading;
 using System.Drawing;
 using System.Globalization;
+using GlobalComponents;
 
 namespace HMI
 {
-    public struct Constants
-    {
-        // time format
-        public const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
-        const string FMT_plot = "HH:mm:ss";
-
-        // chart settings
-        public const int n_steps = 5000;
-    }
-
-    public struct PIDparameters
-    {
-        public double Kp, Ki, Kd;
-
-        public PIDparameters(double Kp, double Ki, double Kd)
-        {
-            this.Kp = Kp;
-            this.Ki = Ki;
-            this.Kd = Kd;
-        }
-    }
-
     public struct TankDimensions
     {
         public double A1, a1, A2, a2;

@@ -62,7 +62,7 @@ namespace Model_GUI
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void ModelGUI_Load(object sender, EventArgs e)
         {
             string[] args = Environment.GetCommandLineArgs();
             ParseArgs(args);
@@ -405,9 +405,9 @@ namespace Model_GUI
             Environment.Exit(0);
         }
 
-        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        private void nudHistory_ValueChanged(object sender, EventArgs e)
         {
-            chart_history = Convert.ToInt16(numericUpDown1.Value);
+            chart_history = Convert.ToInt16(nudHistory.Value);
             
             if (chart_history > 0)
             {
@@ -416,7 +416,13 @@ namespace Model_GUI
             }
         }
 
-        private void buttonApplyDisturbance_Click(object sender, EventArgs e)
+        private void btnClearCharts_Click(object sender, EventArgs e)
+        {
+            foreach (var series in dataChart.Series) series.Points.Clear();
+            foreach (var series in perturbationChart.Series) series.Points.Clear();
+        }
+
+        private void btnApplyDisturbance_Click(object sender, EventArgs e)
         {
             string type = "";
             if (rbConstant.Checked == true) type = "constant";
@@ -433,10 +439,9 @@ namespace Model_GUI
             Disturbance = new Perturbation(target_state, type, duration, amplitude_disturbance, time_const, frequency);
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnStopDisturbance_Click(object sender, EventArgs e)
         {
-            foreach (var series in dataChart.Series) series.Points.Clear();
-            foreach (var series in perturbationChart.Series) series.Points.Clear();
+            Disturbance.Stop();
         }
 
         private void timerUpdateGUI_Tick_1(object sender, EventArgs e)
@@ -450,11 +455,6 @@ namespace Model_GUI
         {
             dataChart.SaveImage(folderName + "\\chart_model_main.png", ChartImageFormat.Png);
             perturbationChart.SaveImage(folderName + "\\chart_model_disturbance.png", ChartImageFormat.Png);
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            Disturbance.Stop();
         }
 
         private void rBtnDisturbanceConstant_CheckedChanged(object sender, EventArgs e)

@@ -12,13 +12,11 @@ namespace Controller
 {
     public class ControlModule
     {
-
-
         // data containers (dictionaries)
         static Dictionary<string, DataContainer> received_packages = new Dictionary<string, DataContainer>();
 
         // flag specific keys with pre-defined meanings
-        static string[] def_controlled_states = new string[] { "yc1", "yc2" };
+        static string[] def_controlled_states = new string[] { "yc1", "yc2" }; // initialze new PID for these keys
 
         // container for all controllers in the module
         private static List<PID> PIDList = new List<PID>();
@@ -252,12 +250,12 @@ namespace Controller
                 // if a new key is recieved, add it
                 if (received_packages.ContainsKey(key) == false)
                 {
-                    received_packages.Add(key, new DataContainer(Constants.n_steps));
+                    received_packages.Add(key, new DataContainer(Constants.n_steps_small));
 
                     // add controller if the tag corresponds to a controlled state
                     if (def_controlled_states.Contains(key))
                     {
-                        Console.WriteLine("PID added");
+                        Console.WriteLine("PID added: " + controller_type.ToString());
                         PIDList.Add(new PID(controller_type));
                     }
 

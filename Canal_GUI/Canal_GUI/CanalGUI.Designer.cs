@@ -58,7 +58,6 @@
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.label13 = new System.Windows.Forms.Label();
             this.clbDropOutTarget = new System.Windows.Forms.CheckedListBox();
-            this.btnStartListener = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.nudBernoulliPass = new System.Windows.Forms.NumericUpDown();
             this.label7 = new System.Windows.Forms.Label();
@@ -286,7 +285,6 @@
             this.tabPage2.Controls.Add(this.nudHistory1);
             this.tabPage2.Controls.Add(this.packageChart);
             this.tabPage2.Controls.Add(this.groupBox4);
-            this.tabPage2.Controls.Add(this.btnStartListener);
             this.tabPage2.Controls.Add(this.groupBox1);
             this.tabPage2.Controls.Add(this.tbCanalPort);
             this.tabPage2.Controls.Add(this.label6);
@@ -373,16 +371,6 @@
             this.clbDropOutTarget.Name = "clbDropOutTarget";
             this.clbDropOutTarget.Size = new System.Drawing.Size(220, 64);
             this.clbDropOutTarget.TabIndex = 23;
-            // 
-            // btnStartListener
-            // 
-            this.btnStartListener.Location = new System.Drawing.Point(129, 5);
-            this.btnStartListener.Name = "btnStartListener";
-            this.btnStartListener.Size = new System.Drawing.Size(75, 23);
-            this.btnStartListener.TabIndex = 10;
-            this.btnStartListener.Text = "Start";
-            this.btnStartListener.UseVisualStyleBackColor = true;
-            this.btnStartListener.Click += new System.EventHandler(this.btnStartListener_Click_2);
             // 
             // groupBox1
             // 
@@ -509,6 +497,7 @@
             // 
             // tbCanalPort
             // 
+            this.tbCanalPort.Enabled = false;
             this.tbCanalPort.Location = new System.Drawing.Point(80, 6);
             this.tbCanalPort.Name = "tbCanalPort";
             this.tbCanalPort.Size = new System.Drawing.Size(44, 20);
@@ -980,7 +969,6 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button btnUpdateDropoutModel;
         private System.Windows.Forms.TabPage tabPage3;
-        private System.Windows.Forms.Button btnStartListener;
         private System.Windows.Forms.Label labelStatus;
         private System.Windows.Forms.Timer timerStatus;
         private System.Windows.Forms.Label label11;

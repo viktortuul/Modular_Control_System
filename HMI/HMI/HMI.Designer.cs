@@ -757,7 +757,7 @@
             this.Name = "FrameGUI";
             this.Text = "HMI";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.FrameGUI_Load);
             this.Resize += new System.EventHandler(this.FrameGUI_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.dataChart)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarReference1)).EndInit();

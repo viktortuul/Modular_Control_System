@@ -30,19 +30,19 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ModelGUI));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea5 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend5 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title5 = new System.Windows.Forms.DataVisualization.Charting.Title();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea6 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend6 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title6 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title3 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title4 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.labelDebug = new System.Windows.Forms.Label();
             this.timerChart = new System.Windows.Forms.Timer(this.components);
             this.labelDisturbance = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label17 = new System.Windows.Forms.Label();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.button1 = new System.Windows.Forms.Button();
+            this.nudHistory = new System.Windows.Forms.NumericUpDown();
+            this.btnClearCharts = new System.Windows.Forms.Button();
             this.timerUpdateGUI = new System.Windows.Forms.Timer(this.components);
             this.label2 = new System.Windows.Forms.Label();
             this.nudDuration = new System.Windows.Forms.NumericUpDown();
@@ -51,13 +51,13 @@
             this.rbConstant = new System.Windows.Forms.RadioButton();
             this.rbSinusoid = new System.Windows.Forms.RadioButton();
             this.rbTransientDecrease = new System.Windows.Forms.RadioButton();
-            this.buttonApplyDisturbance = new System.Windows.Forms.Button();
+            this.btnApplyDisturbance = new System.Windows.Forms.Button();
             this.nudAmplitude = new System.Windows.Forms.NumericUpDown();
             this.labelAmplitude = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
             this.nudTimeConst = new System.Windows.Forms.NumericUpDown();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.button2 = new System.Windows.Forms.Button();
+            this.btnStopDisturbance = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.tbTargetState = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -77,7 +77,7 @@
             this.clbSeries = new System.Windows.Forms.CheckedListBox();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudHistory)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudDuration)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudFrequency)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudAmplitude)).BeginInit();
@@ -139,35 +139,35 @@
             this.label17.TabIndex = 25;
             this.label17.Text = "History [s]";
             // 
-            // numericUpDown1
+            // nudHistory
             // 
-            this.numericUpDown1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.numericUpDown1.Location = new System.Drawing.Point(907, 23);
-            this.numericUpDown1.Maximum = new decimal(new int[] {
+            this.nudHistory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.nudHistory.Location = new System.Drawing.Point(907, 23);
+            this.nudHistory.Maximum = new decimal(new int[] {
             1000,
             0,
             0,
             0});
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(49, 20);
-            this.numericUpDown1.TabIndex = 28;
-            this.numericUpDown1.Value = new decimal(new int[] {
+            this.nudHistory.Name = "nudHistory";
+            this.nudHistory.Size = new System.Drawing.Size(49, 20);
+            this.nudHistory.TabIndex = 28;
+            this.nudHistory.Value = new decimal(new int[] {
             60,
             0,
             0,
             0});
-            this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
+            this.nudHistory.ValueChanged += new System.EventHandler(this.nudHistory_ValueChanged);
             // 
-            // button1
+            // btnClearCharts
             // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(962, 23);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(74, 21);
-            this.button1.TabIndex = 28;
-            this.button1.Text = "Clear charts";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.btnClearCharts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClearCharts.Location = new System.Drawing.Point(962, 23);
+            this.btnClearCharts.Name = "btnClearCharts";
+            this.btnClearCharts.Size = new System.Drawing.Size(74, 21);
+            this.btnClearCharts.TabIndex = 28;
+            this.btnClearCharts.Text = "Clear charts";
+            this.btnClearCharts.UseVisualStyleBackColor = true;
+            this.btnClearCharts.Click += new System.EventHandler(this.btnClearCharts_Click);
             // 
             // timerUpdateGUI
             // 
@@ -256,15 +256,15 @@
             this.rbTransientDecrease.UseVisualStyleBackColor = true;
             this.rbTransientDecrease.CheckedChanged += new System.EventHandler(this.rBtnDisturbanceTransient_CheckedChanged);
             // 
-            // buttonApplyDisturbance
+            // btnApplyDisturbance
             // 
-            this.buttonApplyDisturbance.Location = new System.Drawing.Point(9, 154);
-            this.buttonApplyDisturbance.Name = "buttonApplyDisturbance";
-            this.buttonApplyDisturbance.Size = new System.Drawing.Size(113, 23);
-            this.buttonApplyDisturbance.TabIndex = 0;
-            this.buttonApplyDisturbance.Text = "Apply disturbance";
-            this.buttonApplyDisturbance.UseVisualStyleBackColor = true;
-            this.buttonApplyDisturbance.Click += new System.EventHandler(this.buttonApplyDisturbance_Click);
+            this.btnApplyDisturbance.Location = new System.Drawing.Point(9, 154);
+            this.btnApplyDisturbance.Name = "btnApplyDisturbance";
+            this.btnApplyDisturbance.Size = new System.Drawing.Size(113, 23);
+            this.btnApplyDisturbance.TabIndex = 0;
+            this.btnApplyDisturbance.Text = "Apply disturbance";
+            this.btnApplyDisturbance.UseVisualStyleBackColor = true;
+            this.btnApplyDisturbance.Click += new System.EventHandler(this.btnApplyDisturbance_Click);
             // 
             // nudAmplitude
             // 
@@ -324,9 +324,9 @@
             // groupBox1
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.button2);
+            this.groupBox1.Controls.Add(this.btnStopDisturbance);
             this.groupBox1.Controls.Add(this.label4);
-            this.groupBox1.Controls.Add(this.buttonApplyDisturbance);
+            this.groupBox1.Controls.Add(this.btnApplyDisturbance);
             this.groupBox1.Controls.Add(this.tbTargetState);
             this.groupBox1.Controls.Add(this.groupBox2);
             this.groupBox1.Controls.Add(this.groupBox5);
@@ -339,15 +339,15 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Disturbance settings";
             // 
-            // button2
+            // btnStopDisturbance
             // 
-            this.button2.Location = new System.Drawing.Point(9, 178);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(113, 23);
-            this.button2.TabIndex = 44;
-            this.button2.Text = "Stop disturbance";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.btnStopDisturbance.Location = new System.Drawing.Point(9, 178);
+            this.btnStopDisturbance.Name = "btnStopDisturbance";
+            this.btnStopDisturbance.Size = new System.Drawing.Size(113, 23);
+            this.btnStopDisturbance.TabIndex = 44;
+            this.btnStopDisturbance.Text = "Stop disturbance";
+            this.btnStopDisturbance.UseVisualStyleBackColor = true;
+            this.btnStopDisturbance.Click += new System.EventHandler(this.btnStopDisturbance_Click);
             // 
             // label4
             // 
@@ -472,39 +472,39 @@
             this.perturbationChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea5.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea5.Name = "ChartArea1";
-            chartArea5.ShadowColor = System.Drawing.Color.Gray;
-            this.perturbationChart.ChartAreas.Add(chartArea5);
-            legend5.Name = "Legend1";
-            this.perturbationChart.Legends.Add(legend5);
+            chartArea3.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea3.Name = "ChartArea1";
+            chartArea3.ShadowColor = System.Drawing.Color.Gray;
+            this.perturbationChart.ChartAreas.Add(chartArea3);
+            legend3.Name = "Legend1";
+            this.perturbationChart.Legends.Add(legend3);
             this.perturbationChart.Location = new System.Drawing.Point(5, 3);
             this.perturbationChart.Name = "perturbationChart";
             this.perturbationChart.Size = new System.Drawing.Size(650, 436);
             this.perturbationChart.TabIndex = 21;
             this.perturbationChart.Text = "chart1";
-            title5.Name = "Title1";
-            title5.Text = "Applied perturbations";
-            this.perturbationChart.Titles.Add(title5);
+            title3.Name = "Title1";
+            title3.Text = "Applied perturbations";
+            this.perturbationChart.Titles.Add(title3);
             // 
             // dataChart
             // 
             this.dataChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea6.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea6.Name = "ChartArea1";
-            chartArea6.ShadowColor = System.Drawing.Color.Gray;
-            this.dataChart.ChartAreas.Add(chartArea6);
-            legend6.Name = "Legend1";
-            this.dataChart.Legends.Add(legend6);
+            chartArea4.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea4.Name = "ChartArea1";
+            chartArea4.ShadowColor = System.Drawing.Color.Gray;
+            this.dataChart.ChartAreas.Add(chartArea4);
+            legend4.Name = "Legend1";
+            this.dataChart.Legends.Add(legend4);
             this.dataChart.Location = new System.Drawing.Point(1, 1);
             this.dataChart.Name = "dataChart";
             this.dataChart.Size = new System.Drawing.Size(653, 440);
             this.dataChart.TabIndex = 19;
-            title6.Name = "Title1";
-            title6.Text = "True states";
-            this.dataChart.Titles.Add(title6);
+            title4.Name = "Title1";
+            title4.Text = "True states";
+            this.dataChart.Titles.Add(title4);
             // 
             // tabControl1
             // 
@@ -561,8 +561,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1172, 523);
             this.Controls.Add(this.label17);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.numericUpDown1);
+            this.Controls.Add(this.btnClearCharts);
+            this.Controls.Add(this.nudHistory);
             this.Controls.Add(this.clbSeries);
             this.Controls.Add(this.label16);
             this.Controls.Add(this.pictureBox1);
@@ -573,9 +573,9 @@
             this.Name = "ModelGUI";
             this.Text = "Model";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.ModelGUI_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudHistory)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudDuration)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudFrequency)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudAmplitude)).EndInit();
@@ -601,12 +601,12 @@
         #endregion
         private System.Windows.Forms.Timer timerChart;
         private System.Windows.Forms.Label label17;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.NumericUpDown nudHistory;
+        private System.Windows.Forms.Button btnClearCharts;
         private System.Windows.Forms.Timer timerUpdateGUI;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button buttonApplyDisturbance;
+        private System.Windows.Forms.Button btnApplyDisturbance;
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.GroupBox groupBox1;
         public System.Windows.Forms.Label labelDisturbance;
@@ -624,7 +624,7 @@
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.TextBox tbTargetState;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button btnStopDisturbance;
         public System.Windows.Forms.RadioButton rbConstant;
         public System.Windows.Forms.RadioButton rbSinusoid;
         public System.Windows.Forms.RadioButton rbTransientDecrease;
