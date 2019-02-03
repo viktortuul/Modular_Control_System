@@ -293,7 +293,7 @@
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage2.Size = new System.Drawing.Size(867, 416);
             this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Canal settings";
+            this.tabPage2.Text = "Channel settings";
             // 
             // label14
             // 
@@ -909,9 +909,9 @@
             this.Controls.Add(this.tabControl1);
             this.MinimumSize = new System.Drawing.Size(550, 350);
             this.Name = "CanalGUI";
-            this.Text = "Canal GUI";
+            this.Text = "Channel GUI";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.ChannelGUI_Load);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.tabControl1.ResumeLayout(false);

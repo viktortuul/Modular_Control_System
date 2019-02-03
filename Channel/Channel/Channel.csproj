@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{75ACE0E4-FBCE-4BFD-BE94-47D8F0BB7F9E}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Canal</RootNamespace>
-    <AssemblyName>Canal</AssemblyName>
+    <RootNamespace>Channel</RootNamespace>
+    <AssemblyName>Channel</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -46,7 +46,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DropOutModels.cs" />
-    <Compile Include="Helpers.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

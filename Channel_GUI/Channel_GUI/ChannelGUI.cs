@@ -61,7 +61,7 @@ namespace Canal_GUI
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void ChannelGUI_Load(object sender, EventArgs e)
         {
             // read command line arguments
             string[] args = Environment.GetCommandLineArgs();

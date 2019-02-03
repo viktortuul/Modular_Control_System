@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4A222D8F-34C6-4DA1-AAC8-930D510F66E0}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Canal_GUI</RootNamespace>
-    <AssemblyName>Canal_GUI</AssemblyName>
+    <RootNamespace>Channel_GUI</RootNamespace>
+    <AssemblyName>Channel_GUI</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -54,17 +54,17 @@
   <ItemGroup>
     <Compile Include="AttackModel.cs" />
     <Compile Include="DropOutModels.cs" />
-    <Compile Include="CanalGUI.cs">
+    <Compile Include="ChannelGUI.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CanalGUI.Designer.cs">
-      <DependentUpon>CanalGUI.cs</DependentUpon>
+    <Compile Include="ChannelGUI.Designer.cs">
+      <DependentUpon>ChannelGUI.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="CanalGUI.resx">
-      <DependentUpon>CanalGUI.cs</DependentUpon>
+    <EmbeddedResource Include="ChannelGUI.resx">
+      <DependentUpon>ChannelGUI.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -74,6 +74,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
