@@ -332,11 +332,11 @@ namespace Controller
                         log_flag = arg_sep[1];
                         break;
         
-                    case "canal_gui":
+                    case "channel_gui":
                         EP_Send_GUI = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
                         using_canal = true;
                         break;
-                    case "canal_plant":
+                    case "channel_plant":
                         EP_Send_Plant = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
                         break;
 

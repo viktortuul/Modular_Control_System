@@ -325,7 +325,7 @@ namespace Model_GUI
 
                 switch (arg_name)
                 {
-                    case "canal_controller":
+                    case "channel_controller":
                         EP = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
                         using_canal = true;
                         break;
