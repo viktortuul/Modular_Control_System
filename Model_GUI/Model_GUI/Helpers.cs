@@ -33,7 +33,11 @@ namespace Model_GUI
 
             // extract signals
             int u = 0;
-            try { u = Convert.ToInt16(Convert.ToDouble(GUI.package_last["u1"])); } catch { };
+            if (GUI.package_last.ContainsKey("u1") == true)
+            {
+                try { u = Convert.ToInt16(Convert.ToDouble(GUI.package_last["u1"])); } catch { };
+            }
+
             int y1 = Convert.ToInt16(cm2pix * Convert.ToDouble(GUI.states["yo1"].GetLastValue()));
             int y2 = Convert.ToInt16(cm2pix * Convert.ToDouble(GUI.states["yc1"].GetLastValue()));
 
@@ -110,11 +114,7 @@ namespace Model_GUI
             GUI.pictureBox1.Image = bm;
         }
 
-        public static void CheckKey(Dictionary<string, DataContainer> dict, string key, int n_steps)
-        {
-            // if the key doesn't exist, add it
-            if (dict.ContainsKey(key) == false) dict.Add(key, new DataContainer(n_steps));
-        }
+
 
         public static void UpdatePerturbationLabels(ModelGUI GUI, Perturbation Disturbance)
         {

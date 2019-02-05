@@ -78,15 +78,12 @@ namespace Canal_GUI
             }
         }
 
-        public static void AddKey(Dictionary<string, DataContainer> dict, string key, int n_steps)
-        {
-            if (dict.ContainsKey(key) == false) dict.Add(key, new DataContainer(n_steps));
-        }
+
 
         public static void ManageNumericalUpdowns(CanalGUI Main)
         {
             Main.tbTimeSeries.Visible = false;
-            Main.btnClear.Visible = false;
+            Main.btnClearCustomAttack.Visible = false;
             Main.labelTimeSeries.Visible = false;
 
             if (Main.rbBias.Checked == true)
@@ -120,7 +117,7 @@ namespace Canal_GUI
                 Main.nudTimeConst.Enabled = false;
                 Main.nudFrequency.Enabled = false;
                 Main.tbTimeSeries.Visible = true;
-                Main.btnClear.Visible = true;
+                Main.btnClearCustomAttack.Visible = true;
                 Main.labelTimeSeries.Visible = true;
             }
         }

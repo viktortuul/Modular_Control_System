@@ -346,6 +346,12 @@ namespace Controller
                     case "plant_ep":
                         EP_Plant = new ConnectionParameters(arg_sep[1], Convert.ToInt16(arg_sep[2]), Convert.ToInt16(arg_sep[3]));
                         break;
+
+                    default:
+                        Console.WriteLine("Unknown argument not used: " + arg_name);
+                        Console.WriteLine("Press any key to proceed...");
+                        Console.ReadLine();
+                        break;
                 }
             }
         }

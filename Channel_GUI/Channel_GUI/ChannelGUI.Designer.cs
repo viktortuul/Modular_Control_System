@@ -64,7 +64,6 @@
             this.rbBernoulli = new System.Windows.Forms.RadioButton();
             this.label15 = new System.Windows.Forms.Label();
             this.nudStayDrop = new System.Windows.Forms.NumericUpDown();
-            this.btnUpdateDropoutModel = new System.Windows.Forms.Button();
             this.label9 = new System.Windows.Forms.Label();
             this.nudStayPass = new System.Windows.Forms.NumericUpDown();
             this.rbMarkov = new System.Windows.Forms.RadioButton();
@@ -74,16 +73,16 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.label12 = new System.Windows.Forms.Label();
             this.nudHistory = new System.Windows.Forms.NumericUpDown();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.btnUpdateAttackModel = new System.Windows.Forms.Button();
+            this.btnStopAttack = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.rbSetValue = new System.Windows.Forms.RadioButton();
             this.rbAddValue = new System.Windows.Forms.RadioButton();
-            this.btnClear = new System.Windows.Forms.Button();
+            this.btnClearCustomAttack = new System.Windows.Forms.Button();
             this.labelTimeSeries = new System.Windows.Forms.Label();
             this.tbTimeSeries = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.btnAttack = new System.Windows.Forms.Button();
+            this.btnStartAttack = new System.Windows.Forms.Button();
             this.clbAttackModels = new System.Windows.Forms.CheckedListBox();
             this.attackChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.cbAllPorts = new System.Windows.Forms.CheckBox();
@@ -299,16 +298,15 @@
             // 
             this.label14.AutoSize = true;
             this.label14.BackColor = System.Drawing.Color.White;
-            this.label14.Location = new System.Drawing.Point(11, 168);
+            this.label14.Location = new System.Drawing.Point(11, 141);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(53, 13);
             this.label14.TabIndex = 36;
             this.label14.Text = "History [s]";
-            this.label14.Click += new System.EventHandler(this.label14_Click);
             // 
             // nudHistory1
             // 
-            this.nudHistory1.Location = new System.Drawing.Point(70, 165);
+            this.nudHistory1.Location = new System.Drawing.Point(70, 138);
             this.nudHistory1.Maximum = new decimal(new int[] {
             2000,
             0,
@@ -334,9 +332,9 @@
             this.packageChart.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
             this.packageChart.Legends.Add(legend1);
-            this.packageChart.Location = new System.Drawing.Point(7, 164);
+            this.packageChart.Location = new System.Drawing.Point(7, 136);
             this.packageChart.Name = "packageChart";
-            this.packageChart.Size = new System.Drawing.Size(854, 249);
+            this.packageChart.Size = new System.Drawing.Size(854, 277);
             this.packageChart.TabIndex = 34;
             this.packageChart.Text = "chart1";
             title1.Name = "Title1";
@@ -347,7 +345,7 @@
             // 
             this.groupBox4.Controls.Add(this.label13);
             this.groupBox4.Controls.Add(this.clbDropOutTarget);
-            this.groupBox4.Location = new System.Drawing.Point(254, 33);
+            this.groupBox4.Location = new System.Drawing.Point(253, 5);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(232, 125);
             this.groupBox4.TabIndex = 11;
@@ -379,14 +377,13 @@
             this.groupBox1.Controls.Add(this.rbBernoulli);
             this.groupBox1.Controls.Add(this.label15);
             this.groupBox1.Controls.Add(this.nudStayDrop);
-            this.groupBox1.Controls.Add(this.btnUpdateDropoutModel);
             this.groupBox1.Controls.Add(this.label9);
             this.groupBox1.Controls.Add(this.nudStayPass);
             this.groupBox1.Controls.Add(this.rbMarkov);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Location = new System.Drawing.Point(7, 33);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(240, 125);
+            this.groupBox1.Size = new System.Drawing.Size(240, 97);
             this.groupBox1.TabIndex = 8;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Package drop-out models";
@@ -402,6 +399,7 @@
             0,
             0,
             0});
+            this.nudBernoulliPass.ValueChanged += new System.EventHandler(this.nudBernoulliPass_ValueChanged);
             // 
             // label7
             // 
@@ -423,6 +421,7 @@
             this.rbBernoulli.TabStop = true;
             this.rbBernoulli.Text = "Bernoulli";
             this.rbBernoulli.UseVisualStyleBackColor = true;
+            this.rbBernoulli.CheckedChanged += new System.EventHandler(this.rbBernoulli_CheckedChanged);
             // 
             // label15
             // 
@@ -444,16 +443,7 @@
             0,
             0,
             0});
-            // 
-            // btnUpdateDropoutModel
-            // 
-            this.btnUpdateDropoutModel.Location = new System.Drawing.Point(121, 93);
-            this.btnUpdateDropoutModel.Name = "btnUpdateDropoutModel";
-            this.btnUpdateDropoutModel.Size = new System.Drawing.Size(92, 23);
-            this.btnUpdateDropoutModel.TabIndex = 9;
-            this.btnUpdateDropoutModel.Text = "Update";
-            this.btnUpdateDropoutModel.UseVisualStyleBackColor = true;
-            this.btnUpdateDropoutModel.Click += new System.EventHandler(this.btnUpdateDropoutModel_Click_1);
+            this.nudStayDrop.ValueChanged += new System.EventHandler(this.nudStayDrop_ValueChanged);
             // 
             // label9
             // 
@@ -475,6 +465,7 @@
             0,
             0,
             0});
+            this.nudStayPass.ValueChanged += new System.EventHandler(this.nudStayPass_ValueChanged);
             // 
             // rbMarkov
             // 
@@ -485,6 +476,7 @@
             this.rbMarkov.TabIndex = 1;
             this.rbMarkov.Text = "Markov ";
             this.rbMarkov.UseVisualStyleBackColor = true;
+            this.rbMarkov.CheckedChanged += new System.EventHandler(this.rbMarkov_CheckedChanged);
             // 
             // label8
             // 
@@ -518,14 +510,14 @@
             this.tabPage1.BackColor = System.Drawing.Color.Transparent;
             this.tabPage1.Controls.Add(this.label12);
             this.tabPage1.Controls.Add(this.nudHistory);
-            this.tabPage1.Controls.Add(this.button3);
-            this.tabPage1.Controls.Add(this.button2);
+            this.tabPage1.Controls.Add(this.btnUpdateAttackModel);
+            this.tabPage1.Controls.Add(this.btnStopAttack);
             this.tabPage1.Controls.Add(this.groupBox3);
-            this.tabPage1.Controls.Add(this.btnClear);
+            this.tabPage1.Controls.Add(this.btnClearCustomAttack);
             this.tabPage1.Controls.Add(this.labelTimeSeries);
             this.tabPage1.Controls.Add(this.tbTimeSeries);
             this.tabPage1.Controls.Add(this.label2);
-            this.tabPage1.Controls.Add(this.btnAttack);
+            this.tabPage1.Controls.Add(this.btnStartAttack);
             this.tabPage1.Controls.Add(this.clbAttackModels);
             this.tabPage1.Controls.Add(this.attackChart);
             this.tabPage1.Controls.Add(this.cbAllPorts);
@@ -581,25 +573,25 @@
             0});
             this.nudHistory.ValueChanged += new System.EventHandler(this.nudHistory_ValueChanged);
             // 
-            // button3
+            // btnUpdateAttackModel
             // 
-            this.button3.Location = new System.Drawing.Point(273, 112);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(88, 23);
-            this.button3.TabIndex = 31;
-            this.button3.Text = "Update model";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.btnUpdateAttackModel_Click);
+            this.btnUpdateAttackModel.Location = new System.Drawing.Point(273, 112);
+            this.btnUpdateAttackModel.Name = "btnUpdateAttackModel";
+            this.btnUpdateAttackModel.Size = new System.Drawing.Size(88, 23);
+            this.btnUpdateAttackModel.TabIndex = 31;
+            this.btnUpdateAttackModel.Text = "Update model";
+            this.btnUpdateAttackModel.UseVisualStyleBackColor = true;
+            this.btnUpdateAttackModel.Click += new System.EventHandler(this.btnUpdateAttackModel_Click);
             // 
-            // button2
+            // btnStopAttack
             // 
-            this.button2.Location = new System.Drawing.Point(273, 170);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(88, 23);
-            this.button2.TabIndex = 30;
-            this.button2.Text = "Stop attack";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click_1);
+            this.btnStopAttack.Location = new System.Drawing.Point(273, 170);
+            this.btnStopAttack.Name = "btnStopAttack";
+            this.btnStopAttack.Size = new System.Drawing.Size(88, 23);
+            this.btnStopAttack.TabIndex = 30;
+            this.btnStopAttack.Text = "Stop attack";
+            this.btnStopAttack.UseVisualStyleBackColor = true;
+            this.btnStopAttack.Click += new System.EventHandler(this.btnStopAttack_Click);
             // 
             // groupBox3
             // 
@@ -639,17 +631,17 @@
             this.rbAddValue.Text = "Add value";
             this.rbAddValue.UseVisualStyleBackColor = true;
             // 
-            // btnClear
+            // btnClearCustomAttack
             // 
-            this.btnClear.Location = new System.Drawing.Point(648, 49);
-            this.btnClear.Margin = new System.Windows.Forms.Padding(2);
-            this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(56, 19);
-            this.btnClear.TabIndex = 27;
-            this.btnClear.Text = "Clear";
-            this.btnClear.UseVisualStyleBackColor = true;
-            this.btnClear.Visible = false;
-            this.btnClear.Click += new System.EventHandler(this.button1_Click);
+            this.btnClearCustomAttack.Location = new System.Drawing.Point(648, 49);
+            this.btnClearCustomAttack.Margin = new System.Windows.Forms.Padding(2);
+            this.btnClearCustomAttack.Name = "btnClearCustomAttack";
+            this.btnClearCustomAttack.Size = new System.Drawing.Size(56, 19);
+            this.btnClearCustomAttack.TabIndex = 27;
+            this.btnClearCustomAttack.Text = "Clear";
+            this.btnClearCustomAttack.UseVisualStyleBackColor = true;
+            this.btnClearCustomAttack.Visible = false;
+            this.btnClearCustomAttack.Click += new System.EventHandler(this.btnClearCustomAttack_Click);
             // 
             // labelTimeSeries
             // 
@@ -680,15 +672,15 @@
             this.label2.TabIndex = 24;
             this.label2.Text = "Saved attack models";
             // 
-            // btnAttack
+            // btnStartAttack
             // 
-            this.btnAttack.Location = new System.Drawing.Point(273, 147);
-            this.btnAttack.Name = "btnAttack";
-            this.btnAttack.Size = new System.Drawing.Size(88, 23);
-            this.btnAttack.TabIndex = 23;
-            this.btnAttack.Text = "Start attack";
-            this.btnAttack.UseVisualStyleBackColor = true;
-            this.btnAttack.Click += new System.EventHandler(this.btnAttack_Click);
+            this.btnStartAttack.Location = new System.Drawing.Point(273, 147);
+            this.btnStartAttack.Name = "btnStartAttack";
+            this.btnStartAttack.Size = new System.Drawing.Size(88, 23);
+            this.btnStartAttack.TabIndex = 23;
+            this.btnStartAttack.Text = "Start attack";
+            this.btnStartAttack.UseVisualStyleBackColor = true;
+            this.btnStartAttack.Click += new System.EventHandler(this.btnStartAttack_Click);
             // 
             // clbAttackModels
             // 
@@ -967,7 +959,6 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.NumericUpDown nudBernoulliPass;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Button btnUpdateDropoutModel;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.Label labelStatus;
         private System.Windows.Forms.Timer timerStatus;
@@ -981,7 +972,7 @@
         private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
         private System.Windows.Forms.ToolStripMenuItem setDirectoryToolStripMenuItem;
         private System.Windows.Forms.CheckedListBox clbAttackModels;
-        private System.Windows.Forms.Button btnAttack;
+        private System.Windows.Forms.Button btnStartAttack;
         private System.Windows.Forms.Label label2;
         public System.Windows.Forms.RadioButton rbSinusoid;
         public System.Windows.Forms.RadioButton rbTransientDecrease;
@@ -996,11 +987,11 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.RadioButton rbSetValue;
         private System.Windows.Forms.RadioButton rbAddValue;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button btnStopAttack;
+        private System.Windows.Forms.Button btnUpdateAttackModel;
         public System.Windows.Forms.TextBox tbTimeSeries;
         public System.Windows.Forms.Label labelTimeSeries;
-        public System.Windows.Forms.Button btnClear;
+        public System.Windows.Forms.Button btnClearCustomAttack;
         private System.Windows.Forms.Label label12;
         public System.Windows.Forms.NumericUpDown nudHistory;
         private System.Windows.Forms.GroupBox groupBox4;

@@ -30,12 +30,12 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ModelGUI));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title3 = new System.Windows.Forms.DataVisualization.Charting.Title();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title4 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.labelDebug = new System.Windows.Forms.Label();
             this.timerChart = new System.Windows.Forms.Timer(this.components);
             this.labelDisturbance = new System.Windows.Forms.Label();
@@ -472,39 +472,39 @@
             this.perturbationChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea3.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea3.Name = "ChartArea1";
-            chartArea3.ShadowColor = System.Drawing.Color.Gray;
-            this.perturbationChart.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            this.perturbationChart.Legends.Add(legend3);
+            chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea1.Name = "ChartArea1";
+            chartArea1.ShadowColor = System.Drawing.Color.Gray;
+            this.perturbationChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.perturbationChart.Legends.Add(legend1);
             this.perturbationChart.Location = new System.Drawing.Point(5, 3);
             this.perturbationChart.Name = "perturbationChart";
             this.perturbationChart.Size = new System.Drawing.Size(650, 436);
             this.perturbationChart.TabIndex = 21;
             this.perturbationChart.Text = "chart1";
-            title3.Name = "Title1";
-            title3.Text = "Applied perturbations";
-            this.perturbationChart.Titles.Add(title3);
+            title1.Name = "Title1";
+            title1.Text = "Applied perturbations";
+            this.perturbationChart.Titles.Add(title1);
             // 
             // dataChart
             // 
             this.dataChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea4.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea4.Name = "ChartArea1";
-            chartArea4.ShadowColor = System.Drawing.Color.Gray;
-            this.dataChart.ChartAreas.Add(chartArea4);
-            legend4.Name = "Legend1";
-            this.dataChart.Legends.Add(legend4);
+            chartArea2.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea2.Name = "ChartArea1";
+            chartArea2.ShadowColor = System.Drawing.Color.Gray;
+            this.dataChart.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.dataChart.Legends.Add(legend2);
             this.dataChart.Location = new System.Drawing.Point(1, 1);
             this.dataChart.Name = "dataChart";
             this.dataChart.Size = new System.Drawing.Size(653, 440);
             this.dataChart.TabIndex = 19;
-            title4.Name = "Title1";
-            title4.Text = "True states";
-            this.dataChart.Titles.Add(title4);
+            title2.Name = "Title1";
+            title2.Text = "True states";
+            this.dataChart.Titles.Add(title2);
             // 
             // tabControl1
             // 
@@ -553,7 +553,7 @@
             this.clbSeries.Name = "clbSeries";
             this.clbSeries.Size = new System.Drawing.Size(114, 94);
             this.clbSeries.TabIndex = 39;
-            this.clbSeries.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.checkedListBox1_ItemCheck);
+            this.clbSeries.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clbSeries_ItemCheck);
             // 
             // ModelGUI
             // 
@@ -572,7 +572,7 @@
             this.MinimumSize = new System.Drawing.Size(600, 350);
             this.Name = "ModelGUI";
             this.Text = "Model";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ModelGUI_FormClosing);
             this.Load += new System.EventHandler(this.ModelGUI_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudHistory)).EndInit();

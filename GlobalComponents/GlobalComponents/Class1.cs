@@ -104,7 +104,13 @@ namespace GlobalComponents
     }
 
     public struct Tools
-    {  
+    {
+        public static void AddKeyToDict(Dictionary<string, DataContainer> dict, string key, int n_steps)
+        {
+            // if the key doesn't exist, add it
+            if (dict.ContainsKey(key) == false) dict.Add(key, new DataContainer(n_steps));
+        }
+
         public static List<string> ArgsParser(string arg)
         {
             List<string> args_parsed = new List<string>();

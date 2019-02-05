@@ -1,4 +1,4 @@
-Start ..\HMI\HMI\bin\Debug\HMI.exe canal_controller=127.0.0.1:8111
+Start ..\HMI\HMI\bin\Debug\HMI.exe channel_controller=127.0.0.1:8111
 
 Start ..\Controller\Controller\bin\Debug\Controller.exe gui_ep=127.0.0.1:8100:8200 plant_ep=127.0.0.1:8300:8400 channel_gui=127.0.0.1:8111 channel_plant=127.0.0.1:8222 controller=PID_normal log=false
 Start ..\Model_GUI\Model_GUI\bin\Debug\Model_GUI.exe controller_ep=127.0.0.1:8400:8300 channel_controller=127.0.0.1:8222 model=dwt:5,0:0,3:5,0:0,2:0,00001 log=false

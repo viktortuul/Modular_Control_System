@@ -69,7 +69,7 @@ namespace Controller
                     {
                         //ComputePIDnormal(dt_CONST);
                         ComputePIDnormal(dt_m);
-                        Console.WriteLine("dt:" + dt_m);
+                        //Console.WriteLine("dt:" + dt_m);
                     }
                     else if (controller_type == "PID_plus")
                     {

@@ -311,6 +311,11 @@ namespace HMI
                             usingCanal = true;
                             log("Using channel: <" + arg_sep[1] + ">, <" + arg_sep[2] + ">");
                             break;
+                        case "ARG_INVALID":
+                            break;
+                        default:
+                            MessageBox.Show("Unknown argument not used: " + arg_name);
+                            break;
                     }
                 }
             }

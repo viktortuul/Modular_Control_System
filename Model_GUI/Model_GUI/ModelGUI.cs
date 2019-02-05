@@ -269,7 +269,6 @@ namespace Model_GUI
                 int i = dict[key].time.Length - 1;
                 if (dict[key].time[i] != null)
                 {
-                    Console.WriteLine(dict[key].value[i]);
                     DateTime time = DateTime.ParseExact(dict[key].time[i], Constants.FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
                     chart_.Series[key].Points.AddXY(time.ToOADate(), Convert.ToDouble(dict[key].value[i]));
                 }
@@ -279,19 +278,19 @@ namespace Model_GUI
             }
         }
 
-        public void SampleStates(Plant plant)
+        public void SampleStates(Plant plant) // used for plotting
         {
             // observed states
             for (int i = 0; i < plant.get_yo().Length; i++)
             {
-                Helpers.CheckKey(states, "yo" + (i + 1), Constants.n_steps);
+                Tools.AddKeyToDict(states, "yo" + (i + 1), Constants.n_steps);
                 states["yo" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), plant.get_yo()[i].ToString());
             }
 
             // controlled states
             for (int i = 0; i < plant.get_yc().Length; i++)
             {
-                Helpers.CheckKey(states, "yc" + (i + 1), Constants.n_steps);
+                Tools.AddKeyToDict(states, "yc" + (i + 1), Constants.n_steps);
                 states["yc" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), plant.get_yc()[i].ToString());
             }
 
@@ -300,13 +299,13 @@ namespace Model_GUI
             var keys = package_last.Keys.ToList();
             foreach (string key in keys)
             {
-                Helpers.CheckKey(states, "u" + (j + 1), Constants.n_steps);
+                Tools.AddKeyToDict(states, "u" + (j + 1), Constants.n_steps);
                 states["u" + (j + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), package_last[key]);
                 j++;
             }
 
             // disturbances
-            Helpers.CheckKey(perturbations, "dist", Constants.n_steps);
+            Tools.AddKeyToDict(perturbations, "dist", Constants.n_steps);
             perturbations["dist"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Disturbance.value_disturbance.ToString());
             
         }
@@ -351,17 +350,24 @@ namespace Model_GUI
                             case "ipsiso":
                                 plant = new Plant(new InvertedPendulumSISO());
                                 break;
+                            default:
+                                MessageBox.Show("Unknown model type not used: " + arg_name);
+                                break;
                         }
                         break;
-
                     case "log":
                         log_flag = arg_sep[1];
+                        break;
+                    case "ARG_INVALID":
+                        break;
+                    default:
+                        MessageBox.Show("Unknown argument not used: " + arg_name);
                         break;
                 }
             }
         }
 
-        private void checkedListBox1_ItemCheck(object sender, ItemCheckEventArgs e)
+        private void clbSeries_ItemCheck(object sender, ItemCheckEventArgs e)
         {
             // list all checked items
             List<string> checkedItems = new List<string>();
@@ -399,7 +405,7 @@ namespace Model_GUI
             perturbationChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void ModelGUI_FormClosing(object sender, FormClosingEventArgs e)
         {
             // kill all threads when the form closes
             Environment.Exit(0);

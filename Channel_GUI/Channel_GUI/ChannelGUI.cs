@@ -180,7 +180,7 @@ namespace Canal_GUI
             Client Sender = new Client(IP, port);
 
             // add key
-            Helpers.AddKey(package_timeseries, EP.ToString(), n_steps);
+            Tools.AddKeyToDict(package_timeseries, EP.ToString(), n_steps);
 
             // check if the end-point is checked or not
             if (clbDropOutTarget.GetItemCheckState(clbDropOutTarget.Items.IndexOf(EP)) == CheckState.Checked)
@@ -223,7 +223,7 @@ namespace Canal_GUI
                 clbAttackModels.Items.Add(attack_parameters.target_tag + " @" + attack_parameters.target_ip + ":" + attack_parameters.target_port);
                 clbAttackModels.SelectedIndex = clbAttackModels.Items.Count - 1;
                 selected_attack_model = clbAttackModels.SelectedItem.ToString();
-                Helpers.AddKey(attack_timeseries, attack_parameters.target_tag + " @" + attack_parameters.target_ip + ":" + attack_parameters.target_port, n_steps);
+                Tools.AddKeyToDict(attack_timeseries, attack_parameters.target_tag + " @" + attack_parameters.target_ip + ":" + attack_parameters.target_port, n_steps);
 
                 tbTargetTag.Text = "";
             }
@@ -251,7 +251,7 @@ namespace Canal_GUI
             if (rbMarkov.Checked == true) SelectedDropOutModel = Markov;
         }
 
-        private void btnAttack_Click(object sender, EventArgs e)
+        private void btnStartAttack_Click(object sender, EventArgs e)
         {
             // start attack on all checked items
             foreach (string item in clbAttackModels.CheckedItems)
@@ -263,7 +263,7 @@ namespace Canal_GUI
             timerStatus.Start();
         }
 
-        private void button2_Click_1(object sender, EventArgs e)
+        private void btnStopAttack_Click(object sender, EventArgs e)
         {
             // stop attack on all checked items
             foreach (string item in clbAttackModels.CheckedItems)
@@ -416,6 +416,11 @@ namespace Canal_GUI
                         nudStayDrop.Value = Convert.ToInt16(arg_sep[2]);
                         rbMarkov.Checked = true;
                         break;
+                    case "ARG_INVALID":
+                        break;
+                    default:
+                        MessageBox.Show("Unknown argument not used: " + arg_name);
+                        break;
                 }
             }
         }
@@ -500,7 +505,7 @@ namespace Canal_GUI
             Environment.Exit(0);
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnClearCustomAttack_Click(object sender, EventArgs e)
         {
             tbTimeSeries.Text = "";
         }
@@ -515,9 +520,29 @@ namespace Canal_GUI
             }
         }
 
-        private void label14_Click(object sender, EventArgs e)
+        private void nudStayDrop_ValueChanged(object sender, EventArgs e)
         {
+            UpdateDroupOutModel();
+        }
 
+        private void nudStayPass_ValueChanged(object sender, EventArgs e)
+        {
+            UpdateDroupOutModel();
+        }
+
+        private void nudBernoulliPass_ValueChanged(object sender, EventArgs e)
+        {
+            UpdateDroupOutModel();
+        }
+
+        private void rbMarkov_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateDroupOutModel();
+        }
+
+        private void rbBernoulli_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateDroupOutModel();
         }
     }
 }
