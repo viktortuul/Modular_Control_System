@@ -27,7 +27,7 @@ The modules are executed through the command line. Examples on how to execute th
 #### HMI
 When the channel module is used, the IP address and port of the Channel module between the HMI and Control module must be specified, e.g.
 ```
-Start HMI\HMI\bin\Debug\HMI.exe canal_plant=127.0.0.1:8111
+Start HMI.exe channel_plant=127.0.0.1:8111
 ```
 The IP:port pair of the control module(s) are specified in the GUI.
 
@@ -40,7 +40,7 @@ The controller type and logging flag must also be specified, e.g. `controller=PI
 
 Below is an example of how the Controller module can be executed.
 ```
-Start Controller\Controller\bin\Debug\Controller.exe gui_ep=127.0.0.1:8100:8200 plant_ep=127.0.0.1:8300:8400 channel_gui=127.0.0.1:8111 channel_plant=127.0.0.1:8222 controller=PID_normal log=false
+Start Controller.exe gui_ep=127.0.0.1:8100:8200 plant_ep=127.0.0.1:8300:8400 channel_gui=127.0.0.1:8111 channel_plant=127.0.0.1:8222 controller=PID_normal log=false
 ```
 
 #### Plant
@@ -48,7 +48,7 @@ The Plant module requires three arguments in total when using the Channel module
 
 Below is an example of how the Plant module can be executed.
 ```
-Start Model_GUI\Model_GUI\bin\Debug\Model_GUI.exe controller_ep=127.0.0.1:8400:8300 channel_controller=127.0.0.1:8222 model=dwt:5,0:0,3:5,0:0,2:0,00001 log=false
+Start Model_GUI.exe controller_ep=127.0.0.1:8400:8300 channel_controller=127.0.0.1:8222 model=dwt:5,0:0,3:5,0:0,2:0,00001 log=false
 ```
 
 #### Channel
@@ -56,8 +56,8 @@ When executing the Channel module the receiving port must be specified. Optional
 
 Below are two examples of how the Channel module can be executed.
 ```
-Start Canal_GUI\Canal_GUI\bin\Debug\Channel_GUI.exe port_receive=8111 markov=90:98
+Start Channel_GUI.exe port_receive=8111 markov=90:98
 ```
 ```
-Start Canal_GUI\Canal_GUI\bin\Debug\Channel_GUI.exe port_receive=8111 bernoulli=80
+Start Channel_GUI.exe port_receive=8111 bernoulli=80
 ```
