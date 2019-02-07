@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace Canal_GUI
+namespace Channel_GUI
 {
     public class AttackModel
     {

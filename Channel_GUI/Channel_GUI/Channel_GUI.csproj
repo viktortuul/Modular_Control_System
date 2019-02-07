@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AttackModel.cs" />
+    <Compile Include="Charting.cs" />
     <Compile Include="DropOutModels.cs" />
     <Compile Include="ChannelGUI.cs">
       <SubType>Form</SubType>

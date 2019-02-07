@@ -86,10 +86,6 @@ namespace Model_GUI
             // start plotting
             timerChart.Start();
 
-            // application directory
-            folderName = Directory.GetCurrentDirectory();
-            toolStripLabel.Text = "Dir: " + folderName;
-
             toggleControlMode();
         }
 
@@ -242,7 +238,7 @@ namespace Model_GUI
             Charting.UpdateChartAxes(perturbationChart, chart_history);
 
             // draw animation
-            Helpers.DrawTanks(this);
+            Visualization.DrawTanks(this);
 
             // update labels
             Helpers.UpdatePerturbationLabels(this, Disturbance);
@@ -311,6 +307,17 @@ namespace Model_GUI
         }
 
         // HELPERS BELOW ##########################################################################################################
+
+        private void InitialSettings()
+        {
+            // application directory
+            folderName = Directory.GetCurrentDirectory();
+            toolStripLabel.Text = "Dir: " + folderName;
+
+            // folder and chart settings
+            Charting.InitializeChartSettings(dataChart, title: "");
+            Charting.InitializeChartSettings(perturbationChart, title: "");
+        }
 
         public void ParseArgs(string[] args)
         {
@@ -387,23 +394,7 @@ namespace Model_GUI
             }
         }
 
-        private void InitialSettings()
-        {
-            // chart settings
-            //dataChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
-            dataChart.ChartAreas["ChartArea1"].AxisY.Title = "";
-            dataChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
-            dataChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
-            dataChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
-            dataChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
 
-            //perturbationChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
-            perturbationChart.ChartAreas["ChartArea1"].AxisY.Title = "";
-            perturbationChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
-            perturbationChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
-            perturbationChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
-            perturbationChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
-        }
 
         private void ModelGUI_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -453,8 +444,8 @@ namespace Model_GUI
         private void timerUpdateGUI_Tick_1(object sender, EventArgs e)
         {
             // scale y-axis for the charts
-            Charting.ChangeYScale(dataChart, "");
-            Charting.ChangeYScale(perturbationChart, "");
+            Charting.ChangeYScale(dataChart, verbose : "");
+            Charting.ChangeYScale(perturbationChart, verbose:  "");
         }
 
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)

@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Charting.cs" />
     <Compile Include="ModelGUI.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -70,6 +71,7 @@
     <Compile Include="Perturbation.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Visualization.cs" />
     <EmbeddedResource Include="ModelGUI.resx">
       <DependentUpon>ModelGUI.cs</DependentUpon>
     </EmbeddedResource>

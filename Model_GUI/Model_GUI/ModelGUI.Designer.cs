@@ -615,8 +615,6 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripLabel;
         private System.Windows.Forms.ToolStripSplitButton toolStripSplitButton1;
         private System.Windows.Forms.ToolStripMenuItem setDirectoryToolStripMenuItem;
-        private System.Windows.Forms.DataVisualization.Charting.Chart perturbationChart;
-        private System.Windows.Forms.DataVisualization.Charting.Chart dataChart;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
@@ -639,6 +637,8 @@
         public System.Windows.Forms.Label label3;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        public System.Windows.Forms.DataVisualization.Charting.Chart perturbationChart;
+        public System.Windows.Forms.DataVisualization.Charting.Chart dataChart;
     }
 }
 

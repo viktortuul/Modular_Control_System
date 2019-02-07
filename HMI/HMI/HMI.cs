@@ -51,16 +51,16 @@ namespace HMI
 
         private void FrameGUI_Load(object sender, EventArgs e)
         {
-            // two (3) command line arguments corresponds to using the canal
             string[] args = Environment.GetCommandLineArgs();
             ParseArgs(args);
 
             // folder and chart settings
-            InitalSetting();
+            InitialSettings();
 
             // load saved settings
             LoadTankSettings();
 
+            // toggle view
             toggleControlMode();
         }
 
@@ -72,9 +72,9 @@ namespace HMI
                 Charting.ManageReferenceSeries(this);
 
                 // update charts
-                UpdateChart(connection_current.references, ""); // reference
-                UpdateChart(connection_current.recieved_packages, ""); // states
-                UpdateChart(connection_current.estimates, ""); // kalman filter estimates
+                UpdateChart(connection_current.references, setting : ""); // reference
+                UpdateChart(connection_current.recieved_packages, setting : ""); // states
+                UpdateChart(connection_current.estimates, setting : ""); // kalman filter estimates
 
                 // update time axis minimum and maximum
                 Charting.UpdateChartAxes(dataChart, time_chart);
@@ -86,7 +86,7 @@ namespace HMI
             Helpers.UpdateTimeLabels(this, connection_current, Constants.FMT);
 
             // draw simulation
-            Helpers.DrawTanks(this, connection_current);
+            Visualization.DrawTanks(this, connection_current);
         }
 
         private void UpdateChart(Dictionary<string, DataContainer> dict, string setting)
@@ -167,16 +167,14 @@ namespace HMI
                 // clear checkbox series
                 clbSeries.Items.Clear();
 
-                // refresh the chart
-                UpdateChart(connection_current.references, "load_all"); // reference
-                UpdateChart(connection_current.recieved_packages, "load_all"); // states
-                UpdateChart(connection_current.estimates, "load_all"); // kalman filter estimates
+                // refresh the chart, load all data points
+                UpdateChart(connection_current.references, setting : "load_all"); // reference
+                UpdateChart(connection_current.recieved_packages, setting: "load_all"); // states
+                UpdateChart(connection_current.estimates, setting: "load_all"); // kalman filter estimates
 
                 // scale y-axis for the charts
                 Charting.ChangeYScale(dataChart, treshold_interval : "one", grid_interval : "one");
                 Charting.ChangeYScale(residualChart, treshold_interval: "one", grid_interval: "one");
-
-
 
                 // select the corresponding item in the treeview
                 treeViewControllers.SelectedNode = treeViewControllers.Nodes[connection_current.name];
@@ -269,20 +267,20 @@ namespace HMI
 
         // HELPERS BELOW ##########################################################################################################
 
-        private void InitalSetting()
+        private void InitialSettings()
         {
             // application directory
             folderName = Directory.GetCurrentDirectory();
             toolStripLabel.Text = "Dir: " + folderName;
 
-            Charting.AddThresholdStripLine(residualChart, 0, Color.Red);
-            Charting.AddThresholdStripLine(residualChart, 0.2, Color.Red);
-            Charting.AddThresholdStripLine(residualChart, -0.2, Color.Red);
+            Charting.AddThresholdStripLine(residualChart, offset : 0, color : Color.Red);
+            Charting.AddThresholdStripLine(residualChart, offset : 0.2, color: Color.Red);
+            Charting.AddThresholdStripLine(residualChart, offset : -0.2, color: Color.Red);
 
             // chart settings
-            Charting.ChartSettings(dataChart, "");
-            Charting.ChartSettings(residualChart, "");
-            Charting.ChartSettings(securityChart, "Magnitude");
+            Charting.InitializeChartSettings(dataChart, title : "");
+            Charting.InitializeChartSettings(residualChart, title : "");
+            Charting.InitializeChartSettings(securityChart, title : "Magnitude");
         }
 
         private void btnClearCharts_Click(object sender, EventArgs e)
@@ -461,33 +459,19 @@ namespace HMI
 
         private void FrameGUI_Resize(object sender, EventArgs e)
         {
-            ManageChartSize();
+            Charting.ManageChartSize(this);
         }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ManageChartSize();
+            Charting.ManageChartSize(this);
         }
 
-        private void ManageChartSize()
-        {
-            try
-            {
-                int y_start = residualChart.Location.Y;
-                int height_total = tabControl1.Height - y_start;
-                residualChart.Height = height_total / 2 - y_start;
-                securityChart.Location = new Point(6, +y_start + height_total / 2);
-                securityChart.Height = height_total / 2 - y_start;
-            }
-            catch { }
-        }
-
-        private void button1_Click(object sender, EventArgs e)
+        private void btnSettings_Click(object sender, EventArgs e)
         {
             FormSettings form_settnings = new FormSettings();
             form_settnings.Main = this;
             form_settnings.Show();
-
         }
 
         private void toggleControlMode()
@@ -534,11 +518,6 @@ namespace HMI
                 toggleControlMode();
                 control_mode = true;
             }
-        }
-
-        private void clbSeries_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }

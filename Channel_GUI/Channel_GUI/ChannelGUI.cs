@@ -15,9 +15,9 @@ using System.Globalization;
 using System.IO;
 using GlobalComponents;
 
-namespace Canal_GUI
+namespace Channel_GUI
 {
-    public partial class CanalGUI : Form
+    public partial class ChannelGUI : Form
     {
         // attack model container
         public Dictionary<string, AttackModel> attack_model_container = new Dictionary<string, AttackModel>();
@@ -56,7 +56,7 @@ namespace Canal_GUI
         // folder setting for chart image save
         public string folderName = "";
 
-        public CanalGUI()
+        public ChannelGUI()
         {
             InitializeComponent();
         }

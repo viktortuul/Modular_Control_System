@@ -89,7 +89,7 @@
             this.labelSecurity = new System.Windows.Forms.Label();
             this.clbSeries = new System.Windows.Forms.CheckedListBox();
             this.label15 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnSettings = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarReference1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUpDownKp)).BeginInit();
@@ -713,7 +713,6 @@
             this.clbSeries.Size = new System.Drawing.Size(114, 94);
             this.clbSeries.TabIndex = 37;
             this.clbSeries.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clbSeries_ItemCheck);
-            this.clbSeries.SelectedIndexChanged += new System.EventHandler(this.clbSeries_SelectedIndexChanged);
             // 
             // label15
             // 
@@ -724,22 +723,22 @@
             this.label15.TabIndex = 38;
             this.label15.Text = "Toggle plot series";
             // 
-            // button1
+            // btnSettings
             // 
-            this.button1.Location = new System.Drawing.Point(941, 88);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 39;
-            this.button1.Text = "Settings";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.btnSettings.Location = new System.Drawing.Point(941, 88);
+            this.btnSettings.Name = "btnSettings";
+            this.btnSettings.Size = new System.Drawing.Size(75, 23);
+            this.btnSettings.TabIndex = 39;
+            this.btnSettings.Text = "Settings";
+            this.btnSettings.UseVisualStyleBackColor = true;
+            this.btnSettings.Click += new System.EventHandler(this.btnSettings_Click);
             // 
             // FrameGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1268, 611);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btnSettings);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label15);
             this.Controls.Add(this.clbSeries);
@@ -828,11 +827,9 @@
         public System.Windows.Forms.NumericUpDown numUpDownRef1;
         public System.Windows.Forms.TreeView treeViewControllers;
         public System.Windows.Forms.Label label_time;
-        private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Label labelSecurity;
-        private System.Windows.Forms.DataVisualization.Charting.Chart securityChart;
         public System.Windows.Forms.NumericUpDown numUpDownKp;
         public System.Windows.Forms.NumericUpDown numUpDownKi;
         public System.Windows.Forms.NumericUpDown numUpDownKd;
@@ -842,8 +839,10 @@
         public System.Windows.Forms.TextBox textBox_ip_send;
         public System.Windows.Forms.Label label15;
         public System.Windows.Forms.CheckedListBox clbSeries;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnSettings;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        public System.Windows.Forms.TabControl tabControl1;
+        public System.Windows.Forms.DataVisualization.Charting.Chart securityChart;
     }
 }
 
