@@ -13,10 +13,10 @@ namespace Controller
     public class ControlModule
     {
         // data containers (dictionaries)
-        static Dictionary<string, DataContainer> received_packages = new Dictionary<string, DataContainer>();
+        static Dictionary<string, DataContainer> received_packets = new Dictionary<string, DataContainer>();
 
         // flag specific keys with pre-defined meanings
-        static string[] def_controlled_states = new string[] { "yc1", "yc2" }; // initialze new PID for these keys
+        static string[] DEF_controlled_states = new string[] { "yc1", "yc2" }; // initialze new PID for these keys
 
         // container for all controllers in the module
         private static List<PID> PIDList = new List<PID>();
@@ -159,7 +159,7 @@ namespace Controller
                     // compute the new control signal for each controller
                     ManageControllers(PIDList, flag : "plant");
 
-                    // flag that packages from the plant are being received
+                    // flag that packets from the plant are being received
                     listening_on_plant = true;
                 }
                 catch (Exception ex)
@@ -188,12 +188,12 @@ namespace Controller
             }
 
             // append measurements signals
-            for (int i = 0; i < received_packages.Keys.Count(); i++)
+            for (int i = 0; i < received_packets.Keys.Count(); i++)
             {   
-                var item = received_packages.ElementAt(i);
+                var item = received_packets.ElementAt(i);
                 string key = item.Key;
 
-                if (key.Contains("y")) message += "#" + key + "_" + received_packages[key].GetLastValue();                 
+                if (key.Contains("y")) message += "#" + key + "_" + received_packets[key].GetLastValue();                 
             }
 
             return message;
@@ -243,17 +243,17 @@ namespace Controller
                 // detect corrupt values
                 if (Helpers.isDouble(value) == false)
                 {
-                    Console.WriteLine("Error: corrupt package  <" + key + "_" + value + ">");
+                    Console.WriteLine("Error: corrupt packet  <" + key + "_" + value + ">");
                     continue;
                 }
 
                 // if a new key is recieved, add it
-                if (received_packages.ContainsKey(key) == false)
+                if (received_packets.ContainsKey(key) == false)
                 {
-                    received_packages.Add(key, new DataContainer(Constants.n_steps_small));
+                    received_packets.Add(key, new DataContainer(Constants.n_steps_small));
 
                     // add controller if the tag corresponds to a controlled state
-                    if (def_controlled_states.Contains(key))
+                    if (DEF_controlled_states.Contains(key))
                     {
                         Console.WriteLine("PID added: " + controller_type.ToString());
                         PIDList.Add(new PID(controller_type));
@@ -262,7 +262,7 @@ namespace Controller
                 }
 
                 // insert the recieved data to corresponding tag
-                received_packages[key].InsertData(time, value);
+                received_packets[key].InsertData(time, value);
             }
         }
 
@@ -274,23 +274,23 @@ namespace Controller
                 index++;
 
                 // check if corresponing reference value exist
-                if (received_packages.ContainsKey("r" + index) == false) continue;
+                if (received_packets.ContainsKey("r" + index) == false) continue;
 
                 // check if both the last recieved measurement is up to date (else don't update the control signal) 
-                if (received_packages["yc" + index].isUpToDate())
+                if (received_packets["yc" + index].isUpToDate())
                 {
                     // update controller parameters
                     if (flag == "GUI")
                     {
-                        controller.UpdateParameters(Convert.ToDouble(received_packages["Kp"].GetLastValue()),
-                                                    Convert.ToDouble(received_packages["Ki"].GetLastValue()),
-                                                    Convert.ToDouble(received_packages["Kd"].GetLastValue()));
+                        controller.UpdateParameters(Convert.ToDouble(received_packets["Kp"].GetLastValue()),
+                                                    Convert.ToDouble(received_packets["Ki"].GetLastValue()),
+                                                    Convert.ToDouble(received_packets["Kd"].GetLastValue()));
                     }
                     else
                     {
                         // update control signal
-                        double reference = Convert.ToDouble(received_packages["r" + index].GetLastValue());
-                        double measurement = Convert.ToDouble(received_packages["yc" + index].GetLastValue());
+                        double reference = Convert.ToDouble(received_packets["r" + index].GetLastValue());
+                        double measurement = Convert.ToDouble(received_packets["yc" + index].GetLastValue());
 
                         if (controller_type == "PID_normal" && flag == "loop")
                         {
@@ -300,10 +300,10 @@ namespace Controller
                         else if (controller_type == "PID_plus" && flag == "plant")
                         {
                             // detect if actuator signal actually has moved (would indicate the control signals are beging transmitted)
-                            if (received_packages["uc" + index].hasChanged(0, 2) || received_packages["uc" + index].getCounter() < 5 || received_packages["uc" + index].GetLastValue() == "0")
+                            if (received_packets["uc" + index].hasChanged(0, 2) || received_packets["uc" + index].getCounter() < 5 || received_packets["uc" + index].GetLastValue() == "0")
                             {
                                 // PIDplus update (new actuator flag)
-                                controller.ComputeControlSignal(reference, measurement, new_actuator_flag: true, new_measurement_flag: true, actuator_position: Convert.ToDouble(received_packages["uc" + index].GetLastValue()));
+                                controller.ComputeControlSignal(reference, measurement, new_actuator_flag: true, new_measurement_flag: true, actuator_position: Convert.ToDouble(received_packets["uc" + index].GetLastValue()));
                             }
                             else
                             {

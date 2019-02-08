@@ -43,7 +43,7 @@ namespace HMI
             form.tankDimensions = new TankDimensions(A1, a1, A2, a2);
 
             // update kalman filter
-            form.connection_current.UpdateKalmanFilter(A1, a1, A2, a2);
+            form.connection_selected.UpdateKalmanFilter(A1, a1, A2, a2);
 
             form.log("Settings updated"); updateLog();
         }

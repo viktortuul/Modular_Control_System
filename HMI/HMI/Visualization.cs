@@ -35,7 +35,7 @@ namespace HMI
             }
 
             // extract signals
-            int u = Convert.ToInt16(Convert.ToDouble(connection.recieved_packages["u1"].GetLastValue()));
+            int u = Convert.ToInt16(Convert.ToDouble(connection.recieved_packets["u1"].GetLastValue()));
             int y1 = Convert.ToInt16(cm2pix * Convert.ToDouble(connection.estimates["yo1_hat"].GetLastValue()));
             int y2 = Convert.ToInt16(cm2pix * Convert.ToDouble(connection.estimates["yc1_hat"].GetLastValue()));
 

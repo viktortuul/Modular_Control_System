@@ -17,27 +17,27 @@ namespace HMI
         public string name = "";
 
         // connection parameters
-        public AddressEndPoint CanalEP;
-        public ConnectionParameters ConnectionParameters;
-        public bool is_recieving = false;
-        public bool is_sending = false;
-        public bool is_connected_to_process = false;
+        public AddressEndPoint Channel_EP;
+        public ConnectionParameters Controller_EP;
+        public bool is_recieving_packets = false; // flag that packets are being received
+        public bool is_sending_packets = false; // flag that packets are being sent
+        public bool is_connected_to_plant = false; // flag that packets from the plant has been received (e.g. yc1 or yo1)
 
         // time variables
-        public DateTime last_recieved_time;
+        public DateTime time_last_recieved_packet;
 
         // number of controlled states
         public int n_controlled_states = 0;
 
         // data containers (dictionaries)
-        public Dictionary<string, DataContainer> recieved_packages = new Dictionary<string, DataContainer>();
+        public Dictionary<string, DataContainer> recieved_packets = new Dictionary<string, DataContainer>();
         public Dictionary<string, DataContainer> references = new Dictionary<string, DataContainer>();
         public Dictionary<string, DataContainer> estimates = new Dictionary<string, DataContainer>();
 
-        // flag specific keys with pre-defined meanings
-        string[] flag_plant_states = new string[] { "yo1", "yc1", "yo2", "yc2" }; // observed and controlled states
-        string[] flag_controlled_states = new string[] { "yc1", "yc2" }; // states that can be controlled
-        string[] flag_residual_states = new string[] { "yc1" }; // states that will have residuals calculated 
+        // define specific keys with pre-defined meanings
+        string[] DEF_plant_states = new string[] { "yo1", "yc1", "yo2", "yc2" }; // observed and controlled states
+        string[] DEF_controlled_states = new string[] { "yc1", "yc2" }; // states that can be controlled
+        string[] DEF_residual_states = new string[] { "yc1" }; // states that will have residuals calculated 
 
         // controller parameters
         public PIDparameters ControllerParameters;
@@ -45,34 +45,34 @@ namespace HMI
         // initialize estimator
         public KalmanFilter kalman_filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, 0.3, 0.2, 15.0, 50, 6.5); // x0, a1, a2, A1, A2, k
 
-        public CommunicationManager(FrameGUI Main, string name, PIDparameters ControllerParameters, AddressEndPoint CanalEP, ConnectionParameters ConnectionParameters)
+        public CommunicationManager(FrameGUI Main, string name, PIDparameters ControllerParameters, AddressEndPoint Channel_EP, ConnectionParameters Controller_EP)
         {
             // main form access
             this.Main = Main;
 
             // canal address
-            this.CanalEP = CanalEP;
+            this.Channel_EP = Channel_EP;
 
             // identity parameters
             this.name = name;
-            this.ConnectionParameters = ConnectionParameters;
+            this.Controller_EP = Controller_EP;
 
             // update controller parameters
             this.ControllerParameters = ControllerParameters;
 
-            // specify the endpoint
+            // specify the endpoint (either channel or directly the controller)
             AddressEndPoint EP = new AddressEndPoint();
             if (Main.usingCanal == true)
-                EP = new AddressEndPoint(CanalEP.IP, CanalEP.Port);
+                EP = new AddressEndPoint(Channel_EP.IP, Channel_EP.Port);
             else
-                EP = new AddressEndPoint(ConnectionParameters.IP, ConnectionParameters.Port);
+                EP = new AddressEndPoint(Controller_EP.IP, Controller_EP.Port);
 
             // create a new thread for the sender
             Thread thread_sender = new Thread(() => Sender(EP.IP, EP.Port));
             thread_sender.Start();
 
             // create a new thread for the listener
-            Thread thread_listener = new Thread(() => Listener(EP.IP, ConnectionParameters.PortThis));
+            Thread thread_listener = new Thread(() => Listener(EP.IP, Controller_EP.PortThis));
             thread_listener.Start();
         }
 
@@ -88,7 +88,7 @@ namespace HMI
 
                 // attatch reference values
                 string message = "";
-                if (Main.usingCanal == true) message += Convert.ToString("EP_" + ConnectionParameters.IP + ":" + ConnectionParameters.Port + "#");
+                if (Main.usingCanal == true) message += Convert.ToString("EP_" + Controller_EP.IP + ":" + Controller_EP.Port + "#");
                 message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
 
                 for (int i = 1; i <= n_controlled_states; i++)
@@ -105,8 +105,8 @@ namespace HMI
                 // send message
                 sender.Send(message);
 
-                // flag that the GUI is sending packages to the controller
-                if (is_sending == false) is_sending = true;
+                // flag that the GUI is sending packets to the controller
+                if (is_sending_packets == false) is_sending_packets = true;
             }
         }
 
@@ -120,15 +120,15 @@ namespace HMI
             {
                 try
                 {
-                    // wait for a new package
+                    // wait for a new packet
                     listener.Listen();
-                    last_recieved_time = DateTime.UtcNow;
+                    time_last_recieved_packet = DateTime.UtcNow;
 
                     // parse the message 
                     ParseMessage(listener.last_recieved);
 
-                    // flag that the GUI is recieving packages from the controller
-                    if (is_recieving == false) is_recieving = true;
+                    // flag that the GUI is recieving packets from the controller
+                    if (is_recieving_packets == false) is_recieving_packets = true;
                 }
                 catch (Exception ex)
                 {
@@ -158,31 +158,31 @@ namespace HMI
                 if (key == "time") { time = value; continue; }
 
                 // if the key doesn't exist, add it
-                if (recieved_packages.ContainsKey(key) == false)
+                if (recieved_packets.ContainsKey(key) == false)
                 {
-                    recieved_packages.Add(key, new DataContainer(Constants.n_steps));
+                    recieved_packets.Add(key, new DataContainer(Constants.n_steps));
 
                     // add an eventual residual and estimate continer
-                    if (flag_residual_states.Contains(key) == true)
+                    if (DEF_residual_states.Contains(key) == true)
                     { 
-                        recieved_packages[key].has_residual = true;
+                        recieved_packets[key].has_residual = true;
                         Helpers.ManageEstimatesKeys(key, estimates, Constants.n_steps);
                         if (key == "yc1") Helpers.ManageEstimatesKeys("yo1", estimates, Constants.n_steps); // also estimate yo1 (hardcoded)
                     }
 
                     // increment the controlled states counter if it's a controlled state
-                    if (flag_controlled_states.Contains(key))
+                    if (DEF_controlled_states.Contains(key))
                     {
                         n_controlled_states += 1;
                         Helpers.ManageReferencesKeys(n_controlled_states, references, Constants.n_steps);
                     }
 
-                    // flag that the GUI is recieving packages originating from the process
-                    if (flag_plant_states.Contains(key)) is_connected_to_process = true;             
+                    // flag that the GUI is recieving packets originating from the process
+                    if (DEF_plant_states.Contains(key)) is_connected_to_plant = true;             
                 }
 
                 // store the value
-                recieved_packages[key].InsertData(time, value);
+                recieved_packets[key].InsertData(time, value);
             }
 
             // update state estimator and calculate residual
@@ -196,8 +196,8 @@ namespace HMI
         private void StateEstimate(string time)
         {
             // estimate states             
-            double z = Convert.ToDouble(recieved_packages["yc1"].GetLastValue());
-            double u = Convert.ToDouble(recieved_packages["u1"].GetLastValue());
+            double z = Convert.ToDouble(recieved_packets["yc1"].GetLastValue());
+            double u = Convert.ToDouble(recieved_packets["u1"].GetLastValue());
             double[,] x = kalman_filter.Update(z, u);
 
             // store the value
@@ -205,7 +205,7 @@ namespace HMI
             if (estimates.ContainsKey("yc1_hat")) estimates["yc1_hat"].InsertData(time, x[1, 0].ToString());
 
             // store the residual
-            if (recieved_packages.ContainsKey("yc1")) recieved_packages["yc1"].InsertResidual(kalman_filter.innovation.ToString());
+            if (recieved_packets.ContainsKey("yc1")) recieved_packets["yc1"].InsertResidual(kalman_filter.innovation.ToString());
         }
 
         public void UpdateKalmanFilter(double A1, double a1, double A2, double a2)
@@ -213,23 +213,23 @@ namespace HMI
             kalman_filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, a1, a2, A1, A2, 6.5); // x0, a1, a2, A1, A2, k
         }
 
-        public string GetStatus()
+        public string GetConnectionStatus()
         {
             string status = "";
-            if (is_connected_to_process == true)
+            if (is_connected_to_plant == true)
             {
                 status = "GUI <-> Contr <-> Plant";
                 if (isTrafficEstablished() == false) status = "GUI || Contr ? Plant";
             }
-            else if (is_sending == true && is_recieving == true) status = "GUI <-> Contr ? Plant";
-            else if (is_sending == false && is_recieving == true) status = "GUI <- Contr ? Plant";
-            else if (is_sending == true && is_recieving == false) status = "GUI -> Contr ? Plant";
+            else if (is_sending_packets == true && is_recieving_packets == true) status = "GUI <-> Contr ? Plant";
+            else if (is_sending_packets == false && is_recieving_packets == true) status = "GUI <- Contr ? Plant";
+            else if (is_sending_packets == true && is_recieving_packets == false) status = "GUI -> Contr ? Plant";
             return status;
         }
 
         public bool isTrafficEstablished()
         {
-            TimeSpan time_diff = DateTime.UtcNow - last_recieved_time;
+            TimeSpan time_diff = DateTime.UtcNow - time_last_recieved_packet;
             if (time_diff.Seconds > 3) return false;
             else return true;    
         }

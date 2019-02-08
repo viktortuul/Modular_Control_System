@@ -4,14 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Globalization;
+using GlobalComponents;
 
 namespace Controller
 {
     public class DataContainer
     {
-        // time format
-        const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
-
         // store the time:value pair in string arrays
         public string[] time;
         public string[] value;
@@ -60,8 +58,8 @@ namespace Controller
         public bool isMostRecent(string time)
         {
             // compare a time-stamp with the current most recent
-            DateTime t_new = DateTime.ParseExact(time, FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
-            DateTime t_prev = DateTime.ParseExact(GetLastTime(), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+            DateTime t_new = DateTime.ParseExact(time, Constants.FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+            DateTime t_prev = DateTime.ParseExact(GetLastTime(), Constants.FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
             TimeSpan timeDiff = t_new - t_prev;
 
             if (timeDiff.TotalMilliseconds > 0) return true;
@@ -73,8 +71,8 @@ namespace Controller
             // check if the last data point was added withing a specfic time
             if (GetLastTime() != null)
             {
-                DateTime t_now = DateTime.ParseExact(DateTime.UtcNow.ToString(FMT), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
-                DateTime t_last = DateTime.ParseExact(GetLastTime(), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+                DateTime t_now = DateTime.ParseExact(DateTime.UtcNow.ToString(Constants.FMT), Constants.FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+                DateTime t_last = DateTime.ParseExact(GetLastTime(), Constants.FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
                 TimeSpan timeDiff = t_now - t_last;
 
                 if (timeDiff.TotalMilliseconds <= max_delay) return true;
@@ -88,7 +86,6 @@ namespace Controller
             // checks wether the values of the two items are the same or not
             return (value[value.Length - 1 - idx1] != value[value.Length - 1 - idx2]);
         }
-
 
         public string GetLastTime()
         {
@@ -107,7 +104,7 @@ namespace Controller
         public void CopyAndPushArray()
         {
             Array.Copy(time, 1, time, 0, time.Length - 1);
-            time[time.Length - 1] = DateTime.UtcNow.ToString(FMT);
+            time[time.Length - 1] = DateTime.UtcNow.ToString(Constants.FMT);
 
             Array.Copy(value, 1, value, 0, value.Length - 1);
             value[value.Length - 1] = value[value.Length - 2];

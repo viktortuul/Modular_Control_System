@@ -20,29 +20,29 @@ namespace HMI
 {
     public partial class FrameGUI : Form
     {
-        // container for controller module connections
-        List<CommunicationManager> connections = new List<CommunicationManager>();
-        public CommunicationManager connection_current;
+        // controller module connection
+        List<CommunicationManager> connections = new List<CommunicationManager>(); // container for controller module connections
+        public CommunicationManager connection_selected; // selected controller module
         public int n_connections = 0; // connection count
 
         // chart settings
-        public int time_chart = 60; // chart view time [s]
+        public int time_chart_window = 60; // chart view time [s]
 
         // folder setting for chart image save
         public string folderName = "";
 
         // canal flag
         public bool usingCanal = false;
-        AddressEndPoint EP = new AddressEndPoint();
+        AddressEndPoint Channel_EP = new AddressEndPoint();
 
-        // tank dimensions
+        // tank dimensions (for visualization)
         public TankDimensions tankDimensions = new TankDimensions(0,0,0,0);
 
         // debug log
         public string debugLog = "";
 
         // control/obsrver mode
-        public bool control_mode = true;
+        public string GUI_view_mode = "control";
 
         public FrameGUI()
         {
@@ -57,36 +57,33 @@ namespace HMI
             // folder and chart settings
             InitialSettings();
 
-            // load saved settings
-            LoadTankSettings();
-
-            // toggle view
-            toggleControlMode();
+            // toggle view (control as default)
+            toggleViewControlMode();
         }
 
         private void timerCharts_Tick(object sender, EventArgs e)
         {
-            if (connection_current.is_connected_to_process == true)
+            if (connection_selected.is_connected_to_plant == true)
             {
                 // add the correct number of reference series
                 Charting.ManageReferenceSeries(this);
 
                 // update charts
-                UpdateChart(connection_current.references, setting : ""); // reference
-                UpdateChart(connection_current.recieved_packages, setting : ""); // states
-                UpdateChart(connection_current.estimates, setting : ""); // kalman filter estimates
+                UpdateChart(connection_selected.references, setting : ""); // reference
+                UpdateChart(connection_selected.recieved_packets, setting : ""); // states
+                UpdateChart(connection_selected.estimates, setting : ""); // kalman filter estimates
 
                 // update time axis minimum and maximum
-                Charting.UpdateChartAxes(dataChart, time_chart);
-                Charting.UpdateChartAxes(residualChart, time_chart);
-                Charting.UpdateChartAxes(securityChart, time_chart);
+                Charting.UpdateChartAxes(dataChart, time_chart_window);
+                Charting.UpdateChartAxes(residualChart, time_chart_window);
+                Charting.UpdateChartAxes(securityChart, time_chart_window);
             }
 
             // update time labels
-            Helpers.UpdateTimeLabels(this, connection_current, Constants.FMT);
+            Helpers.UpdateTimeLabels(this, connection_selected, Constants.FMT);
 
             // draw simulation
-            Visualization.DrawTanks(this, connection_current);
+            Visualization.DrawTanks(this, connection_selected);
         }
 
         private void UpdateChart(Dictionary<string, DataContainer> dict, string setting)
@@ -125,12 +122,8 @@ namespace HMI
 
                             // if security metric series does not exist, add it
                             if (securityChart.Series.IndexOf("Sec_" + key) == -1) Charting.AddChartSeries(this, "Sec_" + key, securityChart);
-                            securityChart.Series["Sec_" + key].Points.AddXY(time.ToOADate(), connection_current.kalman_filter.security_metric);
+                            securityChart.Series["Sec_" + key].Points.AddXY(time.ToOADate(), connection_selected.kalman_filter.security_metric);
                         }
-                    }
-                    else
-                    {
-                        //log("null time");
                     }
                 }
 
@@ -152,13 +145,13 @@ namespace HMI
             try
             {
                 // specify the new connection as the currently selected one
-                connection_current = connections[listBoxModules.SelectedIndex];
+                connection_selected = connections[listBoxModules.SelectedIndex];
 
                 // enable or disable reference track bars
                 Helpers.ManageTrackbars(this);
 
                 // update GUI values according to the connected controller
-                Helpers.UpdateGuiControls(this, connection_current);
+                Helpers.UpdateGuiControls(this, connection_selected);
 
                 // clear charts
                 dataChart.Series.Clear();
@@ -168,16 +161,16 @@ namespace HMI
                 clbSeries.Items.Clear();
 
                 // refresh the chart, load all data points
-                UpdateChart(connection_current.references, setting : "load_all"); // reference
-                UpdateChart(connection_current.recieved_packages, setting: "load_all"); // states
-                UpdateChart(connection_current.estimates, setting: "load_all"); // kalman filter estimates
+                UpdateChart(connection_selected.references, setting : "load_all"); // reference
+                UpdateChart(connection_selected.recieved_packets, setting: "load_all"); // states
+                UpdateChart(connection_selected.estimates, setting: "load_all"); // kalman filter estimates
 
                 // scale y-axis for the charts
                 Charting.ChangeYScale(dataChart, treshold_interval : "one", grid_interval : "one");
                 Charting.ChangeYScale(residualChart, treshold_interval: "one", grid_interval: "one");
 
                 // select the corresponding item in the treeview
-                treeViewControllers.SelectedNode = treeViewControllers.Nodes[connection_current.name];
+                treeViewControllers.SelectedNode = treeViewControllers.Nodes[connection_selected.name];
             }
             catch { }
         }
@@ -197,16 +190,16 @@ namespace HMI
             int port_this = Convert.ToInt16(numericUpDown_port_recieve.Value);
 
             // look for name and port conflicts with present allowed traffics
-            bool already_exists = false;
+            bool connection_already_exists = false;
             foreach (CommunicationManager controller in connections)
             {
-                if ((controller.ConnectionParameters.PortThis == port_this && controller.ConnectionParameters.Port == port_endpoint) || controller.name == name)
+                if ((controller.Controller_EP.PortThis == port_this && controller.Controller_EP.Port == port_endpoint) || controller.name == name)
                 {
-                    already_exists = true;
+                    connection_already_exists = true;
                 }
             }
 
-            if (already_exists == true)
+            if (connection_already_exists == true)
             {
                 log("Error: name or ip:port pair already in use");
             }
@@ -217,9 +210,9 @@ namespace HMI
 
                 // create and add controller
                 PIDparameters controllerParameters = new PIDparameters(Convert.ToDouble(numUpDownKp.Value), Convert.ToDouble(numUpDownKi.Value), Convert.ToDouble(numUpDownKd.Value));
-                CommunicationManager controller_connection = new CommunicationManager(this, name, controllerParameters, EP, connectionParameters);
+                CommunicationManager controller_connection = new CommunicationManager(this, name, controllerParameters, Channel_EP, connectionParameters);
                 connections.Add(controller_connection);
-                connection_current = controller_connection;
+                connection_selected = controller_connection;
                 listBoxModules.Items.Add(name);
 
                 // select the added module in the listbox
@@ -251,7 +244,7 @@ namespace HMI
         private void timerUpdateGUI_Tick(object sender, EventArgs e)
         {
             // update tree information
-            Helpers.UpdateTree(this, connection_current);
+            Helpers.UpdateTree(this, connection_selected);
 
             // enable or disable reference track bars
             Helpers.ManageTrackbars(this);
@@ -261,11 +254,9 @@ namespace HMI
             Charting.ChangeYScale(residualChart, treshold_interval: "one", grid_interval: "one");
             Charting.ChangeYScale(securityChart, treshold_interval: "one", grid_interval: "adaptive");
 
-            labelSecurity.Text = "Security metric: " + Math.Round(connection_current.kalman_filter.security_metric, 1) + Environment.NewLine +
-                                 "Status: " + connection_current.kalman_filter.security_status;
+            labelSecurity.Text = "Security metric: " + Math.Round(connection_selected.kalman_filter.security_metric, 1) + Environment.NewLine +
+                                 "Status: " + connection_selected.kalman_filter.security_status;
         }
-
-        // HELPERS BELOW ##########################################################################################################
 
         private void InitialSettings()
         {
@@ -273,28 +264,26 @@ namespace HMI
             folderName = Directory.GetCurrentDirectory();
             toolStripLabel.Text = "Dir: " + folderName;
 
+            // chart settings
             Charting.AddThresholdStripLine(residualChart, offset : 0, color : Color.Red);
             Charting.AddThresholdStripLine(residualChart, offset : 0.2, color: Color.Red);
             Charting.AddThresholdStripLine(residualChart, offset : -0.2, color: Color.Red);
-
-            // chart settings
+            
             Charting.InitializeChartSettings(dataChart, title : "");
             Charting.InitializeChartSettings(residualChart, title : "");
             Charting.InitializeChartSettings(securityChart, title : "Magnitude");
-        }
 
-        private void btnClearCharts_Click(object sender, EventArgs e)
-        {
-            foreach (var series in dataChart.Series) series.Points.Clear();
-            foreach (var series in residualChart.Series) series.Points.Clear();
-
-            foreach (string key in connection_current.recieved_packages.Keys) connection_current.recieved_packages[key].Clear();
-            foreach (string key in connection_current.estimates.Keys) connection_current.estimates[key].Clear();
+            // load tank dimensions
+            double A1 = Properties.Settings.Default.BA1;
+            double a1 = Properties.Settings.Default.SA1;
+            double A2 = Properties.Settings.Default.BA2;
+            double a2 = Properties.Settings.Default.SA2;
+            tankDimensions = new TankDimensions(A1, a1, A2, a2);
+            log("Settings loaded");
         }
 
         private void ParseArgs(string[] args)
         {
-
             if (args.Length > 1)
             {
                 foreach (string arg in args)
@@ -305,7 +294,7 @@ namespace HMI
                     switch (arg_name)
                     {
                         case "channel_controller":
-                            EP = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
+                            Channel_EP = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
                             usingCanal = true;
                             log("Using channel: <" + arg_sep[1] + ">, <" + arg_sep[2] + ">");
                             break;
@@ -317,22 +306,16 @@ namespace HMI
                     }
                 }
             }
-            else
-            {
-                log("No channel in use");
-            }
-
-
+            else log("No channel in use");    
         }
 
-        private void LoadTankSettings()
+        private void btnClearCharts_Click(object sender, EventArgs e)
         {
-            double A1 = Properties.Settings.Default.BA1;
-            double a1 = Properties.Settings.Default.SA1;
-            double A2 = Properties.Settings.Default.BA2;
-            double a2 = Properties.Settings.Default.SA2;
-            tankDimensions = new TankDimensions(A1, a1, A2, a2);
-            log("Settings loaded");
+            foreach (var series in dataChart.Series) series.Points.Clear();
+            foreach (var series in residualChart.Series) series.Points.Clear();
+
+            foreach (string key in connection_selected.recieved_packets.Keys) connection_selected.recieved_packets[key].Clear();
+            foreach (string key in connection_selected.estimates.Keys) connection_selected.estimates[key].Clear();
         }
 
         private void clbSeries_ItemCheck(object sender, ItemCheckEventArgs e)
@@ -360,7 +343,7 @@ namespace HMI
             // set the reference signal value according to the track bar
             if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
             {
-                connection_current.references["r1"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), trackBarReference1.Value.ToString());
+                connection_selected.references["r1"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), trackBarReference1.Value.ToString());
                 numUpDownRef1.Value = trackBarReference1.Value;
             }
         }
@@ -370,24 +353,24 @@ namespace HMI
             // set the reference signal value according to the track bar
             if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
             {
-                connection_current.references["r2"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), trackBarReference2.Value.ToString());
+                connection_selected.references["r2"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), trackBarReference2.Value.ToString());
                 numUpDownRef2.Value = trackBarReference2.Value;
             }
         }
 
         private void numUpDownKp_ValueChanged(object sender, EventArgs e)
         {
-            connection_current.ControllerParameters.Kp = Convert.ToDouble(numUpDownKp.Value);
+            connection_selected.ControllerParameters.Kp = Convert.ToDouble(numUpDownKp.Value);
         }
 
         private void numUpDownKi_ValueChanged(object sender, EventArgs e)
         {
-            connection_current.ControllerParameters.Ki = Convert.ToDouble(numUpDownKi.Value);
+            connection_selected.ControllerParameters.Ki = Convert.ToDouble(numUpDownKi.Value);
         }
 
         private void numUpDownKd_ValueChanged(object sender, EventArgs e)
         {
-            connection_current.ControllerParameters.Kd = Convert.ToDouble(numUpDownKd.Value);
+            connection_selected.ControllerParameters.Kd = Convert.ToDouble(numUpDownKd.Value);
         }
 
         public void log(string text)
@@ -430,7 +413,7 @@ namespace HMI
             // set the reference signal value according to the numeric up-down
             if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
             {
-                connection_current.references["r1"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), numUpDownRef1.Value.ToString());
+                connection_selected.references["r1"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), numUpDownRef1.Value.ToString());
                 trackBarReference1.Value = Convert.ToInt16(numUpDownRef1.Value);
             }
         }
@@ -440,20 +423,20 @@ namespace HMI
             // set the reference signal value according to the numeric up-down
             if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
             {
-                connection_current.references["r2"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), numUpDownRef2.Value.ToString());
+                connection_selected.references["r2"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), numUpDownRef2.Value.ToString());
                 trackBarReference2.Value = Convert.ToInt16(numUpDownRef2.Value);
             }
         }
 
         private void nudHistory_ValueChanged(object sender, EventArgs e)
         {
-            time_chart = Convert.ToInt16(nudHistory.Value);
+            time_chart_window = Convert.ToInt16(nudHistory.Value);
 
-            if (time_chart > 0)
+            if (time_chart_window > 0)
             {
-                dataChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(time_chart / 10);
-                residualChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(time_chart / 10);
-                securityChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(time_chart / 10);
+                dataChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(time_chart_window / 10);
+                residualChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(time_chart_window / 10);
+                securityChart.ChartAreas[0].AxisX.Interval = Convert.ToInt16(time_chart_window / 10);
             }
         }
 
@@ -474,7 +457,7 @@ namespace HMI
             form_settnings.Show();
         }
 
-        private void toggleControlMode()
+        private void toggleViewControlMode()
         {
             foreach (Control c in this.Controls)
             {
@@ -488,7 +471,7 @@ namespace HMI
             pictureBox1.Height = tabControl1.Height - 23;
         }
 
-        private void toggleObserverMode()
+        private void toggleViewObserveMode()
         {
             string[] visible_controls = new string[] { "tabControl1", "dataChart", "pictureBox1", "statusStrip1" };
             foreach (Control c in this.Controls)
@@ -508,15 +491,15 @@ namespace HMI
 
         private void toolStripStatusLabel1_Click(object sender, EventArgs e)
         {
-            if (control_mode == true)
+            if (GUI_view_mode == "control")
             {
-                toggleObserverMode();
-                control_mode = false;
+                toggleViewObserveMode();
+                GUI_view_mode = "observe";
             }
             else
             {
-                toggleControlMode();
-                control_mode = true;
+                toggleViewControlMode();
+                GUI_view_mode = "control";
             }
         }
     }

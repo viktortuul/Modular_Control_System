@@ -59,7 +59,7 @@ namespace Channel_GUI
                 chart_.Series[key].ChartType = SeriesChartType.Line;
                 chart_.Series[key].BorderWidth = 2;
 
-                if (chart_.Name == "packageChart")
+                if (chart_.Name == "packetChart")
                 {
                     chart_.Series[key].ChartType = SeriesChartType.Point;
                     chart_.Series[key].MarkerSize = 7;
@@ -81,19 +81,17 @@ namespace Channel_GUI
 
         public static void InitialChartSettings(ChannelGUI Main)
         {
-            //Main.attackChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
             Main.attackChart.ChartAreas["ChartArea1"].AxisY.Title = "";
             Main.attackChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
             Main.attackChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
             Main.attackChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
             Main.attackChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
 
-            //Main.packageChart.ChartAreas["ChartArea1"].AxisX.Title = "Time";
-            Main.packageChart.ChartAreas["ChartArea1"].AxisY.Title = "";
-            Main.packageChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
-            Main.packageChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
-            Main.packageChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
-            Main.packageChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
+            Main.packetChart.ChartAreas["ChartArea1"].AxisY.Title = "";
+            Main.packetChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
+            Main.packetChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
+            Main.packetChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
+            Main.packetChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
         }
     }
 }

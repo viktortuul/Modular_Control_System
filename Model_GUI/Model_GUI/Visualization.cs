@@ -29,9 +29,9 @@ namespace Model_GUI
 
             // extract signals
             int u = 0;
-            if (GUI.package_last.ContainsKey("u1") == true)
+            if (GUI.packet_last.ContainsKey("u1") == true)
             {
-                try { u = Convert.ToInt16(Convert.ToDouble(GUI.package_last["u1"])); } catch { };
+                try { u = Convert.ToInt16(Convert.ToDouble(GUI.packet_last["u1"])); } catch { };
             }
 
             int y1 = Convert.ToInt16(cm2pix * Convert.ToDouble(GUI.states["yo1"].GetLastValue()));

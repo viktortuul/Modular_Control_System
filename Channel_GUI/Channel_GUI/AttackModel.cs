@@ -17,8 +17,8 @@ namespace Channel_GUI
         public string target_tag;
 
         // target settings
-        public bool all_IPs = false;
-        public bool all_ports = false;
+        public bool target_all_IPs = false;
+        public bool target_all_ports = false;
 
         // attack type
         public string type;
@@ -40,12 +40,12 @@ namespace Channel_GUI
         // 
         DateTime time_stamp_last;
 
-        public AttackModel(string target_IP, string target_port, bool all_IPs, bool all_ports, string target_tag, string type, bool integrity_add, double duration, double amplitude_attack, double time_const, double frequency, double[] time_series, string time_series_raw)
+        public AttackModel(string target_IP, string target_port, bool target_all_IPs, bool target_all_ports, string target_tag, string type, bool integrity_add, double duration, double amplitude_attack, double time_const, double frequency, double[] time_series, string time_series_raw)
         {
             this.target_IP = target_IP;
             this.target_port = target_port;
-            this.all_IPs = all_IPs;
-            this.all_ports = all_ports;
+            this.target_all_IPs = target_all_IPs;
+            this.target_all_ports = target_all_ports;
             this.target_tag = target_tag;
             this.type = type;
             this.duration = duration;
@@ -57,12 +57,12 @@ namespace Channel_GUI
             this.integrity_add = integrity_add;
         }
 
-        public void UpdateModel(string target_IP, string target_port, bool all_IPs, bool all_ports, string type, bool integrity_add, double duration, double amplitude_attack, double time_const, double frequency, double[] time_series, string time_series_raw)
+        public void UpdateModel(string target_IP, string target_port, bool target_all_IPs, bool target_all_ports, string type, bool integrity_add, double duration, double amplitude_attack, double time_const, double frequency, double[] time_series, string time_series_raw)
         {
             this.target_IP = target_IP;
             this.target_port = target_port;
-            this.all_IPs = all_IPs;
-            this.all_ports = all_ports;
+            this.target_all_IPs = target_all_IPs;
+            this.target_all_ports = target_all_ports;
             this.type = type;
             this.duration = duration;
             this.amplitude_attack = amplitude_attack;
@@ -73,7 +73,7 @@ namespace Channel_GUI
             this.integrity_add = integrity_add;
         }
 
-        public void Next()
+        public void UpdateIntegrityAttackValue()
         {
             // attack value depending on attack type
             if (type == "bias") value_attack = amplitude_attack;
@@ -112,7 +112,7 @@ namespace Channel_GUI
             active = false;
         }
 
-        public double ApplyPerturbation(string state)
+        public double ApplyIntegrityAttack(string state)
         {
             double result = 0;
             if (integrity_add == true) result = Convert.ToDouble(state) + value_attack;
@@ -121,28 +121,28 @@ namespace Channel_GUI
             return result;
         }
 
-        public string IntegrityAttack(string IP, string Port, string key, string value)
+        public string ApplyIntegrityAttack(string IP, string Port, string key, string value)
         {
             double result = Convert.ToDouble(value);
 
-            Next();
+            UpdateIntegrityAttackValue();
             if (active == true)
             {
-                if (all_IPs == true && all_ports == true) // any IP, any Port
+                if (target_all_IPs == true && target_all_ports == true) // any IP, any Port
                 {
-                    if (key == target_tag) result = ApplyPerturbation(value);
+                    if (key == target_tag) result = ApplyIntegrityAttack(value);
                 }
-                else if (all_IPs == true && all_ports == false) // any IP, specific port
+                else if (target_all_IPs == true && target_all_ports == false) // any IP, specific port
                 {
-                    if (Port == target_port && key == target_tag) result = ApplyPerturbation(value);
+                    if (Port == target_port && key == target_tag) result = ApplyIntegrityAttack(value);
                 }
-                else if (all_IPs == false && all_ports == true) // specific IP, any port
+                else if (target_all_IPs == false && target_all_ports == true) // specific IP, any port
                 {
-                    if (IP == target_IP && key == target_tag) result = ApplyPerturbation(value);
+                    if (IP == target_IP && key == target_tag) result = ApplyIntegrityAttack(value);
                 }
-                else if (all_IPs == false && all_ports == false) // specific IP, specific port
+                else if (target_all_IPs == false && target_all_ports == false) // specific IP, specific port
                 {
-                    if (IP == target_IP && Port == target_port && key == target_tag) result = ApplyPerturbation(value);
+                    if (IP == target_IP && Port == target_port && key == target_tag) result = ApplyIntegrityAttack(value);
                 }
             }
 

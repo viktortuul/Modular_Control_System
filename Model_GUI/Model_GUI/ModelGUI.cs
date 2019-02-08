@@ -28,8 +28,8 @@ namespace Model_GUI
         static string[] flag_control_signal = new string[] { "u1", "u2" };
 
         // data containers (dictionaries)
-        public Dictionary<string, string> package_last = new Dictionary<string, string>(); // recieved package <tag, value>
-        public Dictionary<string, double[]> packages = new Dictionary<string, double[]>(); // recieved values (continously added according to timer)
+        public Dictionary<string, string> packet_last = new Dictionary<string, string>(); // recieved packet <tag, value>
+        public Dictionary<string, double[]> packets = new Dictionary<string, double[]>(); // recieved values (continously added according to timer)
 
         // data containers (dictionaries)
         public Dictionary<string, DataContainer> states = new Dictionary<string, DataContainer>();
@@ -134,12 +134,12 @@ namespace Model_GUI
                     ParseMessage(listener.last_recieved);
 
                     // pre-allocate control signal vector (size = the number of received different control signals)
-                    double[] u = new double[package_last.Count];
+                    double[] u = new double[packet_last.Count];
 
                     int i = 0;
-                    foreach (string key in package_last.Keys)
+                    foreach (string key in packet_last.Keys)
                     {
-                        u[i] = Convert.ToDouble(package_last[key]);
+                        u[i] = Convert.ToDouble(packet_last[key]);
                         i++;
                     }
 
@@ -218,8 +218,8 @@ namespace Model_GUI
 
                 if (flag_control_signal.Contains(key))
                 {
-                    if (package_last.ContainsKey(key) == false) package_last.Add(key, value);
-                    package_last[key] = value;
+                    if (packet_last.ContainsKey(key) == false) packet_last.Add(key, value);
+                    packet_last[key] = value;
                 }     
             }
         }
@@ -292,11 +292,11 @@ namespace Model_GUI
 
             // control signal 
             int j = 0;
-            var keys = package_last.Keys.ToList();
+            var keys = packet_last.Keys.ToList();
             foreach (string key in keys)
             {
                 Tools.AddKeyToDict(states, "u" + (j + 1), Constants.n_steps);
-                states["u" + (j + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), package_last[key]);
+                states["u" + (j + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), packet_last[key]);
                 j++;
             }
 

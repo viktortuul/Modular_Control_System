@@ -54,7 +54,7 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.label14 = new System.Windows.Forms.Label();
             this.nudHistory1 = new System.Windows.Forms.NumericUpDown();
-            this.packageChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.packetChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.label13 = new System.Windows.Forms.Label();
             this.clbDropOutTarget = new System.Windows.Forms.CheckedListBox();
@@ -106,7 +106,7 @@
             this.tabControl1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudHistory1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.packageChart)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.packetChart)).BeginInit();
             this.groupBox4.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudBernoulliPass)).BeginInit();
@@ -265,8 +265,8 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage1);
@@ -282,7 +282,7 @@
             this.tabPage2.BackColor = System.Drawing.SystemColors.Control;
             this.tabPage2.Controls.Add(this.label14);
             this.tabPage2.Controls.Add(this.nudHistory1);
-            this.tabPage2.Controls.Add(this.packageChart);
+            this.tabPage2.Controls.Add(this.packetChart);
             this.tabPage2.Controls.Add(this.groupBox4);
             this.tabPage2.Controls.Add(this.groupBox1);
             this.tabPage2.Controls.Add(this.tbCanalPort);
@@ -322,24 +322,24 @@
             0});
             this.nudHistory1.ValueChanged += new System.EventHandler(this.nudHistory1_ValueChanged);
             // 
-            // packageChart
+            // packetChart
             // 
-            this.packageChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.packetChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
             chartArea1.Name = "ChartArea1";
-            this.packageChart.ChartAreas.Add(chartArea1);
+            this.packetChart.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
-            this.packageChart.Legends.Add(legend1);
-            this.packageChart.Location = new System.Drawing.Point(7, 136);
-            this.packageChart.Name = "packageChart";
-            this.packageChart.Size = new System.Drawing.Size(854, 277);
-            this.packageChart.TabIndex = 34;
-            this.packageChart.Text = "chart1";
+            this.packetChart.Legends.Add(legend1);
+            this.packetChart.Location = new System.Drawing.Point(7, 136);
+            this.packetChart.Name = "packetChart";
+            this.packetChart.Size = new System.Drawing.Size(854, 277);
+            this.packetChart.TabIndex = 34;
+            this.packetChart.Text = "chart1";
             title1.Name = "Title1";
-            title1.Text = "Package status";
-            this.packageChart.Titles.Add(title1);
+            title1.Text = "Packet status";
+            this.packetChart.Titles.Add(title1);
             // 
             // groupBox4
             // 
@@ -357,9 +357,9 @@
             this.label13.AutoSize = true;
             this.label13.Location = new System.Drawing.Point(6, 90);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(216, 26);
+            this.label13.Size = new System.Drawing.Size(207, 26);
             this.label13.TabIndex = 10;
-            this.label13.Text = "Packages in a checked channel are subject\r\nto the drop-out model.";
+            this.label13.Text = "Packets in a checked channel are subject\r\nto the drop-out model.";
             // 
             // clbDropOutTarget
             // 
@@ -386,7 +386,7 @@
             this.groupBox1.Size = new System.Drawing.Size(240, 97);
             this.groupBox1.TabIndex = 8;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Package drop-out models";
+            this.groupBox1.Text = "Packet drop-out models";
             // 
             // nudBernoulliPass
             // 
@@ -693,8 +693,8 @@
             // 
             // attackChart
             // 
-            this.attackChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.attackChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             chartArea2.BackColor = System.Drawing.Color.WhiteSmoke;
             chartArea2.Name = "ChartArea1";
@@ -892,7 +892,7 @@
             this.setDirectoryToolStripMenuItem.Text = "Set directory";
             this.setDirectoryToolStripMenuItem.Click += new System.EventHandler(this.setDirectoryToolStripMenuItem_Click);
             // 
-            // CanalGUI
+            // ChannelGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -900,7 +900,7 @@
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.tabControl1);
             this.MinimumSize = new System.Drawing.Size(550, 350);
-            this.Name = "CanalGUI";
+            this.Name = "ChannelGUI";
             this.Text = "Channel GUI";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.ChannelGUI_Load);
@@ -910,7 +910,7 @@
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudHistory1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.packageChart)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.packetChart)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.groupBox1.ResumeLayout(false);
@@ -999,7 +999,7 @@
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Label label14;
         public System.Windows.Forms.NumericUpDown nudHistory1;
-        public System.Windows.Forms.DataVisualization.Charting.Chart packageChart;
+        public System.Windows.Forms.DataVisualization.Charting.Chart packetChart;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
         private System.Windows.Forms.Label label15;
     }

@@ -96,7 +96,7 @@ namespace HMI
 
         public static void ManageReferenceSeries(FrameGUI Main)
         {
-            for (int i = 0; i < Main.connection_current.n_controlled_states; i++)
+            for (int i = 0; i < Main.connection_selected.n_controlled_states; i++)
             {
                 if (Main.dataChart.Series.IndexOf("r" + (i + 1).ToString()) == -1) AddChartSeries(Main, "r" + (i + 1).ToString(), Main.dataChart);
             }
