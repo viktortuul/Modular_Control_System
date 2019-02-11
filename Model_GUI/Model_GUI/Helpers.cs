@@ -8,11 +8,21 @@ using System.Threading;
 using System.Drawing;
 using System.Globalization;
 using GlobalComponents;
+using System.IO;
 
 namespace Model_GUI
 {
     public static class Helpers
     {   
+        public static void Log(StringBuilder sb, string message, string log_flag)
+        {
+            if (log_flag == "true")
+            {
+                sb.Append(message + "\n");
+                File.AppendAllText("log_received.txt", sb.ToString());
+                sb.Clear();
+            }
+        }
         public static void UpdatePerturbationLabels(ModelGUI GUI, Perturbation Disturbance)
         {
             GUI.labelDebug.Text = "Time left: " + Math.Round(Disturbance.time_left, 1);

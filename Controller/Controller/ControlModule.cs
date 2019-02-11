@@ -61,13 +61,12 @@ namespace Controller
             Thread thread_listen_plant = new Thread(() => ListenerPlant(EP_Send_Plant.IP, EP_Plant.PortThis, PIDList));
             thread_listen_plant.Start();
 
-
-            // create a thread for listening on the plant
-            Thread thread_loop = new Thread(() => loop());
-            thread_loop.Start();
+            // create a thread for running a fixed interval control loop (for the standard PID)
+            Thread thread_control_loop = new Thread(() => ControlLoop());
+            thread_control_loop.Start();
         }
 
-        public static void loop()
+        public static void ControlLoop()
         {
             while (true)
             {
@@ -87,7 +86,7 @@ namespace Controller
                 if (listening_on_plant == true)
                 {
                     // send time, u, and y
-                    string message = ConstructMessageGUI(PIDList);
+                    string message = ConstructMessageToGUI(PIDList);
                     sender.Send(message);
                     //Console.WriteLine("to GUI: " + message);
                 }
@@ -104,7 +103,7 @@ namespace Controller
                 try
                 {
                     listener.Listen();
-                    ParseMessage(listener.last_recieved);
+                    ParseReceivedMessage(listener.last_recieved);
 
                     // update controller settings (reference set-point and PID parameters)
                     ManageControllers(PIDList, flag : "GUI");
@@ -128,17 +127,11 @@ namespace Controller
                 if (listening_on_plant == true)
                 {
                     // send control signal u to the plant
-                    string message = ConstructMessagePlant(PIDList);
+                    string message = ConstructMessageToPlant(PIDList);
                     Sender.Send(message);
 
-                    // logging
-                    if (log_flag == "true")
-                    {
-                        sb.Append(message + "\n");
-                        File.AppendAllText("log_sent.txt", sb.ToString());
-                        sb.Clear();
-                    }
-            
+                    // log sent message (used for package delivery analysis)
+                    Helpers.Log(sb, message, log_flag);
                 }
             }
         }
@@ -153,7 +146,7 @@ namespace Controller
                 try
                 {
                     listener.Listen();
-                    ParseMessage(listener.last_recieved);
+                    ParseReceivedMessage(listener.last_recieved);
                     //Console.WriteLine("from plant: " + listener.last_recieved);
 
                     // compute the new control signal for each controller
@@ -169,7 +162,7 @@ namespace Controller
             }
         }
 
-        public static string ConstructMessageGUI(List<PID> PIDList)
+        public static string ConstructMessageToGUI(List<PID> PIDList)
         {
             string message = "";
 
@@ -199,7 +192,7 @@ namespace Controller
             return message;
         }
 
-        public static string ConstructMessagePlant(List<PID> PIDList)
+        public static string ConstructMessageToPlant(List<PID> PIDList)
         {
             string message = "";
 
@@ -220,7 +213,7 @@ namespace Controller
             return message;
         }
 
-        public static void ParseMessage(string message)
+        public static void ParseReceivedMessage(string message)
         {
             string time = ""; // denotes the time stamp
             string text = message;

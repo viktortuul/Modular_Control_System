@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Model_GUI
 {
-    class Visualization
+    class Animation
     {
         // drawing
         static Graphics g;

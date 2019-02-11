@@ -29,16 +29,16 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea10 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend10 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title10 = new System.Windows.Forms.DataVisualization.Charting.Title();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameGUI));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title3 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea11 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend11 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title11 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea12 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend12 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title12 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.timerCharts = new System.Windows.Forms.Timer(this.components);
             this.dataChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.trackBarReference1 = new System.Windows.Forms.TrackBar();
@@ -123,24 +123,24 @@
             this.dataChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea1.Area3DStyle.Inclination = 0;
-            chartArea1.Area3DStyle.Rotation = 0;
-            chartArea1.Area3DStyle.WallWidth = 1;
-            chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea1.BorderColor = System.Drawing.Color.Bisque;
-            chartArea1.Name = "ChartArea1";
-            chartArea1.ShadowColor = System.Drawing.SystemColors.GradientInactiveCaption;
-            this.dataChart.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.dataChart.Legends.Add(legend1);
+            chartArea10.Area3DStyle.Inclination = 0;
+            chartArea10.Area3DStyle.Rotation = 0;
+            chartArea10.Area3DStyle.WallWidth = 1;
+            chartArea10.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea10.BorderColor = System.Drawing.Color.Bisque;
+            chartArea10.Name = "ChartArea1";
+            chartArea10.ShadowColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.dataChart.ChartAreas.Add(chartArea10);
+            legend10.Name = "Legend1";
+            this.dataChart.Legends.Add(legend10);
             this.dataChart.Location = new System.Drawing.Point(2, 5);
             this.dataChart.Name = "dataChart";
             this.dataChart.Size = new System.Drawing.Size(661, 391);
             this.dataChart.TabIndex = 2;
             this.dataChart.Text = "chart1";
-            title1.Name = "Title1";
-            title1.Text = "Measured and estimated states";
-            this.dataChart.Titles.Add(title1);
+            title10.Name = "Title1";
+            title10.Text = "Measured and estimated states";
+            this.dataChart.Titles.Add(title10);
             // 
             // trackBarReference1
             // 
@@ -275,7 +275,7 @@
             this.groupBox2.Size = new System.Drawing.Size(262, 98);
             this.groupBox2.TabIndex = 12;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "New controller module";
+            this.groupBox2.Text = "Control module connection";
             // 
             // btnThisIP
             // 
@@ -285,6 +285,7 @@
             this.btnThisIP.TabIndex = 21;
             this.btnThisIP.Text = "get IP";
             this.btnThisIP.UseVisualStyleBackColor = true;
+            this.btnThisIP.Visible = false;
             this.btnThisIP.Click += new System.EventHandler(this.btnThisIP_Click);
             // 
             // numericUpDown_port_send
@@ -355,9 +356,9 @@
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(8, 27);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(64, 13);
+            this.label7.Size = new System.Drawing.Size(55, 13);
             this.label7.TabIndex = 9;
-            this.label7.Text = "IP:Port (this)";
+            this.label7.Text = "Port (This)";
             // 
             // textBox_ip_recieve
             // 
@@ -367,6 +368,7 @@
             this.textBox_ip_recieve.Size = new System.Drawing.Size(78, 20);
             this.textBox_ip_recieve.TabIndex = 8;
             this.textBox_ip_recieve.Text = "127.0.0.1";
+            this.textBox_ip_recieve.Visible = false;
             // 
             // btnAllowConnection
             // 
@@ -391,9 +393,9 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(8, 48);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(91, 13);
+            this.label4.Size = new System.Drawing.Size(102, 13);
             this.label4.TabIndex = 1;
-            this.label4.Text = "IP:Port (controller)";
+            this.label4.Text = "Endpoint (Controller)";
             // 
             // listBoxModules
             // 
@@ -575,24 +577,24 @@
             this.residualChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea2.Area3DStyle.Inclination = 0;
-            chartArea2.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
-            chartArea2.Area3DStyle.Rotation = 0;
-            chartArea2.Area3DStyle.WallWidth = 1;
-            chartArea2.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea2.Name = "ChartArea1";
-            chartArea2.ShadowColor = System.Drawing.Color.Gray;
-            this.residualChart.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.residualChart.Legends.Add(legend2);
+            chartArea11.Area3DStyle.Inclination = 0;
+            chartArea11.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
+            chartArea11.Area3DStyle.Rotation = 0;
+            chartArea11.Area3DStyle.WallWidth = 1;
+            chartArea11.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea11.Name = "ChartArea1";
+            chartArea11.ShadowColor = System.Drawing.Color.Gray;
+            this.residualChart.ChartAreas.Add(chartArea11);
+            legend11.Name = "Legend1";
+            this.residualChart.Legends.Add(legend11);
             this.residualChart.Location = new System.Drawing.Point(4, 28);
             this.residualChart.Name = "residualChart";
             this.residualChart.Size = new System.Drawing.Size(659, 215);
             this.residualChart.TabIndex = 32;
             this.residualChart.Text = "chart1";
-            title2.Name = "Title1";
-            title2.Text = "Residual";
-            this.residualChart.Titles.Add(title2);
+            title11.Name = "Title1";
+            title11.Text = "Residual";
+            this.residualChart.Titles.Add(title11);
             // 
             // nudHistory
             // 
@@ -679,20 +681,20 @@
             this.securityChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea3.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea3.Name = "ChartArea1";
-            this.securityChart.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            this.securityChart.Legends.Add(legend3);
+            chartArea12.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea12.Name = "ChartArea1";
+            this.securityChart.ChartAreas.Add(chartArea12);
+            legend12.Name = "Legend1";
+            this.securityChart.Legends.Add(legend12);
             this.securityChart.Location = new System.Drawing.Point(4, 248);
             this.securityChart.Margin = new System.Windows.Forms.Padding(2);
             this.securityChart.Name = "securityChart";
             this.securityChart.Size = new System.Drawing.Size(660, 238);
             this.securityChart.TabIndex = 1;
             this.securityChart.Text = "chart1";
-            title3.Name = "Title1";
-            title3.Text = "Security metric";
-            this.securityChart.Titles.Add(title3);
+            title12.Name = "Title1";
+            title12.Text = "Security metric";
+            this.securityChart.Titles.Add(title12);
             // 
             // labelSecurity
             // 

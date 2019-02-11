@@ -30,7 +30,7 @@ namespace HMI
         public int n_controlled_states = 0;
 
         // data containers (dictionaries)
-        public Dictionary<string, DataContainer> recieved_packets = new Dictionary<string, DataContainer>();
+        public Dictionary<string, DataContainer> received_packets = new Dictionary<string, DataContainer>();
         public Dictionary<string, DataContainer> references = new Dictionary<string, DataContainer>();
         public Dictionary<string, DataContainer> estimates = new Dictionary<string, DataContainer>();
 
@@ -50,15 +50,12 @@ namespace HMI
             // main form access
             this.Main = Main;
 
-            // canal address
+            // channel endpoint
             this.Channel_EP = Channel_EP;
 
             // identity parameters
             this.name = name;
             this.Controller_EP = Controller_EP;
-
-            // update controller parameters
-            this.ControllerParameters = ControllerParameters;
 
             // specify the endpoint (either channel or directly the controller)
             AddressEndPoint EP = new AddressEndPoint();
@@ -66,6 +63,9 @@ namespace HMI
                 EP = new AddressEndPoint(Channel_EP.IP, Channel_EP.Port);
             else
                 EP = new AddressEndPoint(Controller_EP.IP, Controller_EP.Port);
+
+            // controller parameters
+            this.ControllerParameters = ControllerParameters;
 
             // create a new thread for the sender
             Thread thread_sender = new Thread(() => Sender(EP.IP, EP.Port));
@@ -86,21 +86,8 @@ namespace HMI
             {
                 Thread.Sleep(100);
 
-                // attatch reference values
-                string message = "";
-                if (Main.usingCanal == true) message += Convert.ToString("EP_" + Controller_EP.IP + ":" + Controller_EP.Port + "#");
-                message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
-
-                for (int i = 1; i <= n_controlled_states; i++)
-                {
-                    message += "r" + i + "_" + references["r" + i].GetLastValue() + "#";
-                }
-
-                // attach controller parameters
-                message += Convert.ToString("Kp_" + ControllerParameters.Kp + "#Ki_" + ControllerParameters.Ki + "#Kd_" + ControllerParameters.Kd);
-
-                // remove redundant delimiter
-                if (message.Substring(0, 1) == "#") message = message.Substring(1);
+                // construct message to controller
+                string message = ConstructMessage();
 
                 // send message
                 sender.Send(message);
@@ -125,7 +112,7 @@ namespace HMI
                     time_last_recieved_packet = DateTime.UtcNow;
 
                     // parse the message 
-                    ParseMessage(listener.last_recieved);
+                    ParseReceivedMessage(listener.last_recieved);
 
                     // flag that the GUI is recieving packets from the controller
                     if (is_recieving_packets == false) is_recieving_packets = true;
@@ -137,7 +124,27 @@ namespace HMI
             }
         }
 
-        public void ParseMessage(string message)
+        public string ConstructMessage()
+        {
+            // attatch reference values
+            string message = "";
+            if (Main.usingCanal == true) message += Convert.ToString("EP_" + Controller_EP.IP + ":" + Controller_EP.Port + "#");
+            message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
+
+            for (int i = 1; i <= n_controlled_states; i++)
+            {
+                message += "r" + i + "_" + references["r" + i].GetLastValue() + "#";
+            }
+
+            // attach controller parameters
+            message += Convert.ToString("Kp_" + ControllerParameters.Kp + "#Ki_" + ControllerParameters.Ki + "#Kd_" + ControllerParameters.Kd);
+
+            // remove redundant delimiter
+            if (message.Substring(0, 1) == "#") message = message.Substring(1);
+            return message;
+        }
+
+        public void ParseReceivedMessage(string message)
         {
             string time = "";
             string text = message;
@@ -158,14 +165,14 @@ namespace HMI
                 if (key == "time") { time = value; continue; }
 
                 // if the key doesn't exist, add it
-                if (recieved_packets.ContainsKey(key) == false)
+                if (received_packets.ContainsKey(key) == false)
                 {
-                    recieved_packets.Add(key, new DataContainer(Constants.n_steps));
+                    received_packets.Add(key, new DataContainer(Constants.n_steps));
 
                     // add an eventual residual and estimate continer
                     if (DEF_residual_states.Contains(key) == true)
-                    { 
-                        recieved_packets[key].has_residual = true;
+                    {
+                        received_packets[key].has_residual = true;
                         Helpers.ManageEstimatesKeys(key, estimates, Constants.n_steps);
                         if (key == "yc1") Helpers.ManageEstimatesKeys("yo1", estimates, Constants.n_steps); // also estimate yo1 (hardcoded)
                     }
@@ -182,36 +189,16 @@ namespace HMI
                 }
 
                 // store the value
-                recieved_packets[key].InsertData(time, value);
+                received_packets[key].InsertData(time, value);
             }
 
             // update state estimator and calculate residual
-            StateEstimate(time);
+            KalmanFilter.NextStateEstimate(kalman_filter, time, estimates, received_packets);
 
             // add reference time-stamp
             if (references.ContainsKey("r1")) references["r1"].CopyAndPushArray();
             if (references.ContainsKey("r2")) references["r2"].CopyAndPushArray();          
         } 
-
-        private void StateEstimate(string time)
-        {
-            // estimate states             
-            double z = Convert.ToDouble(recieved_packets["yc1"].GetLastValue());
-            double u = Convert.ToDouble(recieved_packets["u1"].GetLastValue());
-            double[,] x = kalman_filter.Update(z, u);
-
-            // store the value
-            if (estimates.ContainsKey("yo1_hat")) estimates["yo1_hat"].InsertData(time, x[0, 0].ToString());
-            if (estimates.ContainsKey("yc1_hat")) estimates["yc1_hat"].InsertData(time, x[1, 0].ToString());
-
-            // store the residual
-            if (recieved_packets.ContainsKey("yc1")) recieved_packets["yc1"].InsertResidual(kalman_filter.innovation.ToString());
-        }
-
-        public void UpdateKalmanFilter(double A1, double a1, double A2, double a2)
-        {
-            kalman_filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, a1, a2, A1, A2, 6.5); // x0, a1, a2, A1, A2, k
-        }
 
         public string GetConnectionStatus()
         {

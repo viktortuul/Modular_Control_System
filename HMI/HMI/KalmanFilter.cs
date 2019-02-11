@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using GlobalComponents;
 
 namespace HMI
 {
@@ -33,6 +34,26 @@ namespace HMI
             this.A1 = A1;
             this.A2 = A2;
             this.k = k;
+        }
+
+        public static void NextStateEstimate(KalmanFilter kalman_filter, string time, Dictionary<string, DataContainer> estimates, Dictionary<string, DataContainer> received_packets)
+        {
+            // estimate states             
+            double z = Convert.ToDouble(received_packets["yc1"].GetLastValue());
+            double u = Convert.ToDouble(received_packets["u1"].GetLastValue());
+            double[,] x = kalman_filter.Update(z, u);
+
+            // store the value
+            if (estimates.ContainsKey("yo1_hat")) estimates["yo1_hat"].InsertData(time, x[0, 0].ToString());
+            if (estimates.ContainsKey("yc1_hat")) estimates["yc1_hat"].InsertData(time, x[1, 0].ToString());
+
+            // store the residual
+            if (received_packets.ContainsKey("yc1")) received_packets["yc1"].InsertResidual(kalman_filter.innovation.ToString());
+        }
+
+        public static void UpdateKalmanFilter(KalmanFilter kalman_filter, double A1, double a1, double A2, double a2)
+        {
+            kalman_filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, a1, a2, A1, A2, 6.5); // x0, a1, a2, A1, A2, k
         }
 
         public double[,] Update(double z, double u)

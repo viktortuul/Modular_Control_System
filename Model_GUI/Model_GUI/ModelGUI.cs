@@ -22,10 +22,10 @@ namespace Model_GUI
         static StringBuilder sb = new StringBuilder();
 
         // chart settings
-        public int chart_history = 60;
+        public int time_chart_window = 60; // chart view time [s]
 
         // flag specific keys with pre-defined meanings
-        static string[] flag_control_signal = new string[] { "u1", "u2" };
+        static string[] DEF_control_signal = new string[] { "u1", "u2" };
 
         // data containers (dictionaries)
         public Dictionary<string, string> packet_last = new Dictionary<string, string>(); // recieved packet <tag, value>
@@ -35,27 +35,29 @@ namespace Model_GUI
         public Dictionary<string, DataContainer> states = new Dictionary<string, DataContainer>();
         public Dictionary<string, DataContainer> perturbations = new Dictionary<string, DataContainer>();
 
-        // initialize perturbation settings
-        Perturbation Disturbance = new Perturbation();
-
-        double noise_std = 0.1; // measurement noise standard deviation
-
-        // initialize an empty plant class
-        Plant plant = new Plant();
-
-        // folder setting for chart image save
-        public string folderName = "";
-
-        // canal flag
+        // canal variables
         public bool using_canal = false;
         ConnectionParameters EP_Controller = new ConnectionParameters();
         AddressEndPoint EP = new AddressEndPoint();
 
+        // initialize perturbation settings
+        Perturbation Disturbance = new Perturbation();
+
+        // initialize an empty Plant class
+        Plant Plant = new Plant();
+
+        // measurement noise standard deviation
+        double noise_std = 0.1;
+
         // model parameters from command line arguments
         public double[] model_parameters = new double[0];
 
-        // control/obsrver mode
-        public bool control_mode = true;
+        // folder setting for chart image save
+        public string folderName = "";
+
+
+        // GUI view mode
+        public string GUI_view_mode = "control";
 
         public ModelGUI()
         {
@@ -68,16 +70,16 @@ namespace Model_GUI
             ParseArgs(args);
 
             // create a thread for listening on the controller
-            Thread thread_listener = new Thread(() => Listener(EP.IP, EP_Controller.PortThis, plant));
+            Thread thread_listener = new Thread(() => Listener(EP.IP, EP_Controller.PortThis, Plant));
             thread_listener.Start();
 
             // create a thread for communication with the controller
-            Thread thread_sender = new Thread(() => Sender(EP.IP, EP.Port, plant));
+            Thread thread_sender = new Thread(() => Sender(EP.IP, EP.Port, Plant));
             thread_sender.Start();
 
             // create a thread for the simulation
             int dt = 10; // simulation update rate [ms]
-            Thread thread_process = new Thread(() => Process(plant, dt));
+            Thread thread_process = new Thread(() => Process(Plant, dt));
             thread_process.Start();
 
             // folder and chart settings
@@ -86,10 +88,11 @@ namespace Model_GUI
             // start plotting
             timerChart.Start();
 
-            toggleControlMode();
+            // initialize with control view mode
+            toggleViewMode("control");
         }
 
-        public void Process(Plant plant, int dt)
+        public void Process(Plant Plant, int dt)
         {
             while (true)
             {
@@ -98,20 +101,20 @@ namespace Model_GUI
                 // update process
                 if (Disturbance.time_left > 0)
                 {
-                    ApplyDisturbance(plant);
+                    ApplyDisturbance(Plant);
                 }
                 else
                 {
-                    plant.UpdateStates();
+                    Plant.UpdateStates();
                 }            
             }
         }
 
-        private void ApplyDisturbance(Plant plant)
+        private void ApplyDisturbance(Plant Plant)
         {
             Disturbance.PerturbationNext();
-            plant.ChangeState(Disturbance.target_state, Disturbance.value_disturbance);
-            SampleStates(plant);
+            Plant.ChangeState(Disturbance.target_state, Disturbance.value_disturbance);
+            SampleStates(Plant);
             this.Invoke((MethodInvoker)delegate ()
             {
                 UpdateChart(perturbationChart, perturbations);
@@ -119,7 +122,7 @@ namespace Model_GUI
             if (Disturbance.type == "instant") Disturbance.Stop();
         }
 
-        public void Listener(string IP, int port, Plant plant)
+        public void Listener(string IP, int port, Plant Plant)
         {
             // initialize a connection to the controller
             Server listener = new Server(IP, port);
@@ -144,15 +147,10 @@ namespace Model_GUI
                     }
 
                     // update actuators
-                    plant.set_u(u);
+                    Plant.set_u(u);
 
-                    // logging
-                    if (log_flag == "true")
-                    {
-                        sb.Append(listener.last_recieved + "\n");
-                        File.AppendAllText("log_received.txt", sb.ToString());
-                        sb.Clear();
-                    }
+                    // log received message (used for package delivery analysis)
+                    Helpers.Log(sb, listener.last_recieved, log_flag);
                 }
                 catch (Exception ex)
                 {
@@ -161,7 +159,7 @@ namespace Model_GUI
             }
         }
 
-        public void Sender(string IP, int port, Plant plant)
+        public void Sender(string IP, int port, Plant Plant)
         {
             // initialize a connection to the controller
             Client sender = new Client(IP, port);
@@ -175,24 +173,24 @@ namespace Model_GUI
                 message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
 
                 // attach observed states measurement 
-                for (int i = 0; i < plant.get_yo().Length; i++)
+                for (int i = 0; i < Plant.get_yo().Length; i++)
                 {
                     // apply measurement noise
                     var r = new GaussianRandom();
                     double noise = r.NextGaussian(0, noise_std);
-                    message += "yo" + (i + 1) + "_" + (plant.get_yo()[i] + noise).ToString() + "#";
+                    message += "yo" + (i + 1) + "_" + (Plant.get_yo()[i] + noise).ToString() + "#";
                 }  
 
                 // attach controlled states measurement
-                for (int i = 0; i < plant.get_yc().Length; i++)
+                for (int i = 0; i < Plant.get_yc().Length; i++)
                 {
                     // apply measurement noise
                     var r = new GaussianRandom();
                     double noise = r.NextGaussian(0, noise_std);
-                    message += "yc" + (i + 1) + "_" + (plant.get_yc()[i] + noise).ToString() + "#";
+                    message += "yc" + (i + 1) + "_" + (Plant.get_yc()[i] + noise).ToString() + "#";
 
                     // append the last actuator state
-                    message += "uc" + (i + 1) + "_" + plant.get_uc()[i].ToString() + "#";
+                    message += "uc" + (i + 1) + "_" + Plant.get_uc()[i].ToString() + "#";
                 }
 
                 // remove the redundant delimiter
@@ -216,7 +214,7 @@ namespace Model_GUI
                 string key = subitem[0];
                 string value = subitem[1];
 
-                if (flag_control_signal.Contains(key))
+                if (DEF_control_signal.Contains(key))
                 {
                     if (packet_last.ContainsKey(key) == false) packet_last.Add(key, value);
                     packet_last[key] = value;
@@ -227,26 +225,21 @@ namespace Model_GUI
         private void timerChart_Tick(object sender, EventArgs e)
         {
             // sample states for plotting
-            SampleStates(plant);
+            SampleStates(Plant);
 
             // draw chart
             UpdateChart(dataChart, states);
             UpdateChart(perturbationChart, perturbations);
 
             // update time axis minimum and maximum
-            Charting.UpdateChartAxes(dataChart, chart_history);
-            Charting.UpdateChartAxes(perturbationChart, chart_history);
+            Charting.UpdateChartAxes(dataChart, time_chart_window);
+            Charting.UpdateChartAxes(perturbationChart, time_chart_window);
 
             // draw animation
-            Visualization.DrawTanks(this);
+            Animation.DrawTanks(this);
 
             // update labels
             Helpers.UpdatePerturbationLabels(this, Disturbance);
-        }
-
-        private void UpdatePerturbation(Perturbation perturbation)
-        {
-            if (perturbation.time_left > 0) perturbation.PerturbationNext();
         }
 
         private void UpdateChart(object chart, Dictionary<string, DataContainer> dict)
@@ -274,20 +267,20 @@ namespace Model_GUI
             }
         }
 
-        public void SampleStates(Plant plant) // used for plotting
+        public void SampleStates(Plant Plant) // used for plotting
         {
             // observed states
-            for (int i = 0; i < plant.get_yo().Length; i++)
+            for (int i = 0; i < Plant.get_yo().Length; i++)
             {
                 Tools.AddKeyToDict(states, "yo" + (i + 1), Constants.n_steps);
-                states["yo" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), plant.get_yo()[i].ToString());
+                states["yo" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Plant.get_yo()[i].ToString());
             }
 
             // controlled states
-            for (int i = 0; i < plant.get_yc().Length; i++)
+            for (int i = 0; i < Plant.get_yc().Length; i++)
             {
                 Tools.AddKeyToDict(states, "yc" + (i + 1), Constants.n_steps);
-                states["yc" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), plant.get_yc()[i].ToString());
+                states["yc" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Plant.get_yc()[i].ToString());
             }
 
             // control signal 
@@ -346,16 +339,16 @@ namespace Model_GUI
                         {
                             case "dwt":
                                 model_parameters = new double[] { Convert.ToDouble(arg_sep[2]), Convert.ToDouble(arg_sep[3]), Convert.ToDouble(arg_sep[4]), Convert.ToDouble(arg_sep[5]) };
-                                plant = new Plant(new DoubleWatertank(model_parameters));
+                                Plant = new Plant(new DoubleWatertank(model_parameters));
                                 noise_std = Convert.ToDouble(arg_sep[6]);
                                 break;
                             case "qwt":
                                 model_parameters = new double[] { Convert.ToDouble(arg_sep[2]), Convert.ToDouble(arg_sep[3]), Convert.ToDouble(arg_sep[4]), Convert.ToDouble(arg_sep[5]), Convert.ToDouble(arg_sep[6]) , Convert.ToDouble(arg_sep[7]), Convert.ToDouble(arg_sep[8]), Convert.ToDouble(arg_sep[9]) };
-                                plant = new Plant(new QuadWatertank(model_parameters));
+                                Plant = new Plant(new QuadWatertank(model_parameters));
                                 noise_std = Convert.ToDouble(arg_sep[10]);
                                 break;
                             case "ipsiso":
-                                plant = new Plant(new InvertedPendulumSISO());
+                                Plant = new Plant(new InvertedPendulumSISO());
                                 break;
                             default:
                                 MessageBox.Show("Unknown model type not used: " + arg_name);
@@ -394,8 +387,6 @@ namespace Model_GUI
             }
         }
 
-
-
         private void ModelGUI_FormClosing(object sender, FormClosingEventArgs e)
         {
             // kill all threads when the form closes
@@ -404,12 +395,12 @@ namespace Model_GUI
 
         private void nudHistory_ValueChanged(object sender, EventArgs e)
         {
-            chart_history = Convert.ToInt16(nudHistory.Value);
+            time_chart_window = Convert.ToInt16(nudHistory.Value);
             
-            if (chart_history > 0)
+            if (time_chart_window > 0)
             {
-                dataChart.ChartAreas["ChartArea1"].AxisX.Interval = Convert.ToInt16(chart_history / 10);
-                perturbationChart.ChartAreas["ChartArea1"].AxisX.Interval = Convert.ToInt16(chart_history / 10);
+                dataChart.ChartAreas["ChartArea1"].AxisX.Interval = Convert.ToInt16(time_chart_window / 10);
+                perturbationChart.ChartAreas["ChartArea1"].AxisX.Interval = Convert.ToInt16(time_chart_window / 10);
             }
         }
 
@@ -484,45 +475,47 @@ namespace Model_GUI
             }
         }
 
-        private void toggleControlMode()
+        private void toggleViewMode(string mode)
         {
-            foreach (Control c in this.Controls)
+            if (mode == "control")
             {
-                c.Visible = true; //or true.
-            }
-
-            tabControl1.Width = this.Width - 325 - pictureBox1.Width - 20;
-            tabControl1.Height = this.Height - 70;
-            pictureBox1.Height = this.Height - 70 - 23;
-        }
-
-        private void toggleObserverMode()
-        {
-            string[] visible_controls = new string[] {"tabControl1", "dataChart", "pictureBox1", "statusStrip1" };
-            foreach (Control c in this.Controls)
-            {
-                if (visible_controls.Contains(c.Name) == false)
+                foreach (Control c in this.Controls)
                 {
-                    c.Visible = false; //or true.
+                    c.Visible = true; //or true.
                 }
-            }
 
-            tabControl1.Width = this.Width - pictureBox1.Width - 25;
-            tabControl1.Height = this.Height - 70;
-            pictureBox1.Height = this.Height - 70 - 23;
+                tabControl1.Width = this.Width - 325 - pictureBox1.Width - 20;
+                tabControl1.Height = this.Height - 70;
+                pictureBox1.Height = this.Height - 70 - 23;
+            }
+            else if (mode == "observe")
+            {
+                string[] visible_controls = new string[] { "tabControl1", "dataChart", "pictureBox1", "statusStrip1" };
+                foreach (Control c in this.Controls)
+                {
+                    if (visible_controls.Contains(c.Name) == false)
+                    {
+                        c.Visible = false; //or true.
+                    }
+                }
+
+                tabControl1.Width = this.Width - pictureBox1.Width - 25;
+                tabControl1.Height = this.Height - 70;
+                pictureBox1.Height = this.Height - 70 - 23;
+            }
         }
 
         private void toolStripStatusLabel1_Click(object sender, EventArgs e)
         {
-            if (control_mode == true)
+            if (GUI_view_mode == "control")
             {
-                toggleObserverMode();
-                control_mode = false;
+                toggleViewMode("observe");
+                GUI_view_mode = "observe";
             }
             else
             {
-                toggleControlMode();
-                control_mode = true;
+                toggleViewMode("control");
+                GUI_view_mode = "control";
             }
         }
     }

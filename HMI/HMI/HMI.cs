@@ -70,7 +70,7 @@ namespace HMI
 
                 // update charts
                 UpdateChart(connection_selected.references, setting : ""); // reference
-                UpdateChart(connection_selected.recieved_packets, setting : ""); // states
+                UpdateChart(connection_selected.received_packets, setting : ""); // states
                 UpdateChart(connection_selected.estimates, setting : ""); // kalman filter estimates
 
                 // update time axis minimum and maximum
@@ -83,7 +83,7 @@ namespace HMI
             Helpers.UpdateTimeLabels(this, connection_selected, Constants.FMT);
 
             // draw simulation
-            Visualization.DrawTanks(this, connection_selected);
+            Animation.DrawTanks(this, connection_selected);
         }
 
         private void UpdateChart(Dictionary<string, DataContainer> dict, string setting)
@@ -162,7 +162,7 @@ namespace HMI
 
                 // refresh the chart, load all data points
                 UpdateChart(connection_selected.references, setting : "load_all"); // reference
-                UpdateChart(connection_selected.recieved_packets, setting: "load_all"); // states
+                UpdateChart(connection_selected.received_packets, setting: "load_all"); // states
                 UpdateChart(connection_selected.estimates, setting: "load_all"); // kalman filter estimates
 
                 // scale y-axis for the charts
@@ -314,7 +314,7 @@ namespace HMI
             foreach (var series in dataChart.Series) series.Points.Clear();
             foreach (var series in residualChart.Series) series.Points.Clear();
 
-            foreach (string key in connection_selected.recieved_packets.Keys) connection_selected.recieved_packets[key].Clear();
+            foreach (string key in connection_selected.received_packets.Keys) connection_selected.received_packets[key].Clear();
             foreach (string key in connection_selected.estimates.Keys) connection_selected.estimates[key].Clear();
         }
 

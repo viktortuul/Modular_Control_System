@@ -104,7 +104,7 @@ namespace HMI
         {
             try
             {
-                DateTime time_sent = DateTime.ParseExact(connection.recieved_packets["u1"].GetLastTime(), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
+                DateTime time_sent = DateTime.ParseExact(connection.received_packets["u1"].GetLastTime(), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
                 TimeSpan timeDiff = connection.time_last_recieved_packet - time_sent;
                 GUI.label_time.Text =   "time now:                    " + DateTime.UtcNow.ToString("hh:mm:ss.fff tt") + "\n" +
                                         "last recieved:              " + connection.time_last_recieved_packet.ToString("hh:mm:ss.fff tt") + "\n" +

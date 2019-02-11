@@ -13,7 +13,7 @@ namespace HMI
     public partial class FormSettings : Form
     {
         // contains the main gui
-        FrameGUI form;
+        FrameGUI MainForm;
 
         public FormSettings()
         {
@@ -22,11 +22,11 @@ namespace HMI
 
         public FrameGUI Main
         {
-            get { return form; }
-            set { form = value; }
+            get { return MainForm; }
+            set { MainForm = value; }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnSave_Click(object sender, EventArgs e)
         {
             // save settings
             double A1 = Convert.ToDouble(numUpDown_A1.Value);
@@ -40,12 +40,13 @@ namespace HMI
             Properties.Settings.Default.Save();
 
             // update tank dimensions
-            form.tankDimensions = new TankDimensions(A1, a1, A2, a2);
+            MainForm.tankDimensions = new TankDimensions(A1, a1, A2, a2);
 
             // update kalman filter
-            form.connection_selected.UpdateKalmanFilter(A1, a1, A2, a2);
+            KalmanFilter kalman_filter = MainForm.connection_selected.kalman_filter;
+            KalmanFilter.UpdateKalmanFilter(kalman_filter, A1, a1, A2, a2);
 
-            form.log("Settings updated"); updateLog();
+            MainForm.log("Settings updated"); updateLog();
         }
 
         private void FormSettings_Load(object sender, EventArgs e)
@@ -60,10 +61,10 @@ namespace HMI
 
         private void updateLog()
         {
-            tbDebugLog.Text = form.debugLog;
+            tbDebugLog.Text = MainForm.debugLog;
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void btnRefresh_Click(object sender, EventArgs e)
         {
             updateLog();
         }
