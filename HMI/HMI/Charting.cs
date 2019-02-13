@@ -10,6 +10,21 @@ namespace HMI
 {
     class Charting
     {
+        public static void UpdateChartAxes(Chart chart, int time_chart_window)
+        {
+            chart.ChartAreas[0].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-time_chart_window).ToOADate();
+            chart.ChartAreas[0].AxisX.Maximum = DateTime.UtcNow.ToOADate();
+        }
+
+        public static void InitializeChartSettings(Chart chart, string title)
+        {
+            chart.ChartAreas[0].AxisY.Title = title;
+            chart.ChartAreas[0].AxisX.LabelStyle.Format = "hh:mm:ss";
+            chart.ChartAreas[0].AxisX.IntervalType = DateTimeIntervalType.Seconds;
+            chart.ChartAreas[0].AxisX.Interval = 5;
+            chart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
+        }
+
         public static void AddChartSeries(FrameGUI Main, string key, object chart)
         {
             string[] unchecked_keys = new string[] { "yo1", "yo2" };
@@ -94,20 +109,6 @@ namespace HMI
             }
         }
 
-        public static void ManageReferenceSeries(FrameGUI Main)
-        {
-            for (int i = 0; i < Main.connection_selected.n_controlled_states; i++)
-            {
-                if (Main.dataChart.Series.IndexOf("r" + (i + 1).ToString()) == -1) AddChartSeries(Main, "r" + (i + 1).ToString(), Main.dataChart);
-            }
-        }
-
-        public static void UpdateChartAxes(Chart chart, int chart_history)
-        {
-            chart.ChartAreas[0].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
-            chart.ChartAreas[0].AxisX.Maximum = DateTime.UtcNow.ToOADate();
-        }
-
         public static void ChangeYScale(object chart, string treshold_interval, string grid_interval)
         {
             bool points_exist = false;
@@ -174,13 +175,12 @@ namespace HMI
             chart.ChartAreas[0].AxisY.StripLines.Add(stripLine3);
         }
 
-        public static void InitializeChartSettings(Chart chart, string title)
+        public static void ManageReferenceSeries(FrameGUI Main)
         {
-            chart.ChartAreas[0].AxisY.Title = title;
-            chart.ChartAreas[0].AxisX.LabelStyle.Format = "hh:mm:ss";
-            chart.ChartAreas[0].AxisX.IntervalType = DateTimeIntervalType.Seconds;
-            chart.ChartAreas[0].AxisX.Interval = 5;
-            chart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
+            for (int i = 0; i < Main.connection_selected.n_controlled_states; i++)
+            {
+                if (Main.dataChart.Series.IndexOf("r" + (i + 1).ToString()) == -1) AddChartSeries(Main, "r" + (i + 1).ToString(), Main.dataChart);
+            }
         }
 
         public static void ManageChartSize(FrameGUI Main)

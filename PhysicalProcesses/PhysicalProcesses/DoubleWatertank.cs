@@ -78,10 +78,10 @@ namespace PhysicalProcesses
             update_last = DateTime.Now;
         }
 
-        public void ChangeState(string state, double disturbance)
+        public void ApplyDisturbance(string target_state, double disturbance_magnitude)
         {
-            if (state == "h1") h1 += disturbance; // top tank 
-            else if (state == "h2") h2 += disturbance; // bottom tank
+            if (target_state == "h1") h1 += disturbance_magnitude; // top tank 
+            else if (target_state == "h2") h2 += disturbance_magnitude; // bottom tank
         }
 
         public void set_model_parameters(double[] model_parameters)

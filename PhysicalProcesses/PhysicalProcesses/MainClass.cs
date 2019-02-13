@@ -54,18 +54,18 @@ namespace PhysicalProcesses
         }
 
         // change the model states (applied disturbance)
-        public void ChangeState(string state, double disturbance)
+        public void ApplyDisturbance(string target_state, double disturbance_magnitude)
         {
             switch (model_type)
             {
                 case "DoubleWatertank":
-                    doubleWatertank.ChangeState(state, disturbance);
+                    doubleWatertank.ApplyDisturbance(target_state, disturbance_magnitude);
                     break;
                 case "QuadWatertank":
-                    quadWatertank.ChangeState(state, disturbance);
+                    quadWatertank.ApplyDisturbance(target_state, disturbance_magnitude);
                     break;
                 case "InvertedPendulum":
-                    InvPendulumSISO.ChangeState(state, disturbance);
+                    InvPendulumSISO.ApplyDisturbance(target_state, disturbance_magnitude);
                     break;
             }
         }

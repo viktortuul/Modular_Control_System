@@ -175,6 +175,23 @@ namespace HMI
             catch { }
         }
 
+        private void timerUpdateGUI_Tick(object sender, EventArgs e)
+        {
+            // update tree information
+            Helpers.UpdateTree(this, connection_selected);
+
+            // enable or disable reference track bars
+            Helpers.ManageTrackbars(this);
+
+            // scale y-axis for the charts
+            Charting.ChangeYScale(dataChart, treshold_interval: "one", grid_interval: "one");
+            Charting.ChangeYScale(residualChart, treshold_interval: "one", grid_interval: "one");
+            Charting.ChangeYScale(securityChart, treshold_interval: "one", grid_interval: "adaptive");
+
+            labelSecurity.Text = "Security metric: " + Math.Round(connection_selected.kalman_filter.security_metric, 1) + Environment.NewLine +
+                                 "Status: " + connection_selected.kalman_filter.security_status;
+        }
+
         private void btnAllowConnection_Click_1(object sender, EventArgs e)
         {
             // enable parameter settings
@@ -241,23 +258,6 @@ namespace HMI
             }
         }
 
-        private void timerUpdateGUI_Tick(object sender, EventArgs e)
-        {
-            // update tree information
-            Helpers.UpdateTree(this, connection_selected);
-
-            // enable or disable reference track bars
-            Helpers.ManageTrackbars(this);
-
-            // scale y-axis for the charts
-            Charting.ChangeYScale(dataChart, treshold_interval: "one", grid_interval: "one");
-            Charting.ChangeYScale(residualChart, treshold_interval: "one", grid_interval: "one");
-            Charting.ChangeYScale(securityChart, treshold_interval: "one", grid_interval: "adaptive");
-
-            labelSecurity.Text = "Security metric: " + Math.Round(connection_selected.kalman_filter.security_metric, 1) + Environment.NewLine +
-                                 "Status: " + connection_selected.kalman_filter.security_status;
-        }
-
         private void InitialSettings()
         {
             // application directory
@@ -279,7 +279,6 @@ namespace HMI
             double A2 = Properties.Settings.Default.BA2;
             double a2 = Properties.Settings.Default.SA2;
             tankDimensions = new TankDimensions(A1, a1, A2, a2);
-            log("Settings loaded");
         }
 
         private void ParseArgs(string[] args)
@@ -306,7 +305,6 @@ namespace HMI
                     }
                 }
             }
-            else log("No channel in use");    
         }
 
         private void btnClearCharts_Click(object sender, EventArgs e)
@@ -457,6 +455,20 @@ namespace HMI
             form_settnings.Show();
         }
 
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
+        {
+            if (GUI_view_mode == "control")
+            {
+                toggleViewObserveMode();
+                GUI_view_mode = "observe";
+            }
+            else
+            {
+                toggleViewControlMode();
+                GUI_view_mode = "control";
+            }
+        }
+
         private void toggleViewControlMode()
         {
             foreach (Control c in this.Controls)
@@ -489,18 +501,5 @@ namespace HMI
             pictureBox1.Height = this.Height - 70 - 23;
         }
 
-        private void toolStripStatusLabel1_Click(object sender, EventArgs e)
-        {
-            if (GUI_view_mode == "control")
-            {
-                toggleViewObserveMode();
-                GUI_view_mode = "observe";
-            }
-            else
-            {
-                toggleViewControlMode();
-                GUI_view_mode = "control";
-            }
-        }
     }
 }

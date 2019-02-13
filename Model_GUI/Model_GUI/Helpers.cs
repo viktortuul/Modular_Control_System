@@ -23,7 +23,7 @@ namespace Model_GUI
                 sb.Clear();
             }
         }
-        public static void UpdatePerturbationLabels(ModelGUI GUI, Perturbation Disturbance)
+        public static void UpdatePerturbationLabels(ModelGUI GUI, DisturbanceModel Disturbance)
         {
             GUI.labelDebug.Text = "Time left: " + Math.Round(Disturbance.time_left, 1);
             GUI.labelDisturbance.Text = "Disturbances: \n" + Math.Round(Disturbance.value_disturbance, 2);

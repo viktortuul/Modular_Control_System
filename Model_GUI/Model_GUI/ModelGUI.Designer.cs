@@ -414,9 +414,9 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(6, 60);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(64, 13);
+            this.label3.Size = new System.Drawing.Size(76, 13);
             this.label3.TabIndex = 45;
-            this.label3.Text = "Disturbance";
+            this.label3.Text = "Time const. [s]";
             // 
             // statusStrip1
             // 

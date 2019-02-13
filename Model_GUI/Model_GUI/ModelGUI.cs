@@ -41,7 +41,7 @@ namespace Model_GUI
         AddressEndPoint EP = new AddressEndPoint();
 
         // initialize perturbation settings
-        Perturbation Disturbance = new Perturbation();
+        DisturbanceModel Disturbance = new DisturbanceModel();
 
         // initialize an empty Plant class
         Plant Plant = new Plant();
@@ -103,22 +103,15 @@ namespace Model_GUI
                 {
                     ApplyDisturbance(Plant);
                 }
-                else
-                {
-                    Plant.UpdateStates();
-                }            
+                Plant.UpdateStates();
             }
         }
 
         private void ApplyDisturbance(Plant Plant)
         {
             Disturbance.PerturbationNext();
-            Plant.ChangeState(Disturbance.target_state, Disturbance.value_disturbance);
-            SampleStates(Plant);
-            this.Invoke((MethodInvoker)delegate ()
-            {
-                UpdateChart(perturbationChart, perturbations);
-            });
+            Plant.ApplyDisturbance(Disturbance.target_state, Disturbance.value_disturbance);
+            SampleStates(Plant);        
             if (Disturbance.type == "instant") Disturbance.Stop();
         }
 
@@ -424,7 +417,7 @@ namespace Model_GUI
             double time_const = Convert.ToDouble(nudTimeConst.Value);
             string target_state = tbTargetState.Text;
 
-            Disturbance = new Perturbation(target_state, type, duration, amplitude_disturbance, time_const, frequency);
+            Disturbance = new DisturbanceModel(target_state, type, duration, amplitude_disturbance, time_const, frequency);
         }
 
         private void btnStopDisturbance_Click(object sender, EventArgs e)

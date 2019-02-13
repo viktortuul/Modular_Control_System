@@ -10,42 +10,25 @@ namespace Channel_GUI
 {
     class Charting
     {
-        public static void UpdateChartAxes(Chart chart, int chart_history)
+        public static void UpdateChartAxes(Chart chart, int time_chart_window)
         {
-            chart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
+            chart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-time_chart_window).ToOADate();
             chart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
         }
 
-        public static void ChangeYScale(object chart, string verbose)
+        public static void InitialChartSettings(ChannelGUI Main)
         {
-            bool points_exist = false;
-            double max = Double.MinValue;
-            double min = Double.MaxValue;
+            Main.attackChart.ChartAreas["ChartArea1"].AxisY.Title = "";
+            Main.attackChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
+            Main.attackChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
+            Main.attackChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
+            Main.attackChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
 
-            Chart tmpChart = (Chart)chart;
-
-            double leftLimit = tmpChart.ChartAreas["ChartArea1"].AxisX.Minimum;
-            double rightLimit = tmpChart.ChartAreas["ChartArea1"].AxisX.Maximum;
-
-            for (int s = 0; s < tmpChart.Series.Count(); s++)
-            {
-                foreach (DataPoint dp in tmpChart.Series[s].Points)
-                {
-                    if (dp.XValue >= leftLimit && dp.XValue <= rightLimit)
-                    {
-                        min = Math.Min(min, dp.YValues[0]);
-                        max = Math.Max(max, dp.YValues[0]);
-                        points_exist = true;
-                    }
-                }
-            }
-
-            if (points_exist == true)
-            {
-                tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Ceiling(max);
-                tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Floor(min);
-                tmpChart.ChartAreas["ChartArea1"].AxisY.Interval = 1;
-            }
+            Main.packetChart.ChartAreas["ChartArea1"].AxisY.Title = "";
+            Main.packetChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
+            Main.packetChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
+            Main.packetChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
+            Main.packetChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
         }
 
         public static void AddChartSeries(string key, object chart)
@@ -79,19 +62,36 @@ namespace Channel_GUI
             }
         }
 
-        public static void InitialChartSettings(ChannelGUI Main)
+        public static void ChangeYScale(object chart, string verbose)
         {
-            Main.attackChart.ChartAreas["ChartArea1"].AxisY.Title = "";
-            Main.attackChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
-            Main.attackChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
-            Main.attackChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
-            Main.attackChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
+            bool points_exist = false;
+            double max = Double.MinValue;
+            double min = Double.MaxValue;
 
-            Main.packetChart.ChartAreas["ChartArea1"].AxisY.Title = "";
-            Main.packetChart.ChartAreas["ChartArea1"].AxisX.LabelStyle.Format = "hh:mm:ss";
-            Main.packetChart.ChartAreas["ChartArea1"].AxisX.IntervalType = DateTimeIntervalType.Seconds;
-            Main.packetChart.ChartAreas["ChartArea1"].AxisX.Interval = 5;
-            Main.packetChart.ChartAreas[0].InnerPlotPosition = new ElementPosition(10, 0, 90, 85);
+            Chart tmpChart = (Chart)chart;
+
+            double leftLimit = tmpChart.ChartAreas["ChartArea1"].AxisX.Minimum;
+            double rightLimit = tmpChart.ChartAreas["ChartArea1"].AxisX.Maximum;
+
+            for (int s = 0; s < tmpChart.Series.Count(); s++)
+            {
+                foreach (DataPoint dp in tmpChart.Series[s].Points)
+                {
+                    if (dp.XValue >= leftLimit && dp.XValue <= rightLimit)
+                    {
+                        min = Math.Min(min, dp.YValues[0]);
+                        max = Math.Max(max, dp.YValues[0]);
+                        points_exist = true;
+                    }
+                }
+            }
+
+            if (points_exist == true)
+            {
+                tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Ceiling(max);
+                tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Floor(min);
+                tmpChart.ChartAreas["ChartArea1"].AxisY.Interval = 1;
+            }
         }
     }
 }

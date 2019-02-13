@@ -10,9 +10,9 @@ namespace Model_GUI
 {
     class Charting
     {
-        public static void UpdateChartAxes(Chart chart, int chart_history)
+        public static void UpdateChartAxes(Chart chart, int time_chart_window)
         {
-            chart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-chart_history).ToOADate();
+            chart.ChartAreas["ChartArea1"].AxisX.Minimum = DateTime.UtcNow.AddSeconds(-time_chart_window).ToOADate();
             chart.ChartAreas["ChartArea1"].AxisX.Maximum = DateTime.UtcNow.ToOADate();
         }
 
@@ -102,7 +102,6 @@ namespace Model_GUI
 
             if (points_exist == true && (max > min))
             {
-
                 tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Max(Math.Ceiling(max), 0);
                 tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Min(Math.Floor(min), 0);
                 tmpChart.ChartAreas["ChartArea1"].AxisY.Interval = 1;

@@ -27,8 +27,8 @@ namespace Controller
         private double F_D = 0;                 // control signal filtered
         private double dt_a = 0;                // elapsed time (from last actuator update)
 
-        private DateTime time_last_measurement = DateTime.Now; // time stamp of prior execution
-        private DateTime time_last_actuator = DateTime.Now; // time stamp of prior execution
+        private DateTime time_last_measurement = DateTime.Now;  // time stamp of prior execution
+        private DateTime time_last_actuator = DateTime.Now;     // time stamp of prior execution
 
         // controller coefficients
         private double Kp;                      // proportional

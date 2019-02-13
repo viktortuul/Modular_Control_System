@@ -62,12 +62,12 @@ namespace PhysicalProcesses
             update_last = nowTime;
         }
 
-        public void ChangeState(string state, double disturbance)
+        public void ApplyDisturbance(string target_state, double disturbance_magnitude)
         {
-            if (state == "x") x += disturbance;
-            else if (state == "x_d") x_d += disturbance;
-            else if (state == "phi") phi += disturbance;
-            else if (state == "phi_d") phi_d += disturbance;
+            if (target_state == "x") x += disturbance_magnitude;
+            else if (target_state == "x_d") x_d += disturbance_magnitude;
+            else if (target_state == "phi") phi += disturbance_magnitude;
+            else if (target_state == "phi_d") phi_d += disturbance_magnitude;
         }
 
         public double[] get_yo()

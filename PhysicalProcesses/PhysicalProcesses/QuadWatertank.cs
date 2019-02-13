@@ -102,12 +102,12 @@ namespace PhysicalProcesses
             update_last = nowTime;
         }
 
-        public void ChangeState(string state, double disturbance)
+        public void ApplyDisturbance(string target_state, double disturbance_magnitude)
         {
-            if (state == "h11") h11 += disturbance;         // top left tank 
-            else if (state == "h12") h12 += disturbance;    // top right tank
-            else if (state == "h21") h21 += disturbance;    // bottom left tank        
-            else if (state == "h22") h22 += disturbance;    // bottom right tank
+            if (target_state == "h11") h11 += disturbance_magnitude;         // top left tank 
+            else if (target_state == "h12") h12 += disturbance_magnitude;    // top right tank
+            else if (target_state == "h21") h21 += disturbance_magnitude;    // bottom left tank        
+            else if (target_state == "h22") h22 += disturbance_magnitude;    // bottom right tank
         }
 
         public double[] get_yo()
