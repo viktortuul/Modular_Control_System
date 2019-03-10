@@ -290,17 +290,17 @@ namespace Controller
                             // continous constant interval loop when a standard PID is used
                             controller.ComputeControlSignal(reference, measurement, new_actuator_flag: false, new_measurement_flag: false, actuator_position: 0);
                         }
-                        else if (controller_type == "PID_plus" && flag == "plant")
+                        else if ((controller_type == "PID_plus" || controller_type == "PID_suppress") && flag == "plant")
                         {
                             // detect if actuator signal actually has moved (would indicate the control signals are beging transmitted)
-                            if (received_packets["uc" + index].hasChanged(0, 2) || received_packets["uc" + index].getCounter() < 5 || received_packets["uc" + index].GetLastValue() == "0")
+                            if (received_packets["uc" + index].hasChanged(0, 2) || received_packets["uc" + index].getCounter() < 5 || Convert.ToDouble(received_packets["uc" + index].GetLastValue()) <= 0 || Convert.ToDouble(received_packets["uc" + index].GetLastValue()) >= 20)
                             {
-                                // PIDplus update (new actuator flag)
+                                // PIDplus update (integral and deriavative action included)
                                 controller.ComputeControlSignal(reference, measurement, new_actuator_flag: true, new_measurement_flag: true, actuator_position: Convert.ToDouble(received_packets["uc" + index].GetLastValue()));
                             }
                             else
                             {
-                                // PIDplus update (actuator communication lost)
+                                // PIDplus update (only proportinal action)
                                 controller.ComputeControlSignal(reference, measurement, new_actuator_flag: false, new_measurement_flag: true, actuator_position: 0);
                             }
                         }

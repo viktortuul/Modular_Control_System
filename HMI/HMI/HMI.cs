@@ -44,6 +44,9 @@ namespace HMI
         // control/obsrver mode
         public string GUI_view_mode = "control";
 
+        // reference set-point setting
+        bool ApplyRefToAll = false;
+
         public FrameGUI()
         {
             InitializeComponent();
@@ -58,7 +61,7 @@ namespace HMI
             InitialSettings();
 
             // toggle view (control as default)
-            toggleViewControlMode();
+            toggleViewMode("control");
         }
 
         private void timerCharts_Tick(object sender, EventArgs e)
@@ -297,6 +300,11 @@ namespace HMI
                             usingCanal = true;
                             log("Using channel: <" + arg_sep[1] + ">, <" + arg_sep[2] + ">");
                             break;
+                        case "pid_params":
+                            numUpDownKp.Value = Convert.ToDecimal(arg_sep[1]);
+                            numUpDownKi.Value = Convert.ToDecimal(arg_sep[2]);
+                            numUpDownKd.Value = Convert.ToDecimal(arg_sep[3]);
+                            break;
                         case "ARG_INVALID":
                             break;
                         default:
@@ -341,8 +349,19 @@ namespace HMI
             // set the reference signal value according to the track bar
             if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
             {
-                connection_selected.references["r1"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), trackBarReference1.Value.ToString());
-                numUpDownRef1.Value = trackBarReference1.Value;
+                if (cbApplyRefToAll.Checked == true)
+                {
+                    foreach (CommunicationManager controller in connections)
+                    {
+                        controller.references["r1"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), trackBarReference1.Value.ToString());
+                        numUpDownRef1.Value = trackBarReference1.Value;
+                    }
+                }
+                else
+                {
+                    connection_selected.references["r1"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), trackBarReference1.Value.ToString());
+                    numUpDownRef1.Value = trackBarReference1.Value;
+                }
             }
         }
 
@@ -356,19 +375,74 @@ namespace HMI
             }
         }
 
+        private void numUpDownRef1_ValueChanged(object sender, EventArgs e)
+        {
+            // set the reference signal value according to the track bar
+            if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
+            {
+                if (cbApplyRefToAll.Checked == true)
+                {
+                    foreach (CommunicationManager controller in connections)
+                    {
+                        controller.references["r1"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), numUpDownRef1.Value.ToString());
+                        trackBarReference1.Value = Convert.ToInt16(numUpDownRef1.Value);
+                    }
+                }
+                else
+                {
+                    connection_selected.references["r1"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), numUpDownRef1.Value.ToString());
+                    trackBarReference1.Value = Convert.ToInt16(numUpDownRef1.Value);
+                }
+            }
+        }
+
+        private void numUpDownRef2_ValueChanged(object sender, EventArgs e)
+        {
+            // set the reference signal value according to the numeric up-down
+            if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
+            {
+                connection_selected.references["r2"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), numUpDownRef2.Value.ToString());
+                trackBarReference2.Value = Convert.ToInt16(numUpDownRef2.Value);
+            }
+        }
+
         private void numUpDownKp_ValueChanged(object sender, EventArgs e)
         {
-            connection_selected.ControllerParameters.Kp = Convert.ToDouble(numUpDownKp.Value);
+            try
+            {
+                connection_selected.ControllerParameters.Kp = Convert.ToDouble(numUpDownKp.Value);
+            }
+            catch { }
+            
         }
 
         private void numUpDownKi_ValueChanged(object sender, EventArgs e)
         {
-            connection_selected.ControllerParameters.Ki = Convert.ToDouble(numUpDownKi.Value);
+            try
+            {
+                connection_selected.ControllerParameters.Ki = Convert.ToDouble(numUpDownKi.Value);
+                if (Convert.ToDouble(numUpDownKi.Value) <= 0.1)
+                {
+                    numUpDownKi.DecimalPlaces = 2;
+                    numUpDownKi.Increment = Convert.ToDecimal(0.01);
+                }
+                else
+                {
+                    numUpDownKi.DecimalPlaces = 1;
+                    numUpDownKi.Increment = Convert.ToDecimal(0.1);
+                }
+            }
+            catch { }
+            
         }
 
         private void numUpDownKd_ValueChanged(object sender, EventArgs e)
         {
-            connection_selected.ControllerParameters.Kd = Convert.ToDouble(numUpDownKd.Value);
+            try
+            {
+                connection_selected.ControllerParameters.Kd = Convert.ToDouble(numUpDownKd.Value);
+            }
+            catch { }
         }
 
         public void log(string text)
@@ -406,26 +480,6 @@ namespace HMI
             securityChart.SaveImage(folderName + "\\chart_HMI_security.png", ChartImageFormat.Png);
         }
 
-        private void numUpDownRef1_ValueChanged(object sender, EventArgs e)
-        {
-            // set the reference signal value according to the numeric up-down
-            if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
-            {
-                connection_selected.references["r1"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), numUpDownRef1.Value.ToString());
-                trackBarReference1.Value = Convert.ToInt16(numUpDownRef1.Value);
-            }
-        }
-
-        private void numUpDownRef2_ValueChanged(object sender, EventArgs e)
-        {
-            // set the reference signal value according to the numeric up-down
-            if (connections.Count > 0 && listBoxModules.SelectedIndex != -1)
-            {
-                connection_selected.references["r2"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), numUpDownRef2.Value.ToString());
-                trackBarReference2.Value = Convert.ToInt16(numUpDownRef2.Value);
-            }
-        }
-
         private void nudHistory_ValueChanged(object sender, EventArgs e)
         {
             time_chart_window = Convert.ToInt16(nudHistory.Value);
@@ -459,47 +513,48 @@ namespace HMI
         {
             if (GUI_view_mode == "control")
             {
-                toggleViewObserveMode();
+                toggleViewMode("observe");
                 GUI_view_mode = "observe";
             }
             else
             {
-                toggleViewControlMode();
+                toggleViewMode("observe");
                 GUI_view_mode = "control";
             }
         }
 
-        private void toggleViewControlMode()
+        private void toggleViewMode(string mode)
         {
-            foreach (Control c in this.Controls)
+            if (mode == "control")
             {
-                c.Visible = true; //or true.
-            }
-
-            tabControl1.Location = new Point(228, 136);
-            tabControl1.Width = this.Width - 228 - pictureBox1.Width - 20;
-            tabControl1.Height = this.Height - 136 - 70;
-            pictureBox1.Location = new Point(tabControl1.Location.X + tabControl1.Width - 3, 157);
-            pictureBox1.Height = tabControl1.Height - 23;
-        }
-
-        private void toggleViewObserveMode()
-        {
-            string[] visible_controls = new string[] { "tabControl1", "dataChart", "pictureBox1", "statusStrip1" };
-            foreach (Control c in this.Controls)
-            {
-                if (visible_controls.Contains(c.Name) == false)
+                foreach (Control c in this.Controls)
                 {
-                    c.Visible = false; //or true.
+                    c.Visible = true; //or true.
                 }
+
+                tabControl1.Location = new Point(228, 136);
+                tabControl1.Width = this.Width - 228 - pictureBox1.Width - 20;
+                tabControl1.Height = this.Height - 136 - 70;
+                pictureBox1.Location = new Point(tabControl1.Location.X + tabControl1.Width - 3, 157);
+                pictureBox1.Height = tabControl1.Height - 23;
             }
+            else if (mode == "observe")
+            {
+                string[] visible_controls = new string[] { "tabControl1", "dataChart", "pictureBox1", "statusStrip1" };
+                foreach (Control c in this.Controls)
+                {
+                    if (visible_controls.Contains(c.Name) == false)
+                    {
+                        c.Visible = false; //or true.
+                    }
+                }
 
-            tabControl1.Location = new Point(3, 3);
-            tabControl1.Width = this.Width - pictureBox1.Width - 25;
-            tabControl1.Height = this.Height - 70;
-            pictureBox1.Location = new Point(tabControl1.Location.X + tabControl1.Width - 3, 3 + 21);
-            pictureBox1.Height = this.Height - 70 - 23;
+                tabControl1.Location = new Point(3, 3);
+                tabControl1.Width = this.Width - pictureBox1.Width - 25;
+                tabControl1.Height = this.Height - 70;
+                pictureBox1.Location = new Point(tabControl1.Location.X + tabControl1.Width - 3, 3 + 21);
+                pictureBox1.Height = this.Height - 70 - 23;
+            }
         }
-
     }
 }

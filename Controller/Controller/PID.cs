@@ -21,10 +21,9 @@ namespace Controller
         private double I = 0;                   // error integral
         private double e = 0, ep = 0, ep_plus;  // current and prior error
         private double de = 0, de_plus = 0;     // error derivative
-        private double dE = 0, dE_plus = 0;     // error derivative (low passed)
+
         private double u = 0;                   // control signal
         private double F_I = 0;                 // control signal filtered
-        private double F_D = 0;                 // control signal filtered
         private double dt_a = 0;                // elapsed time (from last actuator update)
 
         private DateTime time_last_measurement = DateTime.Now;  // time stamp of prior execution
@@ -34,8 +33,10 @@ namespace Controller
         private double Kp;                      // proportional
         private double Ki;                      // integral
         private double Kd;                      // derivative
-        private double q = 0.10;                // FIR smoothing factor
-        private double T_reset = 1.0;           // filter reset factor  
+        private double q = 0.30;                // FIR smoothing factor  --> increase --> more supress
+        private double T_suppress = 0.8;        // suppress time constant  --> increase --> less suppress
+        private double K_suppress = 0;          // Resulting suppress factor
+        private double T_reset = 3.4;           // filter reset time constant  --> increase --> less suppress
 
         // constant dt
         double dt_CONST = 0.1;
@@ -73,18 +74,25 @@ namespace Controller
                     }
                     else if (controller_type == "PID_plus")
                     {
-                        Console.WriteLine("inne i pidplus");
                         // calculate time since last actuator update         
-                        if (new_actuator_flag == true)
-                        {
-                            dt_a = (time_now - time_last_actuator).TotalSeconds;
-                            time_last_actuator = DateTime.Now;
+                        dt_a = (time_now - time_last_actuator).TotalSeconds;
+                        time_last_actuator = DateTime.Now;
 
-                            // update control signal
-                            ComputePIDplus(dt_a, dt_m, new_actuator_flag, actuator_position);
+                        // update control signal
+                        ComputePIDplus(dt_a, dt_m, new_actuator_flag, actuator_position);
 
-                            Console.WriteLine("dt_a:" + dt_a + " dt_m:" + dt_m);
-                        }                    
+                        //Console.WriteLine("dt_a:" + dt_a + " dt_m:" + dt_m);                               
+                    }
+                    else if (controller_type == "PID_suppress")
+                    {
+                        // calculate time since last actuator update         
+                        dt_a = (time_now - time_last_actuator).TotalSeconds;
+                        time_last_actuator = DateTime.Now;
+
+                        // update control signal
+                        ComputePIDsuppress(dt_a, dt_m, new_actuator_flag, actuator_position);
+
+                        //Console.WriteLine("dt_a:" + dt_a + " dt_m:" + dt_m);                               
                     }
 
                     // saturation
@@ -92,11 +100,9 @@ namespace Controller
                     if (u < u_min) u = u_min;
                 }
             }
-
             // update prior time
             time_last_measurement = time_now;
         }
-
 
         private void ComputePIDnormal(double dt)
         {
@@ -109,58 +115,87 @@ namespace Controller
 
             // derivative part (with low pass)
             if (dt != 0.0f) de = (e - ep) / dt;
-            //dE = (1 - q) * dE + q * de;
-            dE = de;
 
             // save the prior error for the next update
             ep = e;
 
             // resulting control signal
             u = Kp * e + Ki * I + Kd * de;
-
-            //Console.WriteLine(de);
         }
 
         private void ComputePIDplus(double dt_a, double dt_m, bool new_actuator_flag, double actuator_position)
         {
-            // integral part with anti wind-up 
-            if (anti_wind_up == true)
+            T_reset = Ki;
+
+            // only add integral action if the communication is established (both state measurement and actuator update)
+            if (new_actuator_flag == true)
             {
-                // only add integral action if the communication is established (both state measurement and actuator update)
-                if (new_actuator_flag == true)
+                // integral part with anti wind-up 
+                if (anti_wind_up == true)
                 {
                     // filtered integral term
-                    //F_I = F_I + (I - F_I) * (1 - Math.Exp(-dt_a / T_reset));
-                    F_I = I;
-
-                    // only add intergral action if the control signal is not saturated
-                    if (u > u_min && u < u_max) I += dt_m * e;
-                    else if (u > u_max && e < 0) I += dt_m * e;
-                    else if (u < u_min && e > 0) I += dt_m * e;
+                    F_I = F_I + (actuator_position - F_I) * (1 - Math.Exp(-dt_a / T_reset)); // 3.5
                 }
+                else I += dt_m * e;
             }
-            else I += dt_m * e;
-
-            // filtered derivative term
-            F_D = F_D + (de_plus - F_D) * (1 - Math.Exp(-dt_a / T_reset));
-            //F_D = de_plus;
 
             // derivative term for PIDplus
             if (new_actuator_flag == true)
             {
                 // derivative part (with low pass)
                 if (dt_m != 0.0f) de_plus = (e - ep_plus) / dt_m;
-                //dE_plus = (1 - q) * dE_plus + q * de_plus;
 
                 // save the prior error for the next update
                 ep_plus = e;
             }
 
             // resulting control signal
-            //u = Kp * e + Ki * F_I + Kd * F_D;
-            u = Kp * e + Ki * F_I + Kd * de_plus;
+            u = Kp * e + F_I + Kd * de_plus;
 
-            Console.WriteLine(new_actuator_flag + " int: " + Ki * F_I + " deriv: " + Kd * de_plus);
+            //Console.WriteLine(Math.Exp(-dt_a / T_reset).ToString());
+            Console.WriteLine("actuator_position=" + actuator_position + " F_I=" + F_I);
+            Console.WriteLine("dt_m: " + dt_m + " K_suppress:" + K_suppress + " prop:" + Kp * ep_plus + " int: " + Ki * F_I + " deriv: " + Kd * de_plus);
+        }
+
+        private void ComputePIDsuppress(double dt_a, double dt_m, bool new_actuator_flag, double actuator_position)
+        {
+            if (new_actuator_flag == true)
+            {
+                if (Math.Exp(-dt_a / T_suppress) < K_suppress) // 0.8
+                {
+                    K_suppress = Math.Exp(-dt_a / T_suppress);
+                }
+                else
+                {
+                    K_suppress = (1 - q) * K_suppress + q * Math.Exp(-dt_a / T_suppress);
+                }
+            }
+
+            // only add integral action if the communication is established (both state measurement and actuator update)
+            if (new_actuator_flag == true)
+            {
+                // integral part with anti wind-up 
+                if (anti_wind_up == true)
+                {
+                    if (u > u_min && u < u_max) I += dt_m * e * K_suppress;
+                }
+                else I += dt_m * e * K_suppress;
+            }
+
+            // derivative term for PIDplus
+            if (new_actuator_flag == true)
+            {
+                // derivative part (with low pass)
+                if (dt_m != 0.0f) de_plus = (e - ep_plus) / dt_m;
+
+                // save the prior error for the next update
+                ep_plus = e;
+            }
+
+            // resulting control signal
+            u = Kp * e * K_suppress + Ki * I + Kd * de_plus;
+
+            Console.WriteLine("dt_m: " + dt_m + " K_suppress:" + K_suppress + " prop:" + Kp * ep_plus + " int: " + Ki * F_I + " deriv: " + Kd * de_plus);
         }
 
         public void UpdateParameters(double Kp, double Ki, double Kd)

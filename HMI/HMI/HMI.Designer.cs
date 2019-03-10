@@ -29,16 +29,16 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea10 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend10 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title10 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title1 = new System.Windows.Forms.DataVisualization.Charting.Title();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrameGUI));
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea11 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend11 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title11 = new System.Windows.Forms.DataVisualization.Charting.Title();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea12 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend12 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Title title12 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title2 = new System.Windows.Forms.DataVisualization.Charting.Title();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Title title3 = new System.Windows.Forms.DataVisualization.Charting.Title();
             this.timerCharts = new System.Windows.Forms.Timer(this.components);
             this.dataChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.trackBarReference1 = new System.Windows.Forms.TrackBar();
@@ -67,6 +67,7 @@
             this.label8 = new System.Windows.Forms.Label();
             this.trackBarReference2 = new System.Windows.Forms.TrackBar();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.cbApplyRefToAll = new System.Windows.Forms.CheckBox();
             this.numUpDownRef2 = new System.Windows.Forms.NumericUpDown();
             this.numUpDownRef1 = new System.Windows.Forms.NumericUpDown();
             this.label9 = new System.Windows.Forms.Label();
@@ -123,24 +124,24 @@
             this.dataChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea10.Area3DStyle.Inclination = 0;
-            chartArea10.Area3DStyle.Rotation = 0;
-            chartArea10.Area3DStyle.WallWidth = 1;
-            chartArea10.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea10.BorderColor = System.Drawing.Color.Bisque;
-            chartArea10.Name = "ChartArea1";
-            chartArea10.ShadowColor = System.Drawing.SystemColors.GradientInactiveCaption;
-            this.dataChart.ChartAreas.Add(chartArea10);
-            legend10.Name = "Legend1";
-            this.dataChart.Legends.Add(legend10);
+            chartArea1.Area3DStyle.Inclination = 0;
+            chartArea1.Area3DStyle.Rotation = 0;
+            chartArea1.Area3DStyle.WallWidth = 1;
+            chartArea1.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea1.BorderColor = System.Drawing.Color.Bisque;
+            chartArea1.Name = "ChartArea1";
+            chartArea1.ShadowColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.dataChart.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.dataChart.Legends.Add(legend1);
             this.dataChart.Location = new System.Drawing.Point(2, 5);
             this.dataChart.Name = "dataChart";
             this.dataChart.Size = new System.Drawing.Size(661, 391);
             this.dataChart.TabIndex = 2;
             this.dataChart.Text = "chart1";
-            title10.Name = "Title1";
-            title10.Text = "Measured and estimated states";
-            this.dataChart.Titles.Add(title10);
+            title1.Name = "Title1";
+            title1.Text = "Measured and estimated states";
+            this.dataChart.Titles.Add(title1);
             // 
             // trackBarReference1
             // 
@@ -175,7 +176,7 @@
             this.numUpDownKp.Size = new System.Drawing.Size(49, 20);
             this.numUpDownKp.TabIndex = 7;
             this.numUpDownKp.Value = new decimal(new int[] {
-            3,
+            2,
             0,
             0,
             65536});
@@ -200,7 +201,7 @@
             this.numUpDownKi.Size = new System.Drawing.Size(49, 20);
             this.numUpDownKi.TabIndex = 8;
             this.numUpDownKi.Value = new decimal(new int[] {
-            1,
+            2,
             0,
             0,
             65536});
@@ -464,6 +465,7 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.cbApplyRefToAll);
             this.groupBox4.Controls.Add(this.numUpDownRef2);
             this.groupBox4.Controls.Add(this.numUpDownRef1);
             this.groupBox4.Controls.Add(this.label9);
@@ -471,10 +473,20 @@
             this.groupBox4.Controls.Add(this.trackBarReference1);
             this.groupBox4.Location = new System.Drawing.Point(604, 11);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(211, 98);
+            this.groupBox4.Size = new System.Drawing.Size(211, 120);
             this.groupBox4.TabIndex = 20;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Reference set-point";
+            // 
+            // cbApplyRefToAll
+            // 
+            this.cbApplyRefToAll.AutoSize = true;
+            this.cbApplyRefToAll.Location = new System.Drawing.Point(6, 91);
+            this.cbApplyRefToAll.Name = "cbApplyRefToAll";
+            this.cbApplyRefToAll.Size = new System.Drawing.Size(128, 17);
+            this.cbApplyRefToAll.TabIndex = 24;
+            this.cbApplyRefToAll.Text = "Apply to all processes";
+            this.cbApplyRefToAll.UseVisualStyleBackColor = true;
             // 
             // numUpDownRef2
             // 
@@ -577,24 +589,24 @@
             this.residualChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea11.Area3DStyle.Inclination = 0;
-            chartArea11.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
-            chartArea11.Area3DStyle.Rotation = 0;
-            chartArea11.Area3DStyle.WallWidth = 1;
-            chartArea11.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea11.Name = "ChartArea1";
-            chartArea11.ShadowColor = System.Drawing.Color.Gray;
-            this.residualChart.ChartAreas.Add(chartArea11);
-            legend11.Name = "Legend1";
-            this.residualChart.Legends.Add(legend11);
+            chartArea2.Area3DStyle.Inclination = 0;
+            chartArea2.Area3DStyle.LightStyle = System.Windows.Forms.DataVisualization.Charting.LightStyle.Realistic;
+            chartArea2.Area3DStyle.Rotation = 0;
+            chartArea2.Area3DStyle.WallWidth = 1;
+            chartArea2.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea2.Name = "ChartArea1";
+            chartArea2.ShadowColor = System.Drawing.Color.Gray;
+            this.residualChart.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.residualChart.Legends.Add(legend2);
             this.residualChart.Location = new System.Drawing.Point(4, 28);
             this.residualChart.Name = "residualChart";
             this.residualChart.Size = new System.Drawing.Size(659, 215);
             this.residualChart.TabIndex = 32;
             this.residualChart.Text = "chart1";
-            title11.Name = "Title1";
-            title11.Text = "Residual";
-            this.residualChart.Titles.Add(title11);
+            title2.Name = "Title1";
+            title2.Text = "Residual";
+            this.residualChart.Titles.Add(title2);
             // 
             // nudHistory
             // 
@@ -681,20 +693,20 @@
             this.securityChart.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            chartArea12.BackColor = System.Drawing.Color.WhiteSmoke;
-            chartArea12.Name = "ChartArea1";
-            this.securityChart.ChartAreas.Add(chartArea12);
-            legend12.Name = "Legend1";
-            this.securityChart.Legends.Add(legend12);
+            chartArea3.BackColor = System.Drawing.Color.WhiteSmoke;
+            chartArea3.Name = "ChartArea1";
+            this.securityChart.ChartAreas.Add(chartArea3);
+            legend3.Name = "Legend1";
+            this.securityChart.Legends.Add(legend3);
             this.securityChart.Location = new System.Drawing.Point(4, 248);
             this.securityChart.Margin = new System.Windows.Forms.Padding(2);
             this.securityChart.Name = "securityChart";
             this.securityChart.Size = new System.Drawing.Size(660, 238);
             this.securityChart.TabIndex = 1;
             this.securityChart.Text = "chart1";
-            title12.Name = "Title1";
-            title12.Text = "Security metric";
-            this.securityChart.Titles.Add(title12);
+            title3.Name = "Title1";
+            title3.Text = "Security metric";
+            this.securityChart.Titles.Add(title3);
             // 
             // labelSecurity
             // 
@@ -845,6 +857,7 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         public System.Windows.Forms.TabControl tabControl1;
         public System.Windows.Forms.DataVisualization.Charting.Chart securityChart;
+        private System.Windows.Forms.CheckBox cbApplyRefToAll;
     }
 }
 
