@@ -35,7 +35,7 @@ Below is a screenshot of the Plant module application.
 </p>
 
 ### Channel
-The main purpose of the Channel module is to enable the execution of integrity attacks and drop-out on packages send between the HMI- and Control module as well as between the control- and Plant module. However it is possible to run the modules without the Channel module, but in that case integrity attacks and simulated DoS attacks are not possible, and the packages are directly sent between the modules.
+The main purpose of the Channel module is to enable the execution of integrity attacks and drop-out on packets send between the HMI- and Control module as well as between the control- and Plant module. However it is possible to run the modules without the Channel module, but in that case integrity attacks and simulated DoS attacks are not possible, and the packets are directly sent between the modules.
 
 Below are screenshots of the Channel module application, showing the channel- and attack settings.
 <!--
@@ -94,10 +94,10 @@ Start Channel_GUI.exe port_receive=8111 markov=90:98
 ```
 Start Channel_GUI.exe port_receive=8111 bernoulli=80
 ```
-The markov argument syntax is the following: `markov=<P(pass->pass)>:P(drop->drop)`, that is, the state transition probabilites where **pass** and **drop** denote the package pass and drop states. The bernoulli argument syntax is `bernoulli=P(pass)`, that is, the independent package pass probability. 
+The markov argument syntax is the following: `markov=<P(pass->pass)>:P(drop->drop)`, that is, the state transition probabilites where **pass** and **drop** denote the packet pass and drop states. The bernoulli argument syntax is `bernoulli=P(pass)`, that is, the independent packet pass probability. 
 
 ### Without Channel module
-As stated in the introduction, it is possible to run the modules without the Channel module, but in that case integrity attacks and simulated DoS attacks are not possible, and the packages are directly sent between the modules.
+As stated in the introduction, it is possible to run the modules without the Channel module, but in that case integrity attacks and simulated DoS attacks are not possible, and the packets are directly sent between the modules.
 
 When executing the modules without the Channel module in mind, simply left out the following command line arguments:
 - `channel_gui=IP:Port`
@@ -107,16 +107,20 @@ When executing the modules without the Channel module in mind, simply left out t
 If multiple modules are executed on the same machine, they can be executen in batch by running a **.bat** file with e.g. the following contents:
 
 ```
-Start ..\HMI\HMI\bin\Debug\HMI.exe channel_controller=127.0.0.1:8111
-
-Start ..\Controller\Controller\bin\Debug\Controller.exe gui_ep=127.0.0.1:8100:8200 plant_ep=127.0.0.1:8300:8400 channel_gui=127.0.0.1:8111 channel_plant=127.0.0.1:8222 controller=PID_normal log=false
-Start ..\Model_GUI\Model_GUI\bin\Debug\Model_GUI.exe controller_ep=127.0.0.1:8400:8300 channel_controller=127.0.0.1:8222 model=dwt:5,0:0,3:5,0:0,2:0,00001 log=false
-
-Start ..\Controller\Controller\bin\Debug\Controller.exe gui_ep=127.0.0.1:8101:8201 plant_ep=127.0.0.1:8301:8401 channel_gui=127.0.0.1:8111 channel_plant=127.0.0.1:8222 controller=PID_plus log=false
-Start ..\Model_GUI\Model_GUI\bin\Debug\Model_GUI.exe controller_ep=127.0.0.1:8401:8301 channel_controller=127.0.0.1:8222 model=dwt:5,0:0,3:5,0:0,2:0,00001 log=false
-
-Start ..\Channel_GUI\Channel_GUI\bin\Debug\Channel_GUI.exe port_receive=8111 bernoulli=90
-Start ..\Channel_GUI\Channel_GUI\bin\Debug\Channel_GUI.exe port_receive=8222 markov=80:98
+Start HMI.exe channel_controller=127.0.0.1:8111
+Start Controller.exe gui_ep=127.0.0.1:8100:8200 plant_ep=127.0.0.1:8300:8400 channel_gui=127.0.0.1:8111 channel_plant=127.0.0.1:8222 controller=PID_normal log=false
+Start Model_GUI.exe controller_ep=127.0.0.1:8400:8300 channel_controller=127.0.0.1:8222 model=dwt:5,0:0,3:5,0:0,2:0,00001 log=false
+Start Channel_GUI.exe port_receive=8111 bernoulli=90
+Start Channel_GUI.exe port_receive=8222 markov=80:98
 ```
+
+### Argument description
+#### log
+The log argument enables or disables logging for the Control and Plant modules. When the modules are running with `log=true`, each packet sent by the Control module and each packed received by the Plant module are logged in separate log files. They can then be used by the Matlab script **compare_logs.m** to analyze eventual packet drops between the modules.
+
+#### model
+Currently, two models of physical processes are available:
+- `dwt` A single-output single-input (SISO) double water tank system.
+- `qwt` A multi-input multi-output (MIMO) quad water tank system with coupling between the inputs and outputs.
 
 
