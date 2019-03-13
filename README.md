@@ -9,6 +9,8 @@ An overview of the modular control system is presented below, where two Channel 
 
 As the system is network based, a module can be running on an arbitrary machine, i.e. all modules can be running on the same machine, or they could be running on individual ones as illustrated in the figure above.
 
+For documentation, tutorials and datasets, please visit the [wiki page](https://github.com/viktortuul/Modular_Control_System/wiki).
+
 ## Modules
 ### HMI
 With the HMI module the user can 1) connect to new Control modules, 2) tune parameters such as the reference set-point and controller parameters, 3) select which Control module to monitor. In addition, details of each controller module is presented in a tree view as well as an animation of the process. The chart shows all variables and parameters associated with the control of the plant, that is, the reference set-point, control signal, state measurements, and state estimates using the Kalman filter.
@@ -19,8 +21,6 @@ Below is a screenshot of the HMI module application.
 <p align="center">
   <img src="https://user-images.githubusercontent.com/25713113/52367675-e470f580-2a4c-11e9-89bf-9f77f1b6938b.png" width="750">
 </p>
-
-For documentation, tutorials and datasets, please visit the [wiki page](https://github.com/viktortuul/Modular_Control_System/wiki).
 
 ### Control
 The Control module contains PID-controllers which produces the control signals which manipulates the simulated physical process. The inputs to the Control module are the reference set-point **r** and controller parameters **K_P**, **K_I**, **K_D** from the HMI module, along with the measurement signal **y** from the plant. The outputs from the Control module consists of the control signal **u** to the Plant module, along with the same control signal **u** and received measurement signal **y** to the HMI module. The communication from the Control module to the HMI module is only for monitoring purposes. Two types of PID controllers are available in the Control module: a standard PID controller, and a PIDPlus controller.
