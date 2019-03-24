@@ -79,9 +79,10 @@ namespace Controller
                         time_last_actuator = DateTime.Now;
 
                         // update control signal
-                        ComputePIDplus(dt_a, dt_m, new_actuator_flag, actuator_position);
-
-                        //Console.WriteLine("dt_a:" + dt_a + " dt_m:" + dt_m);                               
+                        if (new_actuator_flag)
+                        {
+                            ComputePIDplus(dt_a, dt_m, new_actuator_flag, actuator_position);
+                        }                            
                     }
                     else if (controller_type == "PID_suppress")
                     {
@@ -90,9 +91,10 @@ namespace Controller
                         time_last_actuator = DateTime.Now;
 
                         // update control signal
-                        ComputePIDsuppress(dt_a, dt_m, new_actuator_flag, actuator_position);
-
-                        //Console.WriteLine("dt_a:" + dt_a + " dt_m:" + dt_m);                               
+                        if (new_actuator_flag)
+                        {
+                            ComputePIDsuppress(dt_a, dt_m, new_actuator_flag, actuator_position);
+                        }                             
                     }
 
                     // saturation
@@ -104,17 +106,17 @@ namespace Controller
             time_last_measurement = time_now;
         }
 
-        private void ComputePIDnormal(double dt)
+        private void ComputePIDnormal(double dt_m)
         {
             // integral part with anti wind-up (only add intergral action if the control signal is not saturated)
             if (anti_wind_up == true)
             {
-                if (u > u_min && u < u_max) I += dt * e;
+                if (u > u_min && u < u_max) I += dt_m * e;
             }
-            else I += dt * e;
+            else I += dt_m * e;
 
             // derivative part (with low pass)
-            if (dt != 0.0f) de = (e - ep) / dt;
+            if (dt_m != 0.0f) de = (e - ep) / dt_m;
 
             // save the prior error for the next update
             ep = e;
@@ -134,15 +136,11 @@ namespace Controller
                 if (anti_wind_up == true)
                 {
                     // filtered integral term
-                    F_I = F_I + (actuator_position - F_I) * (1 - Math.Exp(-dt_a / T_reset)); // 3.5
+                    if (u > u_min && u < u_max) F_I = F_I + (actuator_position - F_I) * (1 - Math.Exp(-dt_a / T_reset)); // T_reset = 3.5
                 }
-                else I += dt_m * e;
-            }
+                else F_I = F_I + (actuator_position - F_I) * (1 - Math.Exp(-dt_a / T_reset)); 
 
-            // derivative term for PIDplus
-            if (new_actuator_flag == true)
-            {
-                // derivative part (with low pass)
+                // derivative term for PIDplus
                 if (dt_m != 0.0f) de_plus = (e - ep_plus) / dt_m;
 
                 // save the prior error for the next update
@@ -159,39 +157,28 @@ namespace Controller
 
         private void ComputePIDsuppress(double dt_a, double dt_m, bool new_actuator_flag, double actuator_position)
         {
-            if (new_actuator_flag == true)
+            if (Math.Exp(-dt_a / T_suppress) < K_suppress) // T_suppress = 0.8
             {
-                if (Math.Exp(-dt_a / T_suppress) < K_suppress) // 0.8
-                {
-                    K_suppress = Math.Exp(-dt_a / T_suppress);
-                }
-                else
-                {
-                    K_suppress = (1 - q) * K_suppress + q * Math.Exp(-dt_a / T_suppress);
-                }
+                K_suppress = Math.Exp(-dt_a / T_suppress);
             }
-
-            // only add integral action if the communication is established (both state measurement and actuator update)
-            if (new_actuator_flag == true)
+            else
             {
-                // integral part with anti wind-up 
-                if (anti_wind_up == true)
-                {
-                    if (u > u_min && u < u_max) I += dt_m * e * K_suppress;
-                }
-                else I += dt_m * e * K_suppress;
+                K_suppress = (1 - q) * K_suppress + q * Math.Exp(-dt_a / T_suppress);
             }
-
-            // derivative term for PIDplus
-            if (new_actuator_flag == true)
+            
+            // integral part with anti wind-up 
+            if (anti_wind_up == true)
             {
-                // derivative part (with low pass)
-                if (dt_m != 0.0f) de_plus = (e - ep_plus) / dt_m;
-
-                // save the prior error for the next update
-                ep_plus = e;
+                if (u > u_min && u < u_max) I += dt_m * e * K_suppress;
             }
+            else I += dt_m * e * K_suppress;
+            
+            // derivative part (with low pass)
+            if (dt_m != 0.0f) de_plus = (e - ep_plus) / dt_m;
 
+            // save the prior error for the next update
+            ep_plus = e;
+            
             // resulting control signal
             u = Kp * e * K_suppress + Ki * I + Kd * de_plus;
 

@@ -103,7 +103,7 @@ namespace Controller
                 try
                 {
                     listener.Listen();
-                    ParseReceivedMessage(listener.last_recieved);
+                    ParseReceivedMessage(listener.getMessage());
 
                     // update controller settings (reference set-point and PID parameters)
                     ManageControllers(PIDList, flag : "GUI");
@@ -146,7 +146,7 @@ namespace Controller
                 try
                 {
                     listener.Listen();
-                    ParseReceivedMessage(listener.last_recieved);
+                    ParseReceivedMessage(listener.getMessage());
                     //Console.WriteLine("from plant: " + listener.last_recieved);
 
                     // compute the new control signal for each controller
@@ -269,15 +269,13 @@ namespace Controller
                 // check if corresponing reference value exist
                 if (received_packets.ContainsKey("r" + index) == false) continue;
 
-                // check if both the last recieved measurement is up to date (else don't update the control signal) 
+                // check if the last recieved measurement is up to date (else don't update the control signal) 
                 if (received_packets["yc" + index].isUpToDate())
                 {
                     // update controller parameters
                     if (flag == "GUI")
                     {
-                        controller.UpdateParameters(Convert.ToDouble(received_packets["Kp"].GetLastValue()),
-                                                    Convert.ToDouble(received_packets["Ki"].GetLastValue()),
-                                                    Convert.ToDouble(received_packets["Kd"].GetLastValue()));
+                        controller.UpdateParameters(Convert.ToDouble(received_packets["Kp"].GetLastValue()), Convert.ToDouble(received_packets["Ki"].GetLastValue()), Convert.ToDouble(received_packets["Kd"].GetLastValue()));
                     }
                     else
                     {
@@ -323,8 +321,7 @@ namespace Controller
                         break;
                     case "log":
                         log_flag = arg_sep[1];
-                        break;
-        
+                        break;       
                     case "channel_gui":
                         EP_Send_GUI = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
                         using_canal = true;
@@ -332,14 +329,12 @@ namespace Controller
                     case "channel_plant":
                         EP_Send_Plant = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
                         break;
-
                     case "gui_ep":
                         EP_GUI = new ConnectionParameters(arg_sep[1], Convert.ToInt16(arg_sep[2]), Convert.ToInt16(arg_sep[3]));
                         break;
                     case "plant_ep":
                         EP_Plant = new ConnectionParameters(arg_sep[1], Convert.ToInt16(arg_sep[2]), Convert.ToInt16(arg_sep[3]));
                         break;
-
                     default:
                         Console.WriteLine("Unknown argument not used: " + arg_name);
                         Console.WriteLine("Press any key to proceed...");

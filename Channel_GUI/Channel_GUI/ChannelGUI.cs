@@ -106,7 +106,7 @@ namespace Channel_GUI
                 try
                 {
                     Listener.Listen();
-                    ParseMessage(Listener.last_recieved, Listener.last_ip);
+                    ParseMessage(Listener.getMessage(), Listener.getSenderIP());
                 }
                 catch (Exception ex)
                 {
@@ -167,10 +167,10 @@ namespace Channel_GUI
             SendMessage(EP_IP, Convert.ToInt16(EP_Port), message_reconstruction, sender_IP);
         }
 
-        public void SendMessage(string EP_IP, int port, string message, string sender_IP)
+        public void SendMessage(string EP_IP, int EP_port, string message, string sender_IP)
         {
             // append each sender>>destination pair to the end_points container (and checked listbox)
-            AddressEndPoint EP = new AddressEndPoint(sender_IP + " >> " + EP_IP, port);
+            AddressEndPoint EP = new AddressEndPoint(sender_IP + " >> " + EP_IP, EP_port);
 
             if (end_points.Contains(EP) == false)
             {
@@ -183,7 +183,7 @@ namespace Channel_GUI
             }
 
             // initialize a sender
-            Client Sender = new Client(EP_IP, port);
+            Client Sender = new Client(EP_IP, EP_port);
 
             // add key
             Tools.AddKeyToDict(packet_timeseries, EP.ToString(), Constants.n_steps);

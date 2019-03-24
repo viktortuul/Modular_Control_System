@@ -31,20 +31,29 @@ namespace Model_GUI
         public Dictionary<string, string> packet_last = new Dictionary<string, string>(); // recieved packet <tag, value>
         public Dictionary<string, double[]> packets = new Dictionary<string, double[]>(); // recieved values (continously added according to timer)
 
-        // data containers (dictionaries)
+        // data containers (dictionaries), only for plotting
         public Dictionary<string, DataContainer> states = new Dictionary<string, DataContainer>();
         public Dictionary<string, DataContainer> perturbations = new Dictionary<string, DataContainer>();
 
-        // canal variables
-        public bool using_canal = false;
+        // channel variables
+        public bool using_channel = false;
         ConnectionParameters EP_Controller = new ConnectionParameters();
-        AddressEndPoint EP = new AddressEndPoint();
+        AddressEndPoint EP_Send_Controller = new AddressEndPoint();
+
+        /*
+        // physical plant variables
+        ConnectionParameters EP_Physical = new ConnectionParameters();
+        AddressEndPoint EP_Send_Physical = new AddressEndPoint();
+        */
 
         // initialize perturbation settings
         DisturbanceModel Disturbance = new DisturbanceModel();
 
         // initialize an empty Plant class
         Plant Plant = new Plant();
+
+        // plant type
+        public string plant_type = "simulation"; // simulation, physical
 
         // measurement noise standard deviation
         double noise_std = 0.1;
@@ -54,7 +63,6 @@ namespace Model_GUI
 
         // folder setting for chart image save
         public string folderName = "";
-
 
         // GUI view mode
         public string GUI_view_mode = "control";
@@ -69,12 +77,23 @@ namespace Model_GUI
             string[] args = Environment.GetCommandLineArgs();
             ParseArgs(args);
 
-            // create a thread for listening on the controller
-            Thread thread_listener = new Thread(() => Listener(EP.IP, EP_Controller.PortThis, Plant));
+            /*
+            // create a thread for listening on the physical plant
+            Thread thread_listener_physical = new Thread(() => ListenerPhysical(EP_Send_Physical.IP, EP_Physical.PortThis));
+            thread_listener_physical.Start();
+
+            
+            // create a thread for communication with the controller
+            Thread thread_sender_physical = new Thread(() => SenderPhysical(EP_Send_Physical.IP, EP_Send_Physical.Port, Plant));
+            thread_sender_physical.Start();
+            */
+
+            // create a thread for listening on the physical plant
+            Thread thread_listener = new Thread(() => Listener(EP_Send_Controller.IP, EP_Controller.PortThis, Plant));
             thread_listener.Start();
 
             // create a thread for communication with the controller
-            Thread thread_sender = new Thread(() => Sender(EP.IP, EP.Port, Plant));
+            Thread thread_sender = new Thread(() => Sender(EP_Send_Controller.IP, EP_Send_Controller.Port, Plant));
             thread_sender.Start();
 
             // create a thread for the simulation
@@ -115,6 +134,62 @@ namespace Model_GUI
             if (Disturbance.type == "instant") Disturbance.Stop();
         }
 
+        /*
+        public void ListenerPhysical(string IP, int port)
+        {
+            // initialize a connection to the controller
+            Server listener = new Server(IP, port);
+
+            while (true)
+            {
+                try
+                {
+                    listener.Listen();
+
+                    // parse recieved message
+                    ParseMessagePhysical(listener.last_recieved);
+
+                    string message = "";
+                    if (using_channel == true) message += Convert.ToString("EP_" + EP_Controller.IP + ":" + EP_Controller.Port + "#"); // add end-point if canal is used
+                    message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
+
+                    // attach observed states measurement 
+                    for (int i = 0; i < Plant.get_yo().Length; i++)
+                    {
+                        // apply measurement noise
+                        var r = new GaussianRandom();
+                        double noise = r.NextGaussian(0, noise_std);
+                        message += "yo" + (i + 1) + "_" + (Plant.get_yo()[i] + noise).ToString() + "#";
+                    }  
+
+                    // attach controlled states measurement
+                    for (int i = 0; i < Plant.get_yc().Length; i++)
+                    {
+                        // apply measurement noise
+                        var r = new GaussianRandom();
+                        double noise = r.NextGaussian(0, noise_std);
+                        message += "yc" + (i + 1) + "_" + (Plant.get_yc()[i] + noise).ToString() + "#";
+
+                        // append the last actuator state
+                        message += "uc" + (i + 1) + "_" + Plant.get_uc()[i].ToString() + "#";
+                    }
+
+                    // remove the redundant delimiter
+                    message = message.Substring(0, message.LastIndexOf('#')); 
+                    sender.Send(message);
+
+
+                    // log received message (used for package delivery analysis)
+                    Helpers.Log(sb, listener.last_recieved, log_flag);  
+                }
+                catch (Exception ex)
+                {
+                    Console.Write(ex);
+                }
+            }
+        }
+        */
+
         public void Listener(string IP, int port, Plant Plant)
         {
             // initialize a connection to the controller
@@ -127,7 +202,7 @@ namespace Model_GUI
                     listener.Listen();
 
                     // parse recieved message
-                    ParseMessage(listener.last_recieved);
+                    ParseMessage(listener.getMessage());
 
                     // pre-allocate control signal vector (size = the number of received different control signals)
                     double[] u = new double[packet_last.Count];
@@ -139,11 +214,18 @@ namespace Model_GUI
                         i++;
                     }
 
-                    // update actuators
-                    Plant.set_u(u);
+                    if (plant_type == "simulation")
+                    {
+                        // update actuators
+                        Plant.set_u(u);
+                    }
+                    else
+                    {
+                        // send actuator signal to the physical process
+                    }
 
                     // log received message (used for package delivery analysis)
-                    Helpers.Log(sb, listener.last_recieved, log_flag);
+                    Helpers.Log(sb, listener.getMessage(), log_flag);
                 }
                 catch (Exception ex)
                 {
@@ -162,7 +244,7 @@ namespace Model_GUI
                 Thread.Sleep(50);    
 
                 string message = "";
-                if (using_canal == true) message += Convert.ToString("EP_" + EP_Controller.IP + ":" + EP_Controller.Port + "#"); // add end-point if canal is used
+                if (using_channel == true) message += Convert.ToString("EP_" + EP_Controller.IP + ":" + EP_Controller.Port + "#"); // add end-point if canal is used
                 message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
 
                 // attach observed states measurement 
@@ -310,25 +392,31 @@ namespace Model_GUI
             foreach (string arg in args)
             {
                 List<string> arg_sep = Tools.ArgsParser(arg);
-
                 if (arg_sep.Count() == 0) continue;
-
                 string arg_name = arg_sep[0];
 
                 switch (arg_name)
                 {
-                    case "channel_controller":
-                        EP = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
-                        using_canal = true;
+                    case "plant_type":
+                        string arg_plant_type = arg_sep[1];
+                        switch (arg_plant_type)
+                        {
+                            case "simulation":
+                                plant_type = "simulation";
+                                break;
+                            case "physical":
+                                plant_type = "physical";
+                                break;
+                            default:
+                                plant_type = "simulation";
+                                MessageBox.Show("Unknown plant type: " + arg_plant_type + ". Using default: simulation");                
+                                break;
+                        }
                         break;
-                
-                    case "controller_ep":
-                        EP_Controller = new ConnectionParameters(arg_sep[1], Convert.ToInt16(arg_sep[2]), Convert.ToInt16(arg_sep[3]));
-                        break;
-                       
+
                     case "model":
-                        string model_type = arg_sep[1];
-                        switch (model_type)
+                        string arg_model_type = arg_sep[1];
+                        switch (arg_model_type)
                         {
                             case "dwt":
                                 model_parameters = new double[] { Convert.ToDouble(arg_sep[2]), Convert.ToDouble(arg_sep[3]), Convert.ToDouble(arg_sep[4]), Convert.ToDouble(arg_sep[5]) };
@@ -336,7 +424,7 @@ namespace Model_GUI
                                 noise_std = Convert.ToDouble(arg_sep[6]);
                                 break;
                             case "qwt":
-                                model_parameters = new double[] { Convert.ToDouble(arg_sep[2]), Convert.ToDouble(arg_sep[3]), Convert.ToDouble(arg_sep[4]), Convert.ToDouble(arg_sep[5]), Convert.ToDouble(arg_sep[6]) , Convert.ToDouble(arg_sep[7]), Convert.ToDouble(arg_sep[8]), Convert.ToDouble(arg_sep[9]) };
+                                model_parameters = new double[] { Convert.ToDouble(arg_sep[2]), Convert.ToDouble(arg_sep[3]), Convert.ToDouble(arg_sep[4]), Convert.ToDouble(arg_sep[5]), Convert.ToDouble(arg_sep[6]), Convert.ToDouble(arg_sep[7]), Convert.ToDouble(arg_sep[8]), Convert.ToDouble(arg_sep[9]) };
                                 Plant = new Plant(new QuadWatertank(model_parameters));
                                 noise_std = Convert.ToDouble(arg_sep[10]);
                                 break;
@@ -344,17 +432,32 @@ namespace Model_GUI
                                 Plant = new Plant(new InvertedPendulumSISO());
                                 break;
                             default:
-                                MessageBox.Show("Unknown model type not used: " + arg_name);
+                                model_parameters = new double[] { Convert.ToDouble(arg_sep[2]), Convert.ToDouble(arg_sep[3]), Convert.ToDouble(arg_sep[4]), Convert.ToDouble(arg_sep[5]) };
+                                Plant = new Plant(new DoubleWatertank(model_parameters));
+                                noise_std = Convert.ToDouble(arg_sep[6]);
+                                MessageBox.Show("Unknown model type: " + arg_model_type + ". Using default: double water tank");
                                 break;
                         }
                         break;
+
+                    case "channel_controller":
+                        EP_Send_Controller = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
+                        using_channel = true;
+                        break;
+                
+                    case "controller_ep":
+                        EP_Controller = new ConnectionParameters(arg_sep[1], Convert.ToInt16(arg_sep[2]), Convert.ToInt16(arg_sep[3]));
+                        break;
+                       
                     case "log":
                         log_flag = arg_sep[1];
                         break;
+
                     case "ARG_INVALID":
                         break;
+
                     default:
-                        MessageBox.Show("Unknown argument not used: " + arg_name);
+                        MessageBox.Show("Unknown argument: " + arg_name);
                         break;
                 }
             }

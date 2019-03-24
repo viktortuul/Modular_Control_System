@@ -31,8 +31,8 @@ namespace HMI
         // folder setting for chart image save
         public string folderName = "";
 
-        // canal flag
-        public bool usingCanal = false;
+        // channel flag
+        public bool usingChannel = false;
         AddressEndPoint Channel_EP = new AddressEndPoint();
 
         // tank dimensions (for visualization)
@@ -205,9 +205,9 @@ namespace HMI
             // control module name and corresponding ip:port pairs
             string name = textBoxName.Text;
             string IP_endpoint = textBox_ip_send.Text;
-            string IP_this = textBox_ip_recieve.Text;
+            string IP_this = textBox_ip_receive.Text;
             int port_endpoint = Convert.ToInt16(numericUpDown_port_send.Value);
-            int port_this = Convert.ToInt16(numericUpDown_port_recieve.Value);
+            int port_this = Convert.ToInt16(numericUpDown_port_receive.Value);
 
             // look for name and port conflicts with present allowed traffics
             bool connection_already_exists = false;
@@ -297,7 +297,7 @@ namespace HMI
                     {
                         case "channel_controller":
                             Channel_EP = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
-                            usingCanal = true;
+                            usingChannel = true;
                             log("Using channel: <" + arg_sep[1] + ">, <" + arg_sep[2] + ">");
                             break;
                         case "pid_params":
@@ -308,7 +308,7 @@ namespace HMI
                         case "ARG_INVALID":
                             break;
                         default:
-                            MessageBox.Show("Unknown argument not used: " + arg_name);
+                            MessageBox.Show("Unknown argument: " + arg_name);
                             break;
                     }
                 }
@@ -460,7 +460,7 @@ namespace HMI
         {
             string hostName = Dns.GetHostName(); // Retrive the Name of HOST   
             string myIP = Dns.GetHostByName(hostName).AddressList[0].ToString();
-            textBox_ip_recieve.Text = myIP;
+            textBox_ip_receive.Text = myIP;
         }
 
         private void setDirectoryToolStripMenuItem_Click(object sender, EventArgs e)

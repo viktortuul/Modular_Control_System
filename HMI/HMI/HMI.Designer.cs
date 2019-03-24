@@ -52,11 +52,11 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.btnThisIP = new System.Windows.Forms.Button();
             this.numericUpDown_port_send = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown_port_recieve = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDown_port_receive = new System.Windows.Forms.NumericUpDown();
             this.textBoxName = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
-            this.textBox_ip_recieve = new System.Windows.Forms.TextBox();
+            this.textBox_ip_receive = new System.Windows.Forms.TextBox();
             this.btnAllowConnection = new System.Windows.Forms.Button();
             this.textBox_ip_send = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -99,7 +99,7 @@
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_port_send)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_port_recieve)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_port_receive)).BeginInit();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarReference2)).BeginInit();
             this.groupBox4.SuspendLayout();
@@ -263,11 +263,11 @@
             // 
             this.groupBox2.Controls.Add(this.btnThisIP);
             this.groupBox2.Controls.Add(this.numericUpDown_port_send);
-            this.groupBox2.Controls.Add(this.numericUpDown_port_recieve);
+            this.groupBox2.Controls.Add(this.numericUpDown_port_receive);
             this.groupBox2.Controls.Add(this.textBoxName);
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.label7);
-            this.groupBox2.Controls.Add(this.textBox_ip_recieve);
+            this.groupBox2.Controls.Add(this.textBox_ip_receive);
             this.groupBox2.Controls.Add(this.btnAllowConnection);
             this.groupBox2.Controls.Add(this.textBox_ip_send);
             this.groupBox2.Controls.Add(this.label4);
@@ -312,24 +312,24 @@
             0,
             0});
             // 
-            // numericUpDown_port_recieve
+            // numericUpDown_port_receive
             // 
-            this.numericUpDown_port_recieve.Location = new System.Drawing.Point(201, 25);
-            this.numericUpDown_port_recieve.Margin = new System.Windows.Forms.Padding(2);
-            this.numericUpDown_port_recieve.Maximum = new decimal(new int[] {
+            this.numericUpDown_port_receive.Location = new System.Drawing.Point(201, 25);
+            this.numericUpDown_port_receive.Margin = new System.Windows.Forms.Padding(2);
+            this.numericUpDown_port_receive.Maximum = new decimal(new int[] {
             9000,
             0,
             0,
             0});
-            this.numericUpDown_port_recieve.Minimum = new decimal(new int[] {
+            this.numericUpDown_port_receive.Minimum = new decimal(new int[] {
             8000,
             0,
             0,
             0});
-            this.numericUpDown_port_recieve.Name = "numericUpDown_port_recieve";
-            this.numericUpDown_port_recieve.Size = new System.Drawing.Size(50, 20);
-            this.numericUpDown_port_recieve.TabIndex = 19;
-            this.numericUpDown_port_recieve.Value = new decimal(new int[] {
+            this.numericUpDown_port_receive.Name = "numericUpDown_port_receive";
+            this.numericUpDown_port_receive.Size = new System.Drawing.Size(50, 20);
+            this.numericUpDown_port_receive.TabIndex = 19;
+            this.numericUpDown_port_receive.Value = new decimal(new int[] {
             8100,
             0,
             0,
@@ -361,15 +361,15 @@
             this.label7.TabIndex = 9;
             this.label7.Text = "Port (This)";
             // 
-            // textBox_ip_recieve
+            // textBox_ip_receive
             // 
-            this.textBox_ip_recieve.Enabled = false;
-            this.textBox_ip_recieve.Location = new System.Drawing.Point(119, 24);
-            this.textBox_ip_recieve.Name = "textBox_ip_recieve";
-            this.textBox_ip_recieve.Size = new System.Drawing.Size(78, 20);
-            this.textBox_ip_recieve.TabIndex = 8;
-            this.textBox_ip_recieve.Text = "127.0.0.1";
-            this.textBox_ip_recieve.Visible = false;
+            this.textBox_ip_receive.Enabled = false;
+            this.textBox_ip_receive.Location = new System.Drawing.Point(119, 24);
+            this.textBox_ip_receive.Name = "textBox_ip_receive";
+            this.textBox_ip_receive.Size = new System.Drawing.Size(78, 20);
+            this.textBox_ip_receive.TabIndex = 8;
+            this.textBox_ip_receive.Text = "127.0.0.1";
+            this.textBox_ip_receive.Visible = false;
             // 
             // btnAllowConnection
             // 
@@ -782,7 +782,7 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_port_send)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_port_recieve)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_port_receive)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarReference2)).EndInit();
@@ -847,9 +847,9 @@
         public System.Windows.Forms.NumericUpDown numUpDownKp;
         public System.Windows.Forms.NumericUpDown numUpDownKi;
         public System.Windows.Forms.NumericUpDown numUpDownKd;
-        public System.Windows.Forms.TextBox textBox_ip_recieve;
+        public System.Windows.Forms.TextBox textBox_ip_receive;
         public System.Windows.Forms.NumericUpDown numericUpDown_port_send;
-        public System.Windows.Forms.NumericUpDown numericUpDown_port_recieve;
+        public System.Windows.Forms.NumericUpDown numericUpDown_port_receive;
         public System.Windows.Forms.TextBox textBox_ip_send;
         public System.Windows.Forms.Label label15;
         public System.Windows.Forms.CheckedListBox clbSeries;

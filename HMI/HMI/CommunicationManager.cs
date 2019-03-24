@@ -19,12 +19,12 @@ namespace HMI
         // connection parameters
         public AddressEndPoint Channel_EP;
         public ConnectionParameters Controller_EP;
-        public bool is_recieving_packets = false; // flag that packets are being received
+        public bool is_receiving_packets = false; // flag that packets are being received
         public bool is_sending_packets = false; // flag that packets are being sent
         public bool is_connected_to_plant = false; // flag that packets from the plant has been received (e.g. yc1 or yo1)
 
         // time variables
-        public DateTime time_last_recieved_packet;
+        public DateTime time_last_received_packet;
 
         // number of controlled states
         public int n_controlled_states = 0;
@@ -59,7 +59,7 @@ namespace HMI
 
             // specify the endpoint (either channel or directly the controller)
             AddressEndPoint EP = new AddressEndPoint();
-            if (Main.usingCanal == true)
+            if (Main.usingChannel == true)
                 EP = new AddressEndPoint(Channel_EP.IP, Channel_EP.Port);
             else
                 EP = new AddressEndPoint(Controller_EP.IP, Controller_EP.Port);
@@ -109,13 +109,13 @@ namespace HMI
                 {
                     // wait for a new packet
                     listener.Listen();
-                    time_last_recieved_packet = DateTime.UtcNow;
+                    time_last_received_packet = DateTime.UtcNow;
 
                     // parse the message 
-                    ParseReceivedMessage(listener.last_recieved);
+                    ParseReceivedMessage(listener.getMessage());
 
-                    // flag that the GUI is recieving packets from the controller
-                    if (is_recieving_packets == false) is_recieving_packets = true;
+                    // flag that the GUI is receiving packets from the controller
+                    if (is_receiving_packets == false) is_receiving_packets = true;
                 }
                 catch (Exception ex)
                 {
@@ -128,7 +128,7 @@ namespace HMI
         {
             // attatch reference values
             string message = "";
-            if (Main.usingCanal == true) message += Convert.ToString("EP_" + Controller_EP.IP + ":" + Controller_EP.Port + "#");
+            if (Main.usingChannel == true) message += Convert.ToString("EP_" + Controller_EP.IP + ":" + Controller_EP.Port + "#");
             message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
 
             for (int i = 1; i <= n_controlled_states; i++)
@@ -184,7 +184,7 @@ namespace HMI
                         Helpers.ManageReferencesKeys(n_controlled_states, references, Constants.n_steps);
                     }
 
-                    // flag that the GUI is recieving packets originating from the process
+                    // flag that the GUI is receiving packets originating from the process
                     if (DEF_plant_states.Contains(key)) is_connected_to_plant = true;             
                 }
 
@@ -208,15 +208,15 @@ namespace HMI
                 status = "GUI <-> Contr <-> Plant";
                 if (isTrafficEstablished() == false) status = "GUI || Contr ? Plant";
             }
-            else if (is_sending_packets == true && is_recieving_packets == true) status = "GUI <-> Contr ? Plant";
-            else if (is_sending_packets == false && is_recieving_packets == true) status = "GUI <- Contr ? Plant";
-            else if (is_sending_packets == true && is_recieving_packets == false) status = "GUI -> Contr ? Plant";
+            else if (is_sending_packets == true && is_receiving_packets == true) status = "GUI <-> Contr ? Plant";
+            else if (is_sending_packets == false && is_receiving_packets == true) status = "GUI <- Contr ? Plant";
+            else if (is_sending_packets == true && is_receiving_packets == false) status = "GUI -> Contr ? Plant";
             return status;
         }
 
         public bool isTrafficEstablished()
         {
-            TimeSpan time_diff = DateTime.UtcNow - time_last_recieved_packet;
+            TimeSpan time_diff = DateTime.UtcNow - time_last_received_packet;
             if (time_diff.Seconds > 3) return false;
             else return true;    
         }

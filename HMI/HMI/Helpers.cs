@@ -88,7 +88,7 @@ namespace HMI
             GUI.numUpDownKd.Value = Convert.ToDecimal(connection_selected.ControllerParameters.Kd);
             GUI.textBox_ip_send.Text = connection_selected.Controller_EP.IP;
             GUI.numericUpDown_port_send.Text = connection_selected.Controller_EP.Port.ToString();
-            GUI.numericUpDown_port_recieve.Text = connection_selected.Controller_EP.PortThis.ToString();
+            GUI.numericUpDown_port_receive.Text = connection_selected.Controller_EP.PortThis.ToString();
         }
 
         public static void UpdateTree(FrameGUI GUI, CommunicationManager controller)
@@ -105,18 +105,18 @@ namespace HMI
             try
             {
                 DateTime time_sent = DateTime.ParseExact(connection.received_packets["u1"].GetLastTime(), FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
-                TimeSpan timeDiff = connection.time_last_recieved_packet - time_sent;
-                GUI.label_time.Text =   "time now:                    " + DateTime.UtcNow.ToString("hh:mm:ss.fff tt") + "\n" +
-                                        "last recieved:              " + connection.time_last_recieved_packet.ToString("hh:mm:ss.fff tt") + "\n" +
-                                        "when it was sent:        " + time_sent.ToString("hh:mm:ss.fff tt") + "\n" +
-                                        "transmission duration [ms]: " + timeDiff.TotalMilliseconds;
+                TimeSpan timeDiff = connection.time_last_received_packet - time_sent;
+                GUI.label_time.Text =   "Time now:                     " + DateTime.UtcNow.ToString("hh:mm:ss.fff tt") + "\n" +
+                                        "Last received packet:   " + connection.time_last_received_packet.ToString("hh:mm:ss.fff tt") + "\n" +
+                                        "Last packet sent:          " + time_sent.ToString("hh:mm:ss.fff tt") + "\n" +
+                                        "Transmission time [ms]: " + timeDiff.TotalMilliseconds;
             }
             catch
             {
-                GUI.label_time.Text = "time now:                  \n" +
-                                        "last recieved:           \n" +
-                                        "when it was sent:        \n" +
-                                        "transmission duration [ms]: ";
+                GUI.label_time.Text = "Time now:                  \n" +
+                                        "Last received packet::           \n" +
+                                        "Last packet sent:        \n" +
+                                        "Transmission time [ms]: ";
             }
         }
     }
