@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace GlobalComponents
@@ -15,10 +14,38 @@ namespace GlobalComponents
         public const int n_steps_small = 100;
     }
 
+    public struct ControllerType
+    {
+        // controller types 
+        public const string PID_STANDARD = "PID_STANDARD";
+        public const string PID_PLUS = "PID_PLUS";
+        public const string PID_SUPPRESS = "PID_SUPPRESS";
+    }
+
+    public struct PlantType
+    {
+        // plant types 
+        public const string SIMULATION = "SIMULATION";
+        public const string PHYSICAL = "PHYSICAL";
+    }
+
+    public struct GUIViewMode
+    {
+        // view modes
+        public const string CONTROL = "CONTROL";
+        public const string OBSERVE = "OBSERVE";
+    }
+
+    public struct DataPointSetting
+    {
+        // add data point modes
+        public const string ADD_LATEST = "ADD_LATEST";
+        public const string LOAD_ALL = "LOAD_ALL";
+    }
+
     public struct PIDparameters
     {
         public double Kp, Ki, Kd;
-
         public PIDparameters(double Kp, double Ki, double Kd)
         {
             this.Kp = Kp;

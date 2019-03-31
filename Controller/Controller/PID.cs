@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GlobalComponents;
 
 namespace Controller
 {
@@ -38,17 +39,23 @@ namespace Controller
         private double K_suppress = 0;          // Resulting suppress factor
         private double T_reset = 3.4;           // filter reset time constant  --> increase --> less suppress
 
+        /*
         // constant dt
         double dt_CONST = 0.1;
+        */
 
         // actuator limitations
         private double u_max = 7.5;
-        private double u_min = -7.5 * 0;
+        private double u_min = 0;
 
         // empty constructor
-        public PID(string controller_type)
+        public PID(string controller_type, double[] u_saturation)
         {
             this.controller_type = controller_type;
+            this.u_min = u_saturation[0];
+            this.u_max = u_saturation[1];
+            Console.WriteLine("PID added: " + controller_type);
+            Console.WriteLine("Control signal range: [" + u_min + ", " + u_max + "]");
         }
 
         public void ComputeControlSignal(double r, double y, bool new_actuator_flag, bool new_measurement_flag, double actuator_position)
@@ -66,13 +73,13 @@ namespace Controller
                     // duration since the last update
                     double dt_m = (time_now - time_last_measurement).TotalSeconds;
 
-                    if (controller_type == "PID_normal")
+                    if (controller_type == ControllerType.PID_STANDARD)
                     {
                         //ComputePIDnormal(dt_CONST);
                         ComputePIDnormal(dt_m);
                         //Console.WriteLine("dt:" + dt_m);
                     }
-                    else if (controller_type == "PID_plus")
+                    else if (controller_type == ControllerType.PID_PLUS)
                     {
                         // calculate time since last actuator update         
                         dt_a = (time_now - time_last_actuator).TotalSeconds;
@@ -84,7 +91,7 @@ namespace Controller
                             ComputePIDplus(dt_a, dt_m, new_actuator_flag, actuator_position);
                         }                            
                     }
-                    else if (controller_type == "PID_suppress")
+                    else if (controller_type == ControllerType.PID_SUPPRESS)
                     {
                         // calculate time since last actuator update         
                         dt_a = (time_now - time_last_actuator).TotalSeconds;
@@ -136,7 +143,8 @@ namespace Controller
                 if (anti_wind_up == true)
                 {
                     // filtered integral term
-                    if (u > u_min && u < u_max) F_I = F_I + (actuator_position - F_I) * (1 - Math.Exp(-dt_a / T_reset)); // T_reset = 3.5
+                    //if (u > u_min && u < u_max)
+                    F_I = F_I + (actuator_position - F_I) * (1 - Math.Exp(-dt_a / T_reset)); // T_reset = 3.5
                 }
                 else F_I = F_I + (actuator_position - F_I) * (1 - Math.Exp(-dt_a / T_reset)); 
 

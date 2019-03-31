@@ -23,13 +23,14 @@ namespace Controller
 
         // communication states
         static bool listening_on_plant = false;
-        static public bool using_canal = false;
+        static public bool using_channel = false;
 
         // controller type
-        static string controller_type = "PID_normal";
+        static string controller_type = ControllerType.PID_STANDARD; //PID_normal, PID_plus, PID_suppress
+        static double[] u_saturation = new double[] { 0, 7.5 };
 
         // logger (write to file)
-        static string log_flag = "false";
+        static bool FLAG_LOG = false;
         static StringBuilder sb = new StringBuilder();
 
         // GUI and Plant endpoints
@@ -78,7 +79,7 @@ namespace Controller
         public static void SenderGUI(string IP, int port, List<PID> PIDList)
         {
             // initialize a connection to the GUI
-            Client sender = new Client(IP, port);
+            Client Sender = new Client(IP, port);
        
             while (true)
             {
@@ -87,7 +88,7 @@ namespace Controller
                 {
                     // send time, u, and y
                     string message = ConstructMessageToGUI(PIDList);
-                    sender.Send(message);
+                    Sender.Send(message);
                     //Console.WriteLine("to GUI: " + message);
                 }
             }
@@ -96,14 +97,14 @@ namespace Controller
         public static void ListenerGUI(string IP, int port, List<PID> PIDList)
         {
             // initialize a connection to the GUI
-            Server listener = new Server(IP, port);
+            Server Listener = new Server(IP, port);
 
             while (true)
             {
                 try
                 {
-                    listener.Listen();
-                    ParseReceivedMessage(listener.getMessage());
+                    Listener.Listen();
+                    ParseReceivedMessage(Listener.getMessage());
 
                     // update controller settings (reference set-point and PID parameters)
                     ManageControllers(PIDList, flag : "GUI");
@@ -131,7 +132,7 @@ namespace Controller
                     Sender.Send(message);
 
                     // log sent message (used for package delivery analysis)
-                    Helpers.Log(sb, message, log_flag);
+                    Helpers.Log(sb, message, FLAG_LOG);
                 }
             }
         }
@@ -139,14 +140,14 @@ namespace Controller
         public static void ListenerPlant(string IP, int port, List<PID> PIDList)
         {
             // initialize a connection to the plant
-            Server listener = new Server(IP, port);
+            Server Listener = new Server(IP, port);
 
             while (true)
             {
                 try
                 {
-                    listener.Listen();
-                    ParseReceivedMessage(listener.getMessage());
+                    Listener.Listen();
+                    ParseReceivedMessage(Listener.getMessage());
                     //Console.WriteLine("from plant: " + listener.last_recieved);
 
                     // compute the new control signal for each controller
@@ -167,7 +168,7 @@ namespace Controller
             string message = "";
 
             // if a canal is used, append the end-point address
-            if (using_canal == true) message += Convert.ToString("EP_" + EP_GUI.IP + ":" + EP_GUI.Port + "#");
+            if (using_channel == true) message += Convert.ToString("EP_" + EP_GUI.IP + ":" + EP_GUI.Port + "#");
 
             // add time-stamp
             message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT));
@@ -197,7 +198,7 @@ namespace Controller
             string message = "";
 
             // if a canal is used, append the end-point address
-            if (using_canal == true) message += Convert.ToString("EP_" + EP_Plant.IP + ":" + EP_Plant.Port + "#");
+            if (using_channel == true) message += Convert.ToString("EP_" + EP_Plant.IP + ":" + EP_Plant.Port + "#");
 
             // add time-stamp
             message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT));
@@ -248,10 +249,8 @@ namespace Controller
                     // add controller if the tag corresponds to a controlled state
                     if (DEF_controlled_states.Contains(key))
                     {
-                        Console.WriteLine("PID added: " + controller_type.ToString());
-                        PIDList.Add(new PID(controller_type));
+                        PIDList.Add(new PID(controller_type, u_saturation));
                     }
-
                 }
 
                 // insert the recieved data to corresponding tag
@@ -271,10 +270,10 @@ namespace Controller
 
                 // check if the last recieved measurement is up to date (else don't update the control signal) 
                 if (received_packets["yc" + index].isUpToDate())
-                {
-                    // update controller parameters
+                {             
                     if (flag == "GUI")
                     {
+                        // update controller parameters
                         controller.UpdateParameters(Convert.ToDouble(received_packets["Kp"].GetLastValue()), Convert.ToDouble(received_packets["Ki"].GetLastValue()), Convert.ToDouble(received_packets["Kd"].GetLastValue()));
                     }
                     else
@@ -283,12 +282,12 @@ namespace Controller
                         double reference = Convert.ToDouble(received_packets["r" + index].GetLastValue());
                         double measurement = Convert.ToDouble(received_packets["yc" + index].GetLastValue());
 
-                        if (controller_type == "PID_normal" && flag == "loop")
+                        if (controller_type == ControllerType.PID_STANDARD && flag == "loop")
                         {
                             // continous constant interval loop when a standard PID is used
                             controller.ComputeControlSignal(reference, measurement, new_actuator_flag: false, new_measurement_flag: false, actuator_position: 0);
                         }
-                        else if ((controller_type == "PID_plus" || controller_type == "PID_suppress") && flag == "plant")
+                        else if ((controller_type == ControllerType.PID_PLUS || controller_type == ControllerType.PID_SUPPRESS) && flag == "plant")
                         {
                             // detect if actuator signal actually has moved (would indicate the control signals are beging transmitted)
                             if (received_packets["uc" + index].hasChanged(0, 2) || received_packets["uc" + index].getCounter() < 5 || Convert.ToDouble(received_packets["uc" + index].GetLastValue()) <= 0 || Convert.ToDouble(received_packets["uc" + index].GetLastValue()) >= 20)
@@ -317,14 +316,20 @@ namespace Controller
                 switch (arg_name)
                 {
                     case "controller":
-                        controller_type = arg_sep[1];
+                        if (arg_sep[1] == "PID_STANDARD") controller_type = ControllerType.PID_STANDARD;
+                        if (arg_sep[1] == "PID_PLUS") controller_type = ControllerType.PID_PLUS;
+                        if (arg_sep[1] == "PID_SUPPRESS") controller_type = ControllerType.PID_SUPPRESS;
+                        break;
+                    case "control_range":
+                        u_saturation = new double[] { Convert.ToDouble(arg_sep[1]), Convert.ToDouble(arg_sep[2]) }; 
                         break;
                     case "log":
-                        log_flag = arg_sep[1];
+                        if (arg_sep[1] == "false") FLAG_LOG = false;
+                        if (arg_sep[1] == "true") FLAG_LOG = true;
                         break;       
                     case "channel_gui":
                         EP_Send_GUI = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
-                        using_canal = true;
+                        using_channel = true;
                         break;
                     case "channel_plant":
                         EP_Send_Plant = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));

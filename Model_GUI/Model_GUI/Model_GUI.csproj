@@ -39,6 +39,9 @@
     <Reference Include="GlobalComponents">
       <HintPath>..\..\GlobalComponents\GlobalComponents\bin\Debug\netstandard2.0\GlobalComponents.dll</HintPath>
     </Reference>
+    <Reference Include="Lego.Ev3.Desktop">
+      <HintPath>..\..\..\..\..\..\Downloads\EV3\References\Desktop\Lego.Ev3.Desktop.dll</HintPath>
+    </Reference>
     <Reference Include="Model">
       <HintPath>..\..\Model\Model\bin\Debug\Model.exe</HintPath>
     </Reference>

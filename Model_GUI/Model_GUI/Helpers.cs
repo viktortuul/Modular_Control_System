@@ -14,9 +14,9 @@ namespace Model_GUI
 {
     public static class Helpers
     {   
-        public static void Log(StringBuilder sb, string message, string log_flag)
+        public static void Log(StringBuilder sb, string message, bool FLAG_LOG)
         {
-            if (log_flag == "true")
+            if (FLAG_LOG == true)
             {
                 sb.Append(message + "\n");
                 File.AppendAllText("log_received.txt", sb.ToString());

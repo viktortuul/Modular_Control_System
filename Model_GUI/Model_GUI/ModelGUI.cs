@@ -12,13 +12,23 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using GlobalComponents;
+using Lego.Ev3.Core;
+using Lego.Ev3.Desktop;
 
 namespace Model_GUI
 {
     public partial class ModelGUI : Form
     {
+        // Lego Mindstorms EV3 API
+        Brick _brick;
+        int _forward = 40; // motor forward speed
+        int _backward = -40; // motor backward speed
+        uint _time = 300; // ms
+        double physical_u = 0;
+        bool isEV3initialized = false;
+
         // logger (write to file)
-        static string log_flag = "false";
+        static bool FLAG_LOG = false;
         static StringBuilder sb = new StringBuilder();
 
         // chart settings
@@ -53,7 +63,7 @@ namespace Model_GUI
         Plant Plant = new Plant();
 
         // plant type
-        public string plant_type = "simulation"; // simulation, physical
+        public string plant_type = PlantType.SIMULATION; // simulation, physical
 
         // measurement noise standard deviation
         double noise_std = 0.1;
@@ -77,17 +87,6 @@ namespace Model_GUI
             string[] args = Environment.GetCommandLineArgs();
             ParseArgs(args);
 
-            /*
-            // create a thread for listening on the physical plant
-            Thread thread_listener_physical = new Thread(() => ListenerPhysical(EP_Send_Physical.IP, EP_Physical.PortThis));
-            thread_listener_physical.Start();
-
-            
-            // create a thread for communication with the controller
-            Thread thread_sender_physical = new Thread(() => SenderPhysical(EP_Send_Physical.IP, EP_Send_Physical.Port, Plant));
-            thread_sender_physical.Start();
-            */
-
             // create a thread for listening on the physical plant
             Thread thread_listener = new Thread(() => Listener(EP_Send_Controller.IP, EP_Controller.PortThis, Plant));
             thread_listener.Start();
@@ -97,9 +96,16 @@ namespace Model_GUI
             thread_sender.Start();
 
             // create a thread for the simulation
-            int dt = 10; // simulation update rate [ms]
-            Thread thread_process = new Thread(() => Process(Plant, dt));
-            thread_process.Start();
+            if (plant_type == PlantType.SIMULATION)
+            {
+                int dt = 10; // simulation update rate [ms]
+                Thread thread_process = new Thread(() => Process(Plant, dt));
+                thread_process.Start();
+            }
+            else if (plant_type == PlantType.PHYSICAL)
+            {
+                initializeEV3Brick();
+            }
 
             // folder and chart settings
             InitialSettings();
@@ -109,6 +115,63 @@ namespace Model_GUI
 
             // initialize with control view mode
             toggleViewMode("control");
+        }
+
+        private async void initializeEV3Brick()
+        {
+            Console.WriteLine("USING EV3");
+            //_brick = new Brick(new BluetoothCommunication("1234");
+            _brick = new Brick(new UsbCommunication()); // no arguments needed
+
+            _brick.BrickChanged += _brick_BrickChanged; ;
+            await _brick.ConnectAsync(TimeSpan.FromMilliseconds(1)); // no argument entails 100ms update rate
+            await _brick.DirectCommand.PlayToneAsync(20, 1000, 300);
+
+            // motor polarity
+            //await _brick.DirectCommand.SetMotorPolarity(OutputPort.A | OutputPort.C, Polarity.Backward);
+            await _brick.DirectCommand.SetMotorPolarity(OutputPort.A, Polarity.Backward);
+            await _brick.DirectCommand.StopMotorAsync(OutputPort.All, false);
+
+            isEV3initialized = true;
+        }
+
+        private void _brick_BrickChanged(object sender, BrickChangedEventArgs e)
+        {
+            // initialize a connection to the controller
+            Client sender_controller = new Client(EP_Send_Controller.IP, EP_Send_Controller.Port);
+
+            string message = "";
+            if (using_channel == true) message += Convert.ToString("EP_" + EP_Controller.IP + ":" + EP_Controller.Port + "#"); // add end-point if canal is used
+            message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
+
+            // apply measurement noise
+            var r = new GaussianRandom();
+            double noise = r.NextGaussian(0, noise_std);
+            message += "yc1" + "_" + e.Ports[InputPort.One].SIValue.ToString() + "#";
+
+            // append the last actuator state
+            message += "uc1" + "_" + (physical_u + noise).ToString() + "#"; // FIX THIS - RANDOM FOR THE MOMENT IN ORDER TO TRIGGER PIDPLUS AND SUPPRESS
+
+            // remove the redundant delimiter
+            message = message.Substring(0, message.LastIndexOf('#'));
+            sender_controller.Send(message);
+
+            /*
+            // log received message (used for package delivery analysis)
+            Helpers.Log(sb, listener.last_recieved, log_flag);
+            */
+
+            //label1.Text = e.Ports[InputPort.One].SIValue.ToString();
+            //label2.Text = e.Ports[InputPort.Two].SIValue.ToString();
+
+            //throw new NotImplementedException();
+        }
+
+        private async void ApplyMotorPower(int power)
+        {
+            Console.WriteLine("power: " + power);
+            physical_u = Convert.ToDouble(power);
+            await _brick.DirectCommand.TurnMotorAtPowerForTimeAsync(OutputPort.A, _forward, _time, false);
         }
 
         public void Process(Plant Plant, int dt)
@@ -134,62 +197,6 @@ namespace Model_GUI
             if (Disturbance.type == "instant") Disturbance.Stop();
         }
 
-        /*
-        public void ListenerPhysical(string IP, int port)
-        {
-            // initialize a connection to the controller
-            Server listener = new Server(IP, port);
-
-            while (true)
-            {
-                try
-                {
-                    listener.Listen();
-
-                    // parse recieved message
-                    ParseMessagePhysical(listener.last_recieved);
-
-                    string message = "";
-                    if (using_channel == true) message += Convert.ToString("EP_" + EP_Controller.IP + ":" + EP_Controller.Port + "#"); // add end-point if canal is used
-                    message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
-
-                    // attach observed states measurement 
-                    for (int i = 0; i < Plant.get_yo().Length; i++)
-                    {
-                        // apply measurement noise
-                        var r = new GaussianRandom();
-                        double noise = r.NextGaussian(0, noise_std);
-                        message += "yo" + (i + 1) + "_" + (Plant.get_yo()[i] + noise).ToString() + "#";
-                    }  
-
-                    // attach controlled states measurement
-                    for (int i = 0; i < Plant.get_yc().Length; i++)
-                    {
-                        // apply measurement noise
-                        var r = new GaussianRandom();
-                        double noise = r.NextGaussian(0, noise_std);
-                        message += "yc" + (i + 1) + "_" + (Plant.get_yc()[i] + noise).ToString() + "#";
-
-                        // append the last actuator state
-                        message += "uc" + (i + 1) + "_" + Plant.get_uc()[i].ToString() + "#";
-                    }
-
-                    // remove the redundant delimiter
-                    message = message.Substring(0, message.LastIndexOf('#')); 
-                    sender.Send(message);
-
-
-                    // log received message (used for package delivery analysis)
-                    Helpers.Log(sb, listener.last_recieved, log_flag);  
-                }
-                catch (Exception ex)
-                {
-                    Console.Write(ex);
-                }
-            }
-        }
-        */
-
         public void Listener(string IP, int port, Plant Plant)
         {
             // initialize a connection to the controller
@@ -214,18 +221,22 @@ namespace Model_GUI
                         i++;
                     }
 
-                    if (plant_type == "simulation")
+                    if (plant_type == PlantType.SIMULATION)
                     {
                         // update actuators
                         Plant.set_u(u);
                     }
-                    else
+                    else if (plant_type == PlantType.PHYSICAL)
                     {
                         // send actuator signal to the physical process
+                        if (isEV3initialized == true)
+                        {
+                            ApplyMotorPower(Convert.ToInt32(u[0]));
+                        }              
                     }
 
                     // log received message (used for package delivery analysis)
-                    Helpers.Log(sb, listener.getMessage(), log_flag);
+                    Helpers.Log(sb, listener.getMessage(), FLAG_LOG);
                 }
                 catch (Exception ex)
                 {
@@ -255,7 +266,7 @@ namespace Model_GUI
                     double noise = r.NextGaussian(0, noise_std);
                     message += "yo" + (i + 1) + "_" + (Plant.get_yo()[i] + noise).ToString() + "#";
                 }  
-
+               
                 // attach controlled states measurement
                 for (int i = 0; i < Plant.get_yc().Length; i++)
                 {
@@ -263,6 +274,7 @@ namespace Model_GUI
                     var r = new GaussianRandom();
                     double noise = r.NextGaussian(0, noise_std);
                     message += "yc" + (i + 1) + "_" + (Plant.get_yc()[i] + noise).ToString() + "#";
+
 
                     // append the last actuator state
                     message += "uc" + (i + 1) + "_" + Plant.get_uc()[i].ToString() + "#";
@@ -311,7 +323,10 @@ namespace Model_GUI
             Charting.UpdateChartAxes(perturbationChart, time_chart_window);
 
             // draw animation
-            Animation.DrawTanks(this);
+            if (plant_type == PlantType.SIMULATION)
+            {
+                Animation.DrawTanks(this);
+            }
 
             // update labels
             Helpers.UpdatePerturbationLabels(this, Disturbance);
@@ -401,15 +416,15 @@ namespace Model_GUI
                         string arg_plant_type = arg_sep[1];
                         switch (arg_plant_type)
                         {
-                            case "simulation":
-                                plant_type = "simulation";
+                            case "SIMULATION":
+                                plant_type = PlantType.SIMULATION;
                                 break;
-                            case "physical":
-                                plant_type = "physical";
+                            case "PHYSICAL":
+                                plant_type = PlantType.PHYSICAL;
                                 break;
                             default:
-                                plant_type = "simulation";
-                                MessageBox.Show("Unknown plant type: " + arg_plant_type + ". Using default: simulation");                
+                                plant_type = PlantType.SIMULATION;
+                                MessageBox.Show("Unknown plant type: " + arg_plant_type + ". Using default: " + PlantType.SIMULATION);                
                                 break;
                         }
                         break;
@@ -450,7 +465,8 @@ namespace Model_GUI
                         break;
                        
                     case "log":
-                        log_flag = arg_sep[1];
+                        if (arg_sep[1] == "false") FLAG_LOG = false;
+                        if (arg_sep[1] == "true") FLAG_LOG = true;
                         break;
 
                     case "ARG_INVALID":

@@ -42,7 +42,7 @@ namespace HMI
         public string debugLog = "";
 
         // control/obsrver mode
-        public string GUI_view_mode = "control";
+        public string GUI_view_mode = GUIViewMode.CONTROL;
 
         // reference set-point setting
         bool ApplyRefToAll = false;
@@ -61,7 +61,7 @@ namespace HMI
             InitialSettings();
 
             // toggle view (control as default)
-            toggleViewMode("control");
+            toggleViewMode(GUIViewMode.CONTROL);
         }
 
         private void timerCharts_Tick(object sender, EventArgs e)
@@ -72,9 +72,9 @@ namespace HMI
                 Charting.ManageReferenceSeries(this);
 
                 // update charts
-                UpdateChart(connection_selected.references, setting : ""); // reference
-                UpdateChart(connection_selected.received_packets, setting : ""); // states
-                UpdateChart(connection_selected.estimates, setting : ""); // kalman filter estimates
+                UpdateChart(connection_selected.references, setting : DataPointSetting.ADD_LATEST); // reference
+                UpdateChart(connection_selected.received_packets, setting : DataPointSetting.ADD_LATEST); // states
+                UpdateChart(connection_selected.estimates, setting : DataPointSetting.ADD_LATEST); // kalman filter estimates
 
                 // update time axis minimum and maximum
                 Charting.UpdateChartAxes(dataChart, time_chart_window);
@@ -103,10 +103,9 @@ namespace HMI
                 // data load setting
                 int index_start;
 
-                if (setting == "load_all")
-                    index_start = 0; // draw all data points
-                else
-                    index_start = dict[key].time.Length - 1; // draw the last data point
+                if (setting == DataPointSetting.LOAD_ALL) index_start = 0; // draw all data points
+                else if (setting == DataPointSetting.ADD_LATEST) index_start = dict[key].time.Length - 1; // draw the last data point
+                else index_start = dict[key].time.Length - 1; // draw the last data point
 
                 // add data point(s)
                 for (int i = index_start; i < dict[key].time.Length; i++)
@@ -164,9 +163,9 @@ namespace HMI
                 clbSeries.Items.Clear();
 
                 // refresh the chart, load all data points
-                UpdateChart(connection_selected.references, setting : "load_all"); // reference
-                UpdateChart(connection_selected.received_packets, setting: "load_all"); // states
-                UpdateChart(connection_selected.estimates, setting: "load_all"); // kalman filter estimates
+                UpdateChart(connection_selected.references, setting : DataPointSetting.LOAD_ALL); // reference
+                UpdateChart(connection_selected.received_packets, setting: DataPointSetting.LOAD_ALL); // states
+                UpdateChart(connection_selected.estimates, setting: DataPointSetting.LOAD_ALL); // kalman filter estimates
 
                 // scale y-axis for the charts
                 Charting.ChangeYScale(dataChart, treshold_interval : "one", grid_interval : "one");
@@ -412,8 +411,7 @@ namespace HMI
             {
                 connection_selected.ControllerParameters.Kp = Convert.ToDouble(numUpDownKp.Value);
             }
-            catch { }
-            
+            catch { }  
         }
 
         private void numUpDownKi_ValueChanged(object sender, EventArgs e)
@@ -432,8 +430,7 @@ namespace HMI
                     numUpDownKi.Increment = Convert.ToDecimal(0.1);
                 }
             }
-            catch { }
-            
+            catch { }     
         }
 
         private void numUpDownKd_ValueChanged(object sender, EventArgs e)
@@ -511,21 +508,21 @@ namespace HMI
 
         private void toolStripStatusLabel1_Click(object sender, EventArgs e)
         {
-            if (GUI_view_mode == "control")
+            if (GUI_view_mode ==  GUIViewMode.CONTROL)
             {
-                toggleViewMode("observe");
-                GUI_view_mode = "observe";
+                toggleViewMode(GUIViewMode.OBSERVE);
+                GUI_view_mode = GUIViewMode.OBSERVE;
             }
             else
             {
-                toggleViewMode("observe");
-                GUI_view_mode = "control";
+                toggleViewMode(GUIViewMode.OBSERVE);
+                GUI_view_mode = GUIViewMode.CONTROL;
             }
         }
 
         private void toggleViewMode(string mode)
         {
-            if (mode == "control")
+            if (mode == GUIViewMode.CONTROL)
             {
                 foreach (Control c in this.Controls)
                 {
@@ -538,7 +535,7 @@ namespace HMI
                 pictureBox1.Location = new Point(tabControl1.Location.X + tabControl1.Width - 3, 157);
                 pictureBox1.Height = tabControl1.Height - 23;
             }
-            else if (mode == "observe")
+            else if (mode == GUIViewMode.OBSERVE)
             {
                 string[] visible_controls = new string[] { "tabControl1", "dataChart", "pictureBox1", "statusStrip1" };
                 foreach (Control c in this.Controls)
