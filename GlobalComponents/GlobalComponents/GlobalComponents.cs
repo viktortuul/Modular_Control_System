@@ -29,6 +29,13 @@ namespace GlobalComponents
         public const string PHYSICAL = "PHYSICAL";
     }
 
+    public struct PhysicalProcessType
+    {
+        // physical process types 
+        public const string SEGWAY = "SEGWAY";
+        public const string PLATOONING = "PLATOONING";
+    }
+
     public struct GUIViewMode
     {
         // view modes

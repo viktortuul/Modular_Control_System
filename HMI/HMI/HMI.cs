@@ -16,6 +16,12 @@ using System.IO;
 using Communication;
 using GlobalComponents;
 
+/* TODO
+ * Only adjust max/min axis values for time-series that are checked
+ * Save "checked time-series" settings when switching between processes
+*/
+
+
 namespace HMI
 {
     public partial class FrameGUI : Form
@@ -43,9 +49,6 @@ namespace HMI
 
         // control/obsrver mode
         public string GUI_view_mode = GUIViewMode.CONTROL;
-
-        // reference set-point setting
-        bool ApplyRefToAll = false;
 
         public FrameGUI()
         {
@@ -186,8 +189,8 @@ namespace HMI
             Helpers.ManageTrackbars(this);
 
             // scale y-axis for the charts
-            Charting.ChangeYScale(dataChart, treshold_interval: "one", grid_interval: "one");
-            Charting.ChangeYScale(residualChart, treshold_interval: "one", grid_interval: "one");
+            Charting.ChangeYScale(dataChart, treshold_interval: "one", grid_interval: "adaptive");
+            Charting.ChangeYScale(residualChart, treshold_interval: "one", grid_interval: "adaptive");
             Charting.ChangeYScale(securityChart, treshold_interval: "one", grid_interval: "adaptive");
 
             labelSecurity.Text = "Security metric: " + Math.Round(connection_selected.kalman_filter.security_metric, 1) + Environment.NewLine +

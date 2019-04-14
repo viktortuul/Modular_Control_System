@@ -1,7 +1,11 @@
-Start ..\HMI\HMI\bin\Debug\HMI.exe channel_controller=127.0.0.1:8111 pid_params=1,0:0,3:0,0
+REM Start ..\HMI\HMI\bin\Debug\HMI.exe channel_controller=127.0.0.1:8111 pid_params=1,0:0,3:0,0
+Start ..\HMI\HMI\bin\Debug\HMI.exe channel_controller=127.0.0.1:8111 pid_params=5,0:0,0:0,0
 
-Start ..\Controller\Controller\bin\Debug\Controller.exe gui_ep=127.0.0.1:8100:8200 plant_ep=127.0.0.1:8300:8400 channel_gui=127.0.0.1:8111 channel_plant=127.0.0.1:8222 controller=PID_STANDARD control_range=-50:50 log=false
-Start ..\Model_GUI\Model_GUI\bin\Debug\Model_GUI.exe controller_ep=127.0.0.1:8400:8300 channel_controller=127.0.0.1:8222 plant_type=SIMULATION model=dwt:5,0:0,3:5,0:0,2:0,0001 log=false
+Start ..\Controller\Controller\bin\Debug\Controller.exe gui_ep=127.0.0.1:8100:8200 plant_ep=127.0.0.1:8300:8400 channel_gui=127.0.0.1:8111 channel_plant=127.0.0.1:8222 controller=PID_STANDARD control_range=-100:100 log=false
+REM Start ..\Model_GUI\Model_GUI\bin\Debug\Model_GUI.exe controller_ep=127.0.0.1:8400:8300 channel_controller=127.0.0.1:8222 plant_type=SIMULATION model=dwt:5,0:0,3:5,0:0,2:0,0001 log=false
+REM Start ..\EV3\EV3\bin\Debug\EV3.exe controller_ep=127.0.0.1:8400:8300 physical_process_type=PLATOONING com_port=COM7 log=false
+
+
 
 REM Start ..\Controller\Controller\bin\Debug\Controller.exe gui_ep=127.0.0.1:8101:8201 plant_ep=127.0.0.1:8301:8401 channel_gui=127.0.0.1:8111 channel_plant=127.0.0.1:8222 controller=PID_PLUS control_range=-50:50 log=false
 REM Start ..\Model_GUI\Model_GUI\bin\Debug\Model_GUI.exe controller_ep=127.0.0.1:8401:8301 channel_controller=127.0.0.1:8222 plant_type=SIMULATION model=dwt:5,0:0,3:5,0:0,2:0,0001 log=false

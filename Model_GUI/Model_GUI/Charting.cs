@@ -76,7 +76,7 @@ namespace Model_GUI
             }
         }
 
-        public static void ChangeYScale(object chart, string verbose)
+        public static void ChangeYScale(object chart, string treshold_interval, string grid_interval)
         {
             bool points_exist = false;
             double max = Double.MinValue;
@@ -102,10 +102,20 @@ namespace Model_GUI
 
             if (points_exist == true && (max > min))
             {
-                tmpChart.ChartAreas["ChartArea1"].AxisY.Maximum = Math.Max(Math.Ceiling(max), 0);
-                tmpChart.ChartAreas["ChartArea1"].AxisY.Minimum = Math.Min(Math.Floor(min), 0);
-                tmpChart.ChartAreas["ChartArea1"].AxisY.Interval = 1;
+                tmpChart.ChartAreas[0].AxisY.Maximum = Math.Max(Math.Ceiling(max), 0);
+                tmpChart.ChartAreas[0].AxisY.Minimum = Math.Min(Math.Floor(min), 0);
             }
+
+            if (grid_interval == "one")
+            {
+
+                tmpChart.ChartAreas[0].AxisY.Interval = 1;
+            }
+            else if (grid_interval == "adaptive")
+            {
+                tmpChart.ChartAreas[0].AxisY.Interval = Math.Max(Math.Ceiling(max / 10), 1);
+            }
+
         }
     }
 }

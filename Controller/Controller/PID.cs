@@ -130,6 +130,8 @@ namespace Controller
 
             // resulting control signal
             u = Kp * e + Ki * I + Kd * de;
+
+            Console.WriteLine(u);
         }
 
         private void ComputePIDplus(double dt_a, double dt_m, bool new_actuator_flag, double actuator_position)

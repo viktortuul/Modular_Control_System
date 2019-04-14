@@ -46,6 +46,15 @@ namespace Controller
             // parse the command line arguments
             ParseArgs(args);
 
+            if (using_channel == false)
+            {
+                EP_Send_Plant.IP = EP_Plant.IP;
+                EP_Send_Plant.Port = EP_Plant.Port;
+
+                EP_Send_GUI.IP = EP_GUI.IP;
+                EP_Send_GUI.Port = EP_GUI.Port;
+            }
+
             // create a thread for sending to the GUI
             Thread thread_send_GUI = new Thread(() => SenderGUI(EP_Send_GUI.IP, EP_Send_GUI.Port, PIDList));
             thread_send_GUI.Start();
@@ -89,7 +98,7 @@ namespace Controller
                     // send time, u, and y
                     string message = ConstructMessageToGUI(PIDList);
                     Sender.Send(message);
-                    //Console.WriteLine("to GUI: " + message);
+                    Console.WriteLine("to GUI: " + message);
                 }
             }
         }

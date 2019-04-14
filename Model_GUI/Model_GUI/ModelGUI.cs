@@ -19,14 +19,6 @@ namespace Model_GUI
 {
     public partial class ModelGUI : Form
     {
-        // Lego Mindstorms EV3 API
-        Brick _brick;
-        int _forward = 40; // motor forward speed
-        int _backward = -40; // motor backward speed
-        uint _time = 300; // ms
-        double physical_u = 0;
-        bool isEV3initialized = false;
-
         // logger (write to file)
         static bool FLAG_LOG = false;
         static StringBuilder sb = new StringBuilder();
@@ -50,23 +42,14 @@ namespace Model_GUI
         ConnectionParameters EP_Controller = new ConnectionParameters();
         AddressEndPoint EP_Send_Controller = new AddressEndPoint();
 
-        /*
-        // physical plant variables
-        ConnectionParameters EP_Physical = new ConnectionParameters();
-        AddressEndPoint EP_Send_Physical = new AddressEndPoint();
-        */
-
         // initialize perturbation settings
         DisturbanceModel Disturbance = new DisturbanceModel();
 
         // initialize an empty Plant class
         Plant Plant = new Plant();
 
-        // plant type
-        public string plant_type = PlantType.SIMULATION; // simulation, physical
-
         // measurement noise standard deviation
-        double noise_std = 0.1;
+        double meas_noise_std = 0.1;
 
         // model parameters from command line arguments
         public double[] model_parameters = new double[0];
@@ -96,16 +79,9 @@ namespace Model_GUI
             thread_sender.Start();
 
             // create a thread for the simulation
-            if (plant_type == PlantType.SIMULATION)
-            {
-                int dt = 10; // simulation update rate [ms]
-                Thread thread_process = new Thread(() => Process(Plant, dt));
-                thread_process.Start();
-            }
-            else if (plant_type == PlantType.PHYSICAL)
-            {
-                initializeEV3Brick();
-            }
+            int dt = 10; // simulation update rate [ms]
+            Thread thread_process = new Thread(() => Process(Plant, dt));
+            thread_process.Start();
 
             // folder and chart settings
             InitialSettings();
@@ -115,63 +91,6 @@ namespace Model_GUI
 
             // initialize with control view mode
             toggleViewMode("control");
-        }
-
-        private async void initializeEV3Brick()
-        {
-            Console.WriteLine("USING EV3");
-            //_brick = new Brick(new BluetoothCommunication("1234");
-            _brick = new Brick(new UsbCommunication()); // no arguments needed
-
-            _brick.BrickChanged += _brick_BrickChanged; ;
-            await _brick.ConnectAsync(TimeSpan.FromMilliseconds(1)); // no argument entails 100ms update rate
-            await _brick.DirectCommand.PlayToneAsync(20, 1000, 300);
-
-            // motor polarity
-            //await _brick.DirectCommand.SetMotorPolarity(OutputPort.A | OutputPort.C, Polarity.Backward);
-            await _brick.DirectCommand.SetMotorPolarity(OutputPort.A, Polarity.Backward);
-            await _brick.DirectCommand.StopMotorAsync(OutputPort.All, false);
-
-            isEV3initialized = true;
-        }
-
-        private void _brick_BrickChanged(object sender, BrickChangedEventArgs e)
-        {
-            // initialize a connection to the controller
-            Client sender_controller = new Client(EP_Send_Controller.IP, EP_Send_Controller.Port);
-
-            string message = "";
-            if (using_channel == true) message += Convert.ToString("EP_" + EP_Controller.IP + ":" + EP_Controller.Port + "#"); // add end-point if canal is used
-            message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
-
-            // apply measurement noise
-            var r = new GaussianRandom();
-            double noise = r.NextGaussian(0, noise_std);
-            message += "yc1" + "_" + e.Ports[InputPort.One].SIValue.ToString() + "#";
-
-            // append the last actuator state
-            message += "uc1" + "_" + (physical_u + noise).ToString() + "#"; // FIX THIS - RANDOM FOR THE MOMENT IN ORDER TO TRIGGER PIDPLUS AND SUPPRESS
-
-            // remove the redundant delimiter
-            message = message.Substring(0, message.LastIndexOf('#'));
-            sender_controller.Send(message);
-
-            /*
-            // log received message (used for package delivery analysis)
-            Helpers.Log(sb, listener.last_recieved, log_flag);
-            */
-
-            //label1.Text = e.Ports[InputPort.One].SIValue.ToString();
-            //label2.Text = e.Ports[InputPort.Two].SIValue.ToString();
-
-            //throw new NotImplementedException();
-        }
-
-        private async void ApplyMotorPower(int power)
-        {
-            Console.WriteLine("power: " + power);
-            physical_u = Convert.ToDouble(power);
-            await _brick.DirectCommand.TurnMotorAtPowerForTimeAsync(OutputPort.A, _forward, _time, false);
         }
 
         public void Process(Plant Plant, int dt)
@@ -221,20 +140,9 @@ namespace Model_GUI
                         i++;
                     }
 
-                    if (plant_type == PlantType.SIMULATION)
-                    {
-                        // update actuators
-                        Plant.set_u(u);
-                    }
-                    else if (plant_type == PlantType.PHYSICAL)
-                    {
-                        // send actuator signal to the physical process
-                        if (isEV3initialized == true)
-                        {
-                            ApplyMotorPower(Convert.ToInt32(u[0]));
-                        }              
-                    }
-
+                    // update actuators
+                    Plant.set_u(u);
+                    
                     // log received message (used for package delivery analysis)
                     Helpers.Log(sb, listener.getMessage(), FLAG_LOG);
                 }
@@ -263,7 +171,7 @@ namespace Model_GUI
                 {
                     // apply measurement noise
                     var r = new GaussianRandom();
-                    double noise = r.NextGaussian(0, noise_std);
+                    double noise = r.NextGaussian(0, meas_noise_std);
                     message += "yo" + (i + 1) + "_" + (Plant.get_yo()[i] + noise).ToString() + "#";
                 }  
                
@@ -272,7 +180,7 @@ namespace Model_GUI
                 {
                     // apply measurement noise
                     var r = new GaussianRandom();
-                    double noise = r.NextGaussian(0, noise_std);
+                    double noise = r.NextGaussian(0, meas_noise_std);
                     message += "yc" + (i + 1) + "_" + (Plant.get_yc()[i] + noise).ToString() + "#";
 
 
@@ -323,11 +231,8 @@ namespace Model_GUI
             Charting.UpdateChartAxes(perturbationChart, time_chart_window);
 
             // draw animation
-            if (plant_type == PlantType.SIMULATION)
-            {
-                Animation.DrawTanks(this);
-            }
-
+            Animation.DrawTanks(this);
+ 
             // update labels
             Helpers.UpdatePerturbationLabels(this, Disturbance);
         }
@@ -412,23 +317,6 @@ namespace Model_GUI
 
                 switch (arg_name)
                 {
-                    case "plant_type":
-                        string arg_plant_type = arg_sep[1];
-                        switch (arg_plant_type)
-                        {
-                            case "SIMULATION":
-                                plant_type = PlantType.SIMULATION;
-                                break;
-                            case "PHYSICAL":
-                                plant_type = PlantType.PHYSICAL;
-                                break;
-                            default:
-                                plant_type = PlantType.SIMULATION;
-                                MessageBox.Show("Unknown plant type: " + arg_plant_type + ". Using default: " + PlantType.SIMULATION);                
-                                break;
-                        }
-                        break;
-
                     case "model":
                         string arg_model_type = arg_sep[1];
                         switch (arg_model_type)
@@ -436,12 +324,12 @@ namespace Model_GUI
                             case "dwt":
                                 model_parameters = new double[] { Convert.ToDouble(arg_sep[2]), Convert.ToDouble(arg_sep[3]), Convert.ToDouble(arg_sep[4]), Convert.ToDouble(arg_sep[5]) };
                                 Plant = new Plant(new DoubleWatertank(model_parameters));
-                                noise_std = Convert.ToDouble(arg_sep[6]);
+                                meas_noise_std = Convert.ToDouble(arg_sep[6]);
                                 break;
                             case "qwt":
                                 model_parameters = new double[] { Convert.ToDouble(arg_sep[2]), Convert.ToDouble(arg_sep[3]), Convert.ToDouble(arg_sep[4]), Convert.ToDouble(arg_sep[5]), Convert.ToDouble(arg_sep[6]), Convert.ToDouble(arg_sep[7]), Convert.ToDouble(arg_sep[8]), Convert.ToDouble(arg_sep[9]) };
                                 Plant = new Plant(new QuadWatertank(model_parameters));
-                                noise_std = Convert.ToDouble(arg_sep[10]);
+                                meas_noise_std = Convert.ToDouble(arg_sep[10]);
                                 break;
                             case "ipsiso":
                                 Plant = new Plant(new InvertedPendulumSISO());
@@ -449,7 +337,7 @@ namespace Model_GUI
                             default:
                                 model_parameters = new double[] { Convert.ToDouble(arg_sep[2]), Convert.ToDouble(arg_sep[3]), Convert.ToDouble(arg_sep[4]), Convert.ToDouble(arg_sep[5]) };
                                 Plant = new Plant(new DoubleWatertank(model_parameters));
-                                noise_std = Convert.ToDouble(arg_sep[6]);
+                                meas_noise_std = Convert.ToDouble(arg_sep[6]);
                                 MessageBox.Show("Unknown model type: " + arg_model_type + ". Using default: double water tank");
                                 break;
                         }
@@ -547,8 +435,8 @@ namespace Model_GUI
         private void timerUpdateGUI_Tick_1(object sender, EventArgs e)
         {
             // scale y-axis for the charts
-            Charting.ChangeYScale(dataChart, verbose : "");
-            Charting.ChangeYScale(perturbationChart, verbose:  "");
+            Charting.ChangeYScale(dataChart, treshold_interval: "one", grid_interval: "adaptive");
+            Charting.ChangeYScale(perturbationChart, treshold_interval: "one", grid_interval: "adaptive");
         }
 
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
