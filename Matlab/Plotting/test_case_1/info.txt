@@ -1,0 +1,8 @@
+Kp = 1
+Ki = 0.3
+Kd = 0
+T_reset = 3.5
+T_supp = 0.8
+
+Drop-out: Bernoulli 10%
+Channels: Sensor measurements

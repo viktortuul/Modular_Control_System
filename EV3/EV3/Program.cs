@@ -16,31 +16,31 @@ namespace EV3
     {
         // local controller parameters. ONLY FOR DEBUGGING
         static DateTime time_last_measurement = DateTime.Now;  // time stamp of prior execution
-
-
         static double Kp = 10.0; // 15 10          // proportional
         static double Ki = 45.0; // 20 45          // integral
         static double Kd = 0.9;  // 0.5 0.9        // derivative
         static double r = 0;
         static double u = 0;
         static double err = 0;
-
         static double I = 0;    // error integral
         static double ep = 0;   // current and prior error
         static double de = 0;   // error derivative
         static double DE = 0;
         static double q = 0.7;
 
-        // Lego Mindstorms EV3 API and attributes
+        // lego Mindstorms EV3 API and attributes
         static Brick _brick;
-        static uint _time = 1000; // ms
-        static double u_max = 100;
-        static double u_min = -100;
-        static double physical_u = 0;
+        static uint _time = 1000;               // motor power duration ms
+        static uint _time_disturbance = 300;    // motor power duration ms
+        static int power_disturbance = 70;      // power disturbance (INVPENDULUM ground wheels)
+        static bool apply_motor_disturbance = false;
+        static double u_max = 100;              // max motor power
+        static double u_min = -100;             // min motor power
+        static double power_last_realized = 0;  // stores the last applied motor power value
         static bool isEV3initialized = false;
-        static float measurement_offset = 0;
-        static float EV3measurement = 0;
-        static string COM_port = "COM7";
+        static float measurement_offset = 0;    // offset on EV3 measurements
+        static float EV3measurement = 0;        // last received sensor measurement
+        static string COM_port = "COM7";        // bluetooth com port
 
         // process type
         static string process_type = PhysicalProcessType.PLATOONING;
@@ -80,13 +80,31 @@ namespace EV3
             thread_listener.Start();
 
             // create a thread for communication with the controller
-            Thread thread_sender_EV3 = new Thread(() => SenderEV3(EP_Send_Controller.IP, EP_Send_Controller.Port));
+            Thread thread_sender_EV3 = new Thread(() => Sender(EP_Send_Controller.IP, EP_Send_Controller.Port));
             thread_sender_EV3.Start();
+
+            // create a thread for the sequential disturbance
+            Thread thread_disturbance = new Thread(() => Disturbance());
+            thread_disturbance.Start();
 
             // create a thread for the simulation
             initializeEV3Brick();
+        }
 
-            while (true) { }
+        public static void Disturbance()
+        {
+            int counter = 0;
+            while (true)
+            {
+                Thread.Sleep(1000);
+                if (counter >= 10)
+                {
+                    Console.WriteLine("Disturbance counter: " + counter + "/10");
+                    apply_motor_disturbance = true;
+                    counter = 0;
+                }
+                counter++;
+            }
         }
 
         static async void initializeEV3Brick()
@@ -101,7 +119,24 @@ namespace EV3
             await _brick.DirectCommand.PlayToneAsync(10, 1000, 200);
 
             // motor polarity
-            await _brick.DirectCommand.SetMotorPolarity(OutputPort.A | OutputPort.B, Polarity.Forward);
+            switch (process_type)
+            {
+                case PhysicalProcessType.PLATOONING:
+                    await _brick.DirectCommand.SetMotorPolarity(OutputPort.A | OutputPort.B, Polarity.Forward);
+                    // A and B --> motors on ground
+                    break;
+                case PhysicalProcessType.SEGWAY:
+                    await _brick.DirectCommand.SetMotorPolarity(OutputPort.A | OutputPort.B, Polarity.Forward);
+                    // A and B --> motors on ground
+                    break;
+                case PhysicalProcessType.INVPENDULUM:
+                    await _brick.DirectCommand.SetMotorPolarity(OutputPort.A | OutputPort.B | OutputPort.C, Polarity.Forward);
+                    // A and B --> motors on ground
+                    // C --> pendulum motor
+                    break;
+                default:
+                    break;
+            }
             await _brick.DirectCommand.StopMotorAsync(OutputPort.All, false);
 
             isEV3initialized = true;
@@ -110,25 +145,46 @@ namespace EV3
 
         private static void _brick_BrickChanged(object sender, BrickChangedEventArgs e)
         {
-            if (process_type == PhysicalProcessType.SEGWAY)
+            // add offset to the measurements
+            if (process_type == PhysicalProcessType.SEGWAY || process_type == PhysicalProcessType.INVPENDULUM)
             {
                 if (measurement_offset == 0 || measurement_offset > 360 || measurement_offset < -360) measurement_offset = e.Ports[InputPort.One].SIValue;
             } 
 
             EV3measurement = e.Ports[InputPort.One].SIValue - measurement_offset;
 
+            Console.WriteLine("Measurement: " + EV3measurement);
             // local controller for debugging
-            updateLocalPID();
+            //updateLocalPID();
         }
 
         private static async void ApplyMotorPower(int power)
         {
             //Console.WriteLine("power: " + power);
-            physical_u = Convert.ToDouble(power);
-            int pow_ = power;
-            if (pow_ > u_max) pow_ = 100;
-            if (pow_ < u_min) pow_ = -100;
-            await _brick.DirectCommand.TurnMotorAtPowerForTimeAsync(OutputPort.A | OutputPort.B, -pow_, _time, false);
+            power_last_realized = Convert.ToDouble(power);
+            int power_ = power;
+
+            // saturation
+            if (power_ > u_max) power_ = 100;
+            if (power_ < u_min) power_ = -100;
+
+            // apply motor power depending on process type
+            if (process_type == PhysicalProcessType.SEGWAY)
+            {
+                // apply power to motors on ground
+                await _brick.DirectCommand.TurnMotorAtPowerForTimeAsync(OutputPort.A | OutputPort.B, -power_, _time, false);
+            }
+            else if (process_type == PhysicalProcessType.INVPENDULUM)
+            {
+                // apply power to pendulum motor
+                await _brick.DirectCommand.TurnMotorAtPowerForTimeAsync(OutputPort.C, -power_, _time, false); 
+                
+                if (apply_motor_disturbance == true)
+                {
+                    await _brick.DirectCommand.TurnMotorAtPowerForTimeAsync(OutputPort.A | OutputPort.B, -power_disturbance, _time_disturbance, false);
+                    apply_motor_disturbance = false;
+                }
+            }
         }
 
         public static void Listener(string IP, int port)
@@ -171,7 +227,7 @@ namespace EV3
             }
         }
 
-        public static void SenderEV3(string IP, int port)
+        public static void Sender(string IP, int port)
         {
             // initialize a connection to the controller
             Client sender = new Client(IP, port);
@@ -187,7 +243,7 @@ namespace EV3
                 message += "yc1" + "_" + (EV3measurement).ToString() + "#";
 
                 // append the last actuator state
-                message += "uc1" + "_" + (physical_u).ToString() + "#";
+                message += "uc1" + "_" + (power_last_realized).ToString() + "#";
 
                 // remove the redundant delimiter
                 message = message.Substring(0, message.LastIndexOf('#'));
@@ -281,6 +337,9 @@ namespace EV3
                                 break;
                             case "SEGWAY":
                                 process_type = PhysicalProcessType.SEGWAY;
+                                break;
+                            case "INVPENDULUM":
+                                process_type = PhysicalProcessType.INVPENDULUM;
                                 break;
                             default:
                                 process_type = PhysicalProcessType.PLATOONING;

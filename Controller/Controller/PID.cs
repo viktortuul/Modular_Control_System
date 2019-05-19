@@ -58,7 +58,7 @@ namespace Controller
             Console.WriteLine("Control signal range: [" + u_min + ", " + u_max + "]");
         }
 
-        public void ComputeControlSignal(double r, double y, bool new_actuator_flag, bool new_measurement_flag, double actuator_position)
+        public void ComputeControlSignal(double r, double y, bool new_actuator_flag, double actuator_position)
         {
             // current time
             DateTime time_now = DateTime.Now;
@@ -85,23 +85,27 @@ namespace Controller
                         dt_a = (time_now - time_last_actuator).TotalSeconds;
                         time_last_actuator = DateTime.Now;
 
+                        //Console.WriteLine("new auct flag: " + new_actuator_flag);
                         // update control signal
                         if (new_actuator_flag)
                         {
-                            ComputePIDplus(dt_a, dt_m, new_actuator_flag, actuator_position);
+                            ComputePIDplus(dt_a, dt_m, actuator_position);
                         }                            
                     }
                     else if (controller_type == ControllerType.PID_SUPPRESS)
                     {
-                        // calculate time since last actuator update         
+                        // calculate time since last actuator update    
                         dt_a = (time_now - time_last_actuator).TotalSeconds;
-                        time_last_actuator = DateTime.Now;
-
-                        // update control signal
-                        if (new_actuator_flag)
+                        if (new_actuator_flag == true)
                         {
-                            ComputePIDsuppress(dt_a, dt_m, new_actuator_flag, actuator_position);
-                        }                             
+                            time_last_actuator = DateTime.Now;
+                        }
+                        
+                        // update control signal
+                        //if (new_actuator_flag)
+                        //{
+                            ComputePIDsuppress(dt_a, dt_m);
+                        //}                             
                     }
 
                     // saturation
@@ -131,49 +135,50 @@ namespace Controller
             // resulting control signal
             u = Kp * e + Ki * I + Kd * de;
 
-            Console.WriteLine(u);
+            Console.WriteLine("dt_m: " + dt_m);
         }
 
-        private void ComputePIDplus(double dt_a, double dt_m, bool new_actuator_flag, double actuator_position)
+        private void ComputePIDplus(double dt_a, double dt_m, double actuator_position)
         {
             T_reset = Ki;
 
-            // only add integral action if the communication is established (both state measurement and actuator update)
-            if (new_actuator_flag == true)
+            // integral part with anti wind-up 
+            if (anti_wind_up == true)
             {
-                // integral part with anti wind-up 
-                if (anti_wind_up == true)
-                {
-                    // filtered integral term
-                    //if (u > u_min && u < u_max)
-                    F_I = F_I + (actuator_position - F_I) * (1 - Math.Exp(-dt_a / T_reset)); // T_reset = 3.5
-                }
-                else F_I = F_I + (actuator_position - F_I) * (1 - Math.Exp(-dt_a / T_reset)); 
-
-                // derivative term for PIDplus
-                if (dt_m != 0.0f) de_plus = (e - ep_plus) / dt_m;
-
-                // save the prior error for the next update
-                ep_plus = e;
+                // filtered integral term
+                if (u > u_min && u < u_max) F_I = F_I + (actuator_position - F_I) * (1 - Math.Exp(-dt_m / T_reset)); // T_reset = 3.5
             }
+            else F_I = F_I + (actuator_position - F_I) * (1 - Math.Exp(-dt_m / T_reset)); 
+
+            // derivative term for PIDplus
+            if (dt_m != 0.0f) de_plus = (e - ep_plus) / dt_m;
+
+            // save the prior error for the next update
+            ep_plus = e;
 
             // resulting control signal
             u = Kp * e + F_I + Kd * de_plus;
 
             //Console.WriteLine(Math.Exp(-dt_a / T_reset).ToString());
-            Console.WriteLine("actuator_position=" + actuator_position + " F_I=" + F_I);
-            Console.WriteLine("dt_m: " + dt_m + " K_suppress:" + K_suppress + " prop:" + Kp * ep_plus + " int: " + Ki * F_I + " deriv: " + Kd * de_plus);
+            //Console.WriteLine("actuator_position=" + actuator_position + " F_I=" + F_I);
+            //Console.WriteLine("dt_m: " + dt_m + " K_suppress:" + K_suppress + " prop:" + Kp * ep_plus + " int: " + Ki * F_I + " deriv: " + Kd * de_plus);
+            Console.WriteLine("dt_m: " + dt_m + " dt_a: " + dt_a + " last_actuator_position" + actuator_position);
         }
 
-        private void ComputePIDsuppress(double dt_a, double dt_m, bool new_actuator_flag, double actuator_position)
+        private void ComputePIDsuppress(double dt_a, double dt_m)
         {
-            if (Math.Exp(-dt_a / T_suppress) < K_suppress) // T_suppress = 0.8
+            double dt_supp = Math.Max(dt_a, dt_m);
+
+            double gamma_hat = Math.Exp(-dt_supp / T_suppress);
+            if (dt_supp < 0.10) gamma_hat = 1; // flatten out the suppres up to 100ms sampling time
+
+            if (Math.Exp(-dt_supp / T_suppress) < K_suppress) // T_suppress = 0.8
             {
-                K_suppress = Math.Exp(-dt_a / T_suppress);
+                K_suppress = gamma_hat;              
             }
             else
             {
-                K_suppress = (1 - q) * K_suppress + q * Math.Exp(-dt_a / T_suppress);
+                K_suppress = (1 - q) * K_suppress + q * gamma_hat;
             }
             
             // integral part with anti wind-up 
@@ -192,7 +197,7 @@ namespace Controller
             // resulting control signal
             u = Kp * e * K_suppress + Ki * I + Kd * de_plus;
 
-            Console.WriteLine("dt_m: " + dt_m + " K_suppress:" + K_suppress + " prop:" + Kp * ep_plus + " int: " + Ki * F_I + " deriv: " + Kd * de_plus);
+            Console.WriteLine("dt_m: " + dt_m + "dt_a: " + dt_a + " K_suppress:" + K_suppress + " prop:" + Kp * e * K_suppress + " int: " + Ki * I + " deriv: " + Kd * de_plus);
         }
 
         public void UpdateParameters(double Kp, double Ki, double Kd)
@@ -205,7 +210,19 @@ namespace Controller
 
         public double get_u()
         {
+            // saturation
+            if (u > u_max) u = u_max;
+            if (u < u_min) u = u_min;
             return u;
+        }
+
+        public double get_u_max()
+        {
+            return u_max;
+        }
+        public double get_u_min()
+        {
+            return u_min;
         }
     }
 }

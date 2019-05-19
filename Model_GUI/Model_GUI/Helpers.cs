@@ -14,12 +14,12 @@ namespace Model_GUI
 {
     public static class Helpers
     {   
-        public static void Log(StringBuilder sb, string message, bool FLAG_LOG)
+        public static void Log(StringBuilder sb, string filename, string message, bool FLAG_LOG)
         {
             if (FLAG_LOG == true)
             {
                 sb.Append(message + "\n");
-                File.AppendAllText("log_received.txt", sb.ToString());
+                File.AppendAllText(filename, sb.ToString());
                 sb.Clear();
             }
         }

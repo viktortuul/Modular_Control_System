@@ -22,6 +22,8 @@ namespace Model_GUI
         // logger (write to file)
         static bool FLAG_LOG = false;
         static StringBuilder sb = new StringBuilder();
+        static double U_last = 0; // logging last relized aucutator state
+        static string log_file_name = "log_states.txt";
 
         // chart settings
         public int time_chart_window = 60; // chart view time [s]
@@ -59,6 +61,9 @@ namespace Model_GUI
 
         // GUI view mode
         public string GUI_view_mode = "control";
+
+        //
+        public bool new_relalized_actuator_value = false;
 
         public ModelGUI()
         {
@@ -142,9 +147,12 @@ namespace Model_GUI
 
                     // update actuators
                     Plant.set_u(u);
-                    
-                    // log received message (used for package delivery analysis)
-                    Helpers.Log(sb, listener.getMessage(), FLAG_LOG);
+
+                    // store latest control signal for logging
+                    U_last = u[0];
+
+                    // flag that a new control signal has been received
+                    new_relalized_actuator_value = true;
                 }
                 catch (Exception ex)
                 {
@@ -160,7 +168,11 @@ namespace Model_GUI
 
             while (true)
             {
-                Thread.Sleep(50);    
+                Thread.Sleep(50);
+
+                // log received message (used for package delivery analysis)
+                string log_text = Plant.get_yc()[0] + ":" + U_last; // pick height and control signal
+                Helpers.Log(sb, log_file_name, log_text, FLAG_LOG);
 
                 string message = "";
                 if (using_channel == true) message += Convert.ToString("EP_" + EP_Controller.IP + ":" + EP_Controller.Port + "#"); // add end-point if canal is used
@@ -183,10 +195,14 @@ namespace Model_GUI
                     double noise = r.NextGaussian(0, meas_noise_std);
                     message += "yc" + (i + 1) + "_" + (Plant.get_yc()[i] + noise).ToString() + "#";
 
-
-                    // append the last actuator state
-                    message += "uc" + (i + 1) + "_" + Plant.get_uc()[i].ToString() + "#";
+                    // send back the realized actuator value
+                    if (new_relalized_actuator_value == true)
+                    {
+                        // append the last actuator state
+                        message += "uc" + (i + 1) + "_" + Plant.get_uc()[i].ToString() + "#";
+                    }
                 }
+                new_relalized_actuator_value = false; // refresh the new actuator value flag
 
                 // remove the redundant delimiter
                 message = message.Substring(0, message.LastIndexOf('#')); 
@@ -355,6 +371,10 @@ namespace Model_GUI
                     case "log":
                         if (arg_sep[1] == "false") FLAG_LOG = false;
                         if (arg_sep[1] == "true") FLAG_LOG = true;
+                        break;
+
+                    case "log_file_name":
+                        log_file_name = "log_states_" + arg_sep[1] + ".txt";
                         break;
 
                     case "ARG_INVALID":

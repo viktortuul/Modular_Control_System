@@ -33,12 +33,12 @@ namespace Controller
         static bool FLAG_LOG = false;
         static StringBuilder sb = new StringBuilder();
 
-        // GUI and Plant endpoints
-        static ConnectionParameters EP_GUI = new ConnectionParameters();
+        // HMI and Plant endpoints
+        static ConnectionParameters EP_HMI = new ConnectionParameters();
         static ConnectionParameters EP_Plant = new ConnectionParameters();
 
-        // transmission route (either GUI/plant or Canal EP's)
-        static AddressEndPoint EP_Send_GUI = new AddressEndPoint();
+        // transmission route (either HMI/plant or Canal EP's)
+        static AddressEndPoint EP_Send_HMI = new AddressEndPoint();
         static AddressEndPoint EP_Send_Plant = new AddressEndPoint();
 
         static void Main(string[] args)
@@ -51,17 +51,17 @@ namespace Controller
                 EP_Send_Plant.IP = EP_Plant.IP;
                 EP_Send_Plant.Port = EP_Plant.Port;
 
-                EP_Send_GUI.IP = EP_GUI.IP;
-                EP_Send_GUI.Port = EP_GUI.Port;
+                EP_Send_HMI.IP = EP_HMI.IP;
+                EP_Send_HMI.Port = EP_HMI.Port;
             }
 
-            // create a thread for sending to the GUI
-            Thread thread_send_GUI = new Thread(() => SenderGUI(EP_Send_GUI.IP, EP_Send_GUI.Port, PIDList));
-            thread_send_GUI.Start();
+            // create a thread for sending to the HMI
+            Thread thread_send_HMI = new Thread(() => SenderHMI(EP_Send_HMI.IP, EP_Send_HMI.Port, PIDList));
+            thread_send_HMI.Start();
 
-            // create a thread for listening on the GUI
-            Thread thread_listen_GUI = new Thread(() => ListenerGUI(EP_Send_GUI.IP, EP_GUI.PortThis, PIDList));
-            thread_listen_GUI.Start();
+            // create a thread for listening on the HMI
+            Thread thread_listen_HMI = new Thread(() => ListenerHMI(EP_Send_HMI.IP, EP_HMI.PortThis, PIDList));
+            thread_listen_HMI.Start();
 
             // create a thread for sending to the plant
             Thread thread_send_plant = new Thread(() => SenderPlant(EP_Send_Plant.IP, EP_Send_Plant.Port, PIDList));
@@ -72,22 +72,16 @@ namespace Controller
             thread_listen_plant.Start();
 
             // create a thread for running a fixed interval control loop (for the standard PID)
-            Thread thread_control_loop = new Thread(() => ControlLoop());
-            thread_control_loop.Start();
-        }
-
-        public static void ControlLoop()
-        {
-            while (true)
+            if (controller_type == ControllerType.PID_STANDARD)
             {
-                Thread.Sleep(50);
-                ManageControllers(PIDList, flag: "loop");
+                Thread thread_control_loop = new Thread(() => ControlLoop());
+                thread_control_loop.Start();
             }
         }
 
-        public static void SenderGUI(string IP, int port, List<PID> PIDList)
+        public static void SenderHMI(string IP, int port, List<PID> PIDList)
         {
-            // initialize a connection to the GUI
+            // initialize a connection to the HMI
             Client Sender = new Client(IP, port);
        
             while (true)
@@ -96,16 +90,16 @@ namespace Controller
                 if (listening_on_plant == true)
                 {
                     // send time, u, and y
-                    string message = ConstructMessageToGUI(PIDList);
+                    string message = ConstructMessageToHMI(PIDList);
                     Sender.Send(message);
-                    Console.WriteLine("to GUI: " + message);
+                    //Console.WriteLine("packet to HMI: " + message);
                 }
             }
         }
 
-        public static void ListenerGUI(string IP, int port, List<PID> PIDList)
+        public static void ListenerHMI(string IP, int port, List<PID> PIDList)
         {
-            // initialize a connection to the GUI
+            // initialize a connection to the HMI
             Server Listener = new Server(IP, port);
 
             while (true)
@@ -116,7 +110,7 @@ namespace Controller
                     ParseReceivedMessage(Listener.getMessage());
 
                     // update controller settings (reference set-point and PID parameters)
-                    ManageControllers(PIDList, flag : "GUI");
+                    UpdateControllers(PIDList, flag : "HMI");
                 }
                 catch (Exception ex)
                 {
@@ -157,10 +151,10 @@ namespace Controller
                 {
                     Listener.Listen();
                     ParseReceivedMessage(Listener.getMessage());
-                    //Console.WriteLine("from plant: " + listener.last_recieved);
+                    Console.WriteLine("from plant: " + Listener.getMessage());
 
                     // compute the new control signal for each controller
-                    ManageControllers(PIDList, flag : "plant");
+                    UpdateControllers(PIDList, flag : "plant");
 
                     // flag that packets from the plant are being received
                     listening_on_plant = true;
@@ -172,12 +166,12 @@ namespace Controller
             }
         }
 
-        public static string ConstructMessageToGUI(List<PID> PIDList)
+        public static string ConstructMessageToHMI(List<PID> PIDList)
         {
             string message = "";
 
-            // if a canal is used, append the end-point address
-            if (using_channel == true) message += Convert.ToString("EP_" + EP_GUI.IP + ":" + EP_GUI.Port + "#");
+            // if a channel is used, append the end-point address
+            if (using_channel == true) message += Convert.ToString("EP_" + EP_HMI.IP + ":" + EP_HMI.Port + "#");
 
             // add time-stamp
             message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT));
@@ -206,7 +200,7 @@ namespace Controller
         {
             string message = "";
 
-            // if a canal is used, append the end-point address
+            // if a channel is used, append the end-point address
             if (using_channel == true) message += Convert.ToString("EP_" + EP_Plant.IP + ":" + EP_Plant.Port + "#");
 
             // add time-stamp
@@ -237,18 +231,14 @@ namespace Controller
                 string[] subitem = item.Split('_');
 
                 // extract key and value
-                string key = subitem[0]; // yo1, yc1, uc1, (yo2, yc1, uc1)
-                string value = subitem[1];
+                string key = subitem[0]; // e.g. time, yo1, yc1, uc1
+                string value = subitem[1]; // e.g. 0.2124234
 
                 // detect the time (don't add it as a separate key)
                 if (key == "time") { time = value; continue; }
 
-                // detect corrupt values
-                if (Helpers.isDouble(value) == false)
-                {
-                    Console.WriteLine("Error: corrupt packet  <" + key + "_" + value + ">");
-                    continue;
-                }
+                // detect and skip corrupt values
+                if (Helpers.isDouble(value) == false) continue;
 
                 // if a new key is recieved, add it
                 if (received_packets.ContainsKey(key) == false)
@@ -267,9 +257,19 @@ namespace Controller
             }
         }
 
-        private static void ManageControllers(List<PID> PIDList, string flag)
+        public static void ControlLoop()
         {
-            int index = 0;
+            // this is a time triggered control loop for the standar PID
+            while (true)
+            {
+                Thread.Sleep(50);
+                UpdateControllers(PIDList, flag: "loop");
+            }
+        }
+
+        private static void UpdateControllers(List<PID> PIDList, string flag)
+        {
+            int index = 0; // PID number
             foreach (PID controller in PIDList)
             {
                 index++;
@@ -280,39 +280,58 @@ namespace Controller
                 // check if the last recieved measurement is up to date (else don't update the control signal) 
                 if (received_packets["yc" + index].isUpToDate())
                 {             
-                    if (flag == "GUI")
+                    if (flag == "HMI") // flag = HMI means that this method is triggered after a packet received from the HMI-interface
                     {
                         // update controller parameters
                         controller.UpdateParameters(Convert.ToDouble(received_packets["Kp"].GetLastValue()), Convert.ToDouble(received_packets["Ki"].GetLastValue()), Convert.ToDouble(received_packets["Kd"].GetLastValue()));
                     }
                     else
                     {
-                        // update control signal
+                        // update the latest received reference and sensor measurement values (and last realized actuator value)
                         double reference = Convert.ToDouble(received_packets["r" + index].GetLastValue());
                         double measurement = Convert.ToDouble(received_packets["yc" + index].GetLastValue());
+                        double last_realized_actuator_value = Convert.ToDouble(received_packets["uc" + index].GetLastValue());
 
-                        if (controller_type == ControllerType.PID_STANDARD && flag == "loop")
+                        // update PID-controller
+                        switch (controller_type)
                         {
-                            // continous constant interval loop when a standard PID is used
-                            controller.ComputeControlSignal(reference, measurement, new_actuator_flag: false, new_measurement_flag: false, actuator_position: 0);
-                        }
-                        else if ((controller_type == ControllerType.PID_PLUS || controller_type == ControllerType.PID_SUPPRESS) && flag == "plant")
-                        {
-                            // detect if actuator signal actually has moved (would indicate the control signals are beging transmitted)
-                            if (received_packets["uc" + index].hasChanged(0, 2) || received_packets["uc" + index].getCounter() < 5 || Convert.ToDouble(received_packets["uc" + index].GetLastValue()) <= 0 || Convert.ToDouble(received_packets["uc" + index].GetLastValue()) >= 20)
-                            {
-                                // PIDplus update (integral and deriavative action included)
-                                controller.ComputeControlSignal(reference, measurement, new_actuator_flag: true, new_measurement_flag: true, actuator_position: Convert.ToDouble(received_packets["uc" + index].GetLastValue()));
-                            }
-                            else
-                            {
-                                // PIDplus update (only proportinal action)
-                                controller.ComputeControlSignal(reference, measurement, new_actuator_flag: false, new_measurement_flag: true, actuator_position: 0);
-                            }
+                            case ControllerType.PID_STANDARD:
+                                if (flag != "loop") continue;
+                                controller.ComputeControlSignal(reference, measurement, new_actuator_flag: false, actuator_position: 0);
+                                break;
+
+                            case ControllerType.PID_PLUS:
+                                if (flag != "plant") continue;
+                                controller.ComputeControlSignal(reference, measurement, new_actuator_flag: true, actuator_position: last_realized_actuator_value);
+                                break;
+
+                            case ControllerType.PID_SUPPRESS:
+                                if (flag != "plant") continue;
+
+                                // only update PIDsuppress if the control signals are being transmitted to the plant
+                                if (isAcutatorPositionUpdated(index, controller) == true)
+                                {
+                                    controller.ComputeControlSignal(reference, measurement, new_actuator_flag: true, actuator_position: 0);
+                                }
+                                else
+                                {
+                                    //controller.ComputeControlSignal(reference, measurement, new_actuator_flag: false, actuator_position: last_realized_actuator_value);
+                                }
+                                break;
                         }
                     }
                 }
             }
+        }
+
+        public static bool isAcutatorPositionUpdated(int index, PID controller)
+        {
+            return
+                received_packets["uc" + index].isUpToDate() || // CHECK THIS -----------------------------------------
+                received_packets["uc" + index].hasChanged(0, 2) || 
+                received_packets["uc" + index].getCounter() < 5 || 
+                Convert.ToDouble(received_packets["uc" + index].GetLastValue()) <= controller.get_u_min() || 
+                Convert.ToDouble(received_packets["uc" + index].GetLastValue()) >= controller.get_u_max();
         }
 
         public static void ParseArgs(string[] args)
@@ -337,14 +356,14 @@ namespace Controller
                         if (arg_sep[1] == "true") FLAG_LOG = true;
                         break;       
                     case "channel_gui":
-                        EP_Send_GUI = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
+                        EP_Send_HMI = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
                         using_channel = true;
                         break;
                     case "channel_plant":
                         EP_Send_Plant = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
                         break;
                     case "gui_ep":
-                        EP_GUI = new ConnectionParameters(arg_sep[1], Convert.ToInt16(arg_sep[2]), Convert.ToInt16(arg_sep[3]));
+                        EP_HMI = new ConnectionParameters(arg_sep[1], Convert.ToInt16(arg_sep[2]), Convert.ToInt16(arg_sep[3]));
                         break;
                     case "plant_ep":
                         EP_Plant = new ConnectionParameters(arg_sep[1], Convert.ToInt16(arg_sep[2]), Convert.ToInt16(arg_sep[3]));
