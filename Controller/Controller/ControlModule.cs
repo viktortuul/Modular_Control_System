@@ -16,59 +16,65 @@ namespace Controller
         static Dictionary<string, DataContainer> received_packets = new Dictionary<string, DataContainer>();
 
         // flag specific keys with pre-defined meanings
-        static string[] DEF_controlled_states = new string[] { "yc1", "yc2" }; // initialze new PID for these keys
+        static string[] DEF_controlled_states = new string[] { "yc1", "yc2" };  // initialize a new PID for these keys
 
         // container for all controllers in the module
-        private static List<PID> PIDList = new List<PID>();
+        private static List<PID> PIDList = new List<PID>();                     // stores the PID controllers
 
         // communication states
-        static bool listening_on_plant = false;
-        static public bool using_channel = false;
+        static bool listening_on_plant = false;                                 // a flag telling if packets from the plant have been received
+        static public bool using_channel = false;                               // channel module flag
 
-        // controller type
-        static string controller_type = ControllerType.PID_STANDARD; //PID_normal, PID_plus, PID_suppress
-        static double[] u_saturation = new double[] { 0, 7.5 };
+        // controller settings
+        static string controller_type = ControllerType.PID_STANDARD;            // PID_normal, PID_plus, PID_suppress
+        static double[] u_saturation = new double[] { 0, 7.5 };                 // default PID saturation
+        static int dt_pid_normal = 50;                                          // PID normal update rate
 
         // logger (write to file)
         static bool FLAG_LOG = false;
         static StringBuilder sb = new StringBuilder();
+        static string log_file_name = "log_controller.txt";                     // default log text file name
 
         // HMI and Plant endpoints
-        static ConnectionParameters EP_HMI = new ConnectionParameters();
-        static ConnectionParameters EP_Plant = new ConnectionParameters();
+        static ConnectionParameters EP_HMI = new ConnectionParameters();        // HMI module endpoint
+        static ConnectionParameters EP_Plant = new ConnectionParameters();      // Plant module endpoint
 
         // transmission route (either HMI/plant or Canal EP's)
-        static AddressEndPoint EP_Send_HMI = new AddressEndPoint();
-        static AddressEndPoint EP_Send_Plant = new AddressEndPoint();
+        static AddressEndPoint EP_Route_HMI = new AddressEndPoint();            // same as EP_HMI if no channel is used
+        static AddressEndPoint EP_Route_Plant = new AddressEndPoint();          // same as EP_Plant if no channel is used
+
+        // data transmission interval
+        static int T_HMI = 100;                                                 // [ms]
+        static int T_Plant = 50;                                                // [ms]
 
         static void Main(string[] args)
         {
             // parse the command line arguments
             ParseArgs(args);
 
+            // if no channel is used, don't re-direct the packets anywhere
             if (using_channel == false)
             {
-                EP_Send_Plant.IP = EP_Plant.IP;
-                EP_Send_Plant.Port = EP_Plant.Port;
-
-                EP_Send_HMI.IP = EP_HMI.IP;
-                EP_Send_HMI.Port = EP_HMI.Port;
+                EP_Route_Plant.IP = EP_Plant.IP;
+                EP_Route_Plant.Port = EP_Plant.Port;
+                EP_Route_HMI.IP = EP_HMI.IP;
+                EP_Route_HMI.Port = EP_HMI.Port;
             }
 
             // create a thread for sending to the HMI
-            Thread thread_send_HMI = new Thread(() => SenderHMI(EP_Send_HMI.IP, EP_Send_HMI.Port, PIDList));
+            Thread thread_send_HMI = new Thread(() => SenderHMI(EP_Route_HMI.IP, EP_Route_HMI.Port, PIDList));
             thread_send_HMI.Start();
 
             // create a thread for listening on the HMI
-            Thread thread_listen_HMI = new Thread(() => ListenerHMI(EP_Send_HMI.IP, EP_HMI.PortThis, PIDList));
+            Thread thread_listen_HMI = new Thread(() => ListenerHMI(EP_Route_HMI.IP, EP_HMI.PortThis, PIDList));
             thread_listen_HMI.Start();
 
             // create a thread for sending to the plant
-            Thread thread_send_plant = new Thread(() => SenderPlant(EP_Send_Plant.IP, EP_Send_Plant.Port, PIDList));
+            Thread thread_send_plant = new Thread(() => SenderPlant(EP_Route_Plant.IP, EP_Route_Plant.Port, PIDList));
             thread_send_plant.Start();
 
             // create a thread for listening on the plant
-            Thread thread_listen_plant = new Thread(() => ListenerPlant(EP_Send_Plant.IP, EP_Plant.PortThis, PIDList));
+            Thread thread_listen_plant = new Thread(() => ListenerPlant(EP_Route_Plant.IP, EP_Plant.PortThis, PIDList));
             thread_listen_plant.Start();
 
             // create a thread for running a fixed interval control loop (for the standard PID)
@@ -86,7 +92,7 @@ namespace Controller
        
             while (true)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(T_HMI);
                 if (listening_on_plant == true)
                 {
                     // send time, u, and y
@@ -126,7 +132,7 @@ namespace Controller
 
             while (true)
             {
-                Thread.Sleep(50);
+                Thread.Sleep(T_Plant);
 
                 if (listening_on_plant == true)
                 {
@@ -135,7 +141,11 @@ namespace Controller
                     Sender.Send(message);
 
                     // log sent message (used for package delivery analysis)
-                    Helpers.Log(sb, message, FLAG_LOG);
+                    if (FLAG_LOG == true)
+                    {
+                        Helpers.WriteToLog(sb, filename : log_file_name, text : message);
+                    }
+                    
                 }
             }
         }
@@ -151,7 +161,7 @@ namespace Controller
                 {
                     Listener.Listen();
                     ParseReceivedMessage(Listener.getMessage());
-                    Console.WriteLine("from plant: " + Listener.getMessage());
+                    //Console.WriteLine("from plant: " + Listener.getMessage());
 
                     // compute the new control signal for each controller
                     UpdateControllers(PIDList, flag : "plant");
@@ -243,7 +253,7 @@ namespace Controller
                 // if a new key is recieved, add it
                 if (received_packets.ContainsKey(key) == false)
                 {
-                    received_packets.Add(key, new DataContainer(Constants.n_steps_small));
+                    received_packets.Add(key, new DataContainer(Constants.n_datapoints_controller));
 
                     // add controller if the tag corresponds to a controlled state
                     if (DEF_controlled_states.Contains(key))
@@ -262,7 +272,7 @@ namespace Controller
             // this is a time triggered control loop for the standar PID
             while (true)
             {
-                Thread.Sleep(50);
+                Thread.Sleep(dt_pid_normal);
                 UpdateControllers(PIDList, flag: "loop");
             }
         }
@@ -355,14 +365,14 @@ namespace Controller
                         if (arg_sep[1] == "false") FLAG_LOG = false;
                         if (arg_sep[1] == "true") FLAG_LOG = true;
                         break;       
-                    case "channel_gui":
-                        EP_Send_HMI = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
+                    case "channel_hmi":
+                        EP_Route_HMI = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
                         using_channel = true;
                         break;
                     case "channel_plant":
-                        EP_Send_Plant = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
+                        EP_Route_Plant = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
                         break;
-                    case "gui_ep":
+                    case "hmi_ep":
                         EP_HMI = new ConnectionParameters(arg_sep[1], Convert.ToInt16(arg_sep[2]), Convert.ToInt16(arg_sep[3]));
                         break;
                     case "plant_ep":

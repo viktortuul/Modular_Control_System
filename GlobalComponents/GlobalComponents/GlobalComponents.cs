@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Globalization;
 
 namespace GlobalComponents
+
 {
     public struct Constants
     {
@@ -10,8 +14,9 @@ namespace GlobalComponents
         const string FMT_plot = "HH:mm:ss";
 
         // number of items in a DataContainer object
-        public const int n_steps = 5000;
-        public const int n_steps_small = 100;
+        public const int n_datapoints_max = 3000;
+        public const int n_datapoints = 3000;
+        public const int n_datapoints_controller = 300;
     }
 
     public struct ControllerType
@@ -46,7 +51,7 @@ namespace GlobalComponents
 
     public struct DataPointSetting
     {
-        // add data point modes
+        // add data point modes (plotting)
         public const string ADD_LATEST = "ADD_LATEST";
         public const string LOAD_ALL = "LOAD_ALL";
     }
@@ -62,20 +67,38 @@ namespace GlobalComponents
         }
     }
 
+    public static class Helpers
+    {
+        public static void WriteToLog(StringBuilder sb, string filename, string text)
+        {
+            sb.Append(text + "\n");
+            File.AppendAllText(filename, sb.ToString());
+            sb.Clear();
+        }
+
+        public static bool isDouble(string str)
+        {
+            try
+            {
+                Double.Parse(str);
+                return true;
+            }
+            catch { return false; }
+        }
+    }
+
     public class DataContainer
     {
-        // time format
-        const string FMT = "yyyy-MM-dd HH:mm:ss.fff";
+        // number of stored data points
+        int size = 0;
 
         // store the time:value pair in string arrays
         public string[] time;
         public string[] value;
         public string[] residual;
 
-        // residual setting
+        // residual setting (specifically for the HMI module)
         public bool has_residual = false;
-
-        int size = 0;
 
         // constructor
         public DataContainer(int size)
@@ -123,7 +146,7 @@ namespace GlobalComponents
         public void CopyAndPushArray()
         {
             Array.Copy(time, 1, time, 0, time.Length - 1);
-            time[time.Length - 1] = DateTime.UtcNow.ToString(FMT);
+            time[time.Length - 1] = DateTime.UtcNow.ToString(Constants.FMT);
 
             Array.Copy(value, 1, value, 0, value.Length - 1);
             value[value.Length - 1] = value[value.Length - 2];
@@ -141,7 +164,7 @@ namespace GlobalComponents
     {
         public static void AddKeyToDict(Dictionary<string, DataContainer> dict, string key, int n_steps)
         {
-            // if the key doesn't exist, add it
+            // if the key doesn't exist in the data container, add it
             if (dict.ContainsKey(key) == false) dict.Add(key, new DataContainer(n_steps));
         }
 

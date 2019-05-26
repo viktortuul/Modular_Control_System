@@ -21,24 +21,23 @@ using GlobalComponents;
  * Save "checked time-series" settings when switching between processes
 */
 
-
 namespace HMI
 {
     public partial class FrameGUI : Form
     {
         // controller module connection
         List<CommunicationManager> connections = new List<CommunicationManager>(); // container for controller module connections
-        public CommunicationManager connection_selected; // selected controller module
-        public int n_connections = 0; // connection count
+        public CommunicationManager connection_selected;    // selected controller module
+        public int n_connections = 0;                       // connection count (number of connected controller modules/plants)
 
         // chart settings
-        public int time_chart_window = 60; // chart view time [s]
+        public int time_chart_window = 60;                  // chart view time [s]
 
         // folder setting for chart image save
-        public string folderName = "";
+        public string file_path = "";
 
         // channel flag
-        public bool usingChannel = false;
+        public bool using_channel = false;
         AddressEndPoint Channel_EP = new AddressEndPoint();
 
         // tank dimensions (for visualization)
@@ -47,7 +46,7 @@ namespace HMI
         // debug log
         public string debugLog = "";
 
-        // control/obsrver mode
+        // control/observer mode
         public string GUI_view_mode = GUIViewMode.CONTROL;
 
         public FrameGUI()
@@ -106,9 +105,12 @@ namespace HMI
                 // data load setting
                 int index_start;
 
-                if (setting == DataPointSetting.LOAD_ALL) index_start = 0; // draw all data points
-                else if (setting == DataPointSetting.ADD_LATEST) index_start = dict[key].time.Length - 1; // draw the last data point
-                else index_start = dict[key].time.Length - 1; // draw the last data point
+                if (setting == DataPointSetting.LOAD_ALL)
+                    index_start = 0;                                // draw all data points
+                else if (setting == DataPointSetting.ADD_LATEST)
+                    index_start = dict[key].time.Length - 1;        // draw the last data point
+                else
+                    index_start = dict[key].time.Length - 1;        // draw the last data point
 
                 // add data point(s)
                 for (int i = index_start; i < dict[key].time.Length; i++)
@@ -133,7 +135,7 @@ namespace HMI
                 }
 
                 // remove old data points
-                if (dataChart.Series[key].Points.Count > Constants.n_steps)
+                if (dataChart.Series[key].Points.Count > Constants.n_datapoints_max)
                 {
                     dataChart.Series[key].Points.RemoveAt(0);
                     if (dict[key].has_residual)
@@ -266,8 +268,8 @@ namespace HMI
         private void InitialSettings()
         {
             // application directory
-            folderName = Directory.GetCurrentDirectory();
-            toolStripLabel.Text = "Dir: " + folderName;
+            file_path = Directory.GetCurrentDirectory();
+            toolStripLabel.Text = "Dir: " + file_path;
 
             // chart settings
             Charting.AddThresholdStripLine(residualChart, offset : 0, color : Color.Red);
@@ -299,7 +301,7 @@ namespace HMI
                     {
                         case "channel_controller":
                             Channel_EP = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
-                            usingChannel = true;
+                            using_channel = true;
                             log("Using channel: <" + arg_sep[1] + ">, <" + arg_sep[2] + ">");
                             break;
                         case "pid_params":
@@ -468,16 +470,16 @@ namespace HMI
             DialogResult result = folderBrowserDialog1.ShowDialog();
             if (result == DialogResult.OK)
             {
-                folderName = folderBrowserDialog1.SelectedPath;
-                toolStripLabel.Text = "Dir: " + folderName;
+                file_path = folderBrowserDialog1.SelectedPath;
+                toolStripLabel.Text = "Dir: " + file_path;
             }
         }
 
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
         {
-            dataChart.SaveImage(folderName + "\\chart_HMI_main.png", ChartImageFormat.Png);
-            residualChart.SaveImage(folderName + "\\chart_HMI_residual.png", ChartImageFormat.Png);
-            securityChart.SaveImage(folderName + "\\chart_HMI_security.png", ChartImageFormat.Png);
+            dataChart.SaveImage(file_path + "\\chart_HMI_main.png", ChartImageFormat.Png);
+            residualChart.SaveImage(file_path + "\\chart_HMI_residual.png", ChartImageFormat.Png);
+            securityChart.SaveImage(file_path + "\\chart_HMI_security.png", ChartImageFormat.Png);
         }
 
         private void nudHistory_ValueChanged(object sender, EventArgs e)

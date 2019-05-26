@@ -8,21 +8,26 @@ using GlobalComponents;
 
 namespace Controller
 {
+    // Note: very similar to the standard DataController, but with some extra features for the control module
     public class DataContainer
     {
+        // number of stored data points
+        int size = 0;
+
         // store the time:value pair in string arrays
         public string[] time;
         public string[] value;
 
-        // received counter
+        // added data points counter
         int counter = 0;
 
-        // constraints
+        // constraint
         double max_delay = 300; // [ms] 
 
         // constructor
         public DataContainer(int size)
         {
+            this.size = size;
             time = new string[size];
             value = new string[size];
         }
@@ -75,10 +80,22 @@ namespace Controller
                 DateTime t_last = DateTime.ParseExact(GetLastTime(), Constants.FMT, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
                 TimeSpan timeDiff = t_now - t_last;
 
-                if (timeDiff.TotalMilliseconds <= max_delay) return true;
-                else return false;
+                if (timeDiff.TotalMilliseconds <= max_delay)
+                    return true;
+                else
+                    return false;
             }
-            else return false;
+            else
+                return false;
+        }
+
+        public void CopyAndPushArray()
+        {
+            Array.Copy(time, 1, time, 0, time.Length - 1);
+            time[time.Length - 1] = DateTime.UtcNow.ToString(Constants.FMT);
+
+            Array.Copy(value, 1, value, 0, value.Length - 1);
+            value[value.Length - 1] = value[value.Length - 2];
         }
 
         public bool hasChanged(int idx1, int idx2)
@@ -101,13 +118,10 @@ namespace Controller
             return counter;
         }
 
-        public void CopyAndPushArray()
+        public void Clear()
         {
-            Array.Copy(time, 1, time, 0, time.Length - 1);
-            time[time.Length - 1] = DateTime.UtcNow.ToString(Constants.FMT);
-
-            Array.Copy(value, 1, value, 0, value.Length - 1);
-            value[value.Length - 1] = value[value.Length - 2];
+            time = new string[size];
+            value = new string[size];
         }
     }
 }

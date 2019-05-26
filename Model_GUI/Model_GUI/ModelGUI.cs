@@ -170,10 +170,6 @@ namespace Model_GUI
             {
                 Thread.Sleep(50);
 
-                // log received message (used for package delivery analysis)
-                string log_text = Plant.get_yc()[0] + ":" + U_last; // pick height and control signal
-                Helpers.Log(sb, log_file_name, log_text, FLAG_LOG);
-
                 string message = "";
                 if (using_channel == true) message += Convert.ToString("EP_" + EP_Controller.IP + ":" + EP_Controller.Port + "#"); // add end-point if canal is used
                 message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
@@ -207,6 +203,13 @@ namespace Model_GUI
                 // remove the redundant delimiter
                 message = message.Substring(0, message.LastIndexOf('#')); 
                 sender.Send(message);
+
+                // log controlled state and actuator value (used for package delivery analysis)
+                if (FLAG_LOG == true)
+                {
+                    string log_text = Plant.get_yc()[0] + ":" + U_last; // pick height and control signal
+                    Helpers.WriteToLog(sb, filename : log_file_name, text : log_text);
+                }
             }
         }
 
@@ -250,7 +253,7 @@ namespace Model_GUI
             Animation.DrawTanks(this);
  
             // update labels
-            Helpers.UpdatePerturbationLabels(this, Disturbance);
+            UpdatePerturbationLabels(Disturbance);
         }
 
         private void UpdateChart(object chart, Dictionary<string, DataContainer> dict)
@@ -274,7 +277,7 @@ namespace Model_GUI
                 }
 
                 // remove old data points
-                if (chart_.Series[key].Points.Count > Constants.n_steps) chart_.Series[key].Points.RemoveAt(0);
+                if (chart_.Series[key].Points.Count > Constants.n_datapoints_max) chart_.Series[key].Points.RemoveAt(0);
             }
         }
 
@@ -283,14 +286,14 @@ namespace Model_GUI
             // observed states
             for (int i = 0; i < Plant.get_yo().Length; i++)
             {
-                Tools.AddKeyToDict(states, "yo" + (i + 1), Constants.n_steps);
+                Tools.AddKeyToDict(states, "yo" + (i + 1), Constants.n_datapoints);
                 states["yo" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Plant.get_yo()[i].ToString());
             }
 
             // controlled states
             for (int i = 0; i < Plant.get_yc().Length; i++)
             {
-                Tools.AddKeyToDict(states, "yc" + (i + 1), Constants.n_steps);
+                Tools.AddKeyToDict(states, "yc" + (i + 1), Constants.n_datapoints);
                 states["yc" + (i + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Plant.get_yc()[i].ToString());
             }
 
@@ -299,13 +302,13 @@ namespace Model_GUI
             var keys = packet_last.Keys.ToList();
             foreach (string key in keys)
             {
-                Tools.AddKeyToDict(states, "u" + (j + 1), Constants.n_steps);
+                Tools.AddKeyToDict(states, "u" + (j + 1), Constants.n_datapoints);
                 states["u" + (j + 1)].InsertData(DateTime.UtcNow.ToString(Constants.FMT), packet_last[key]);
                 j++;
             }
 
             // disturbances
-            Tools.AddKeyToDict(perturbations, "dist", Constants.n_steps);
+            Tools.AddKeyToDict(perturbations, "dist", Constants.n_datapoints);
             perturbations["dist"].InsertData(DateTime.UtcNow.ToString(Constants.FMT), Disturbance.value_disturbance.ToString());
             
         }
@@ -467,22 +470,22 @@ namespace Model_GUI
 
         private void rBtnDisturbanceConstant_CheckedChanged(object sender, EventArgs e)
         {
-            Helpers.ManageNumericalUpdowns(this);
+            ManageNumericalUpdowns();
         }
 
         private void rBtnDisturbanceSinusoid_CheckedChanged(object sender, EventArgs e)
         {
-            Helpers.ManageNumericalUpdowns(this);
+            ManageNumericalUpdowns();
         }
 
         private void rBtnDisturbanceTransient_CheckedChanged(object sender, EventArgs e)
         {
-            Helpers.ManageNumericalUpdowns(this);
+            ManageNumericalUpdowns();
         }
 
         private void rBtnDisturbanceInstant_CheckedChanged(object sender, EventArgs e)
         {
-            Helpers.ManageNumericalUpdowns(this);
+            ManageNumericalUpdowns();
         }
 
         private void setDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -536,6 +539,47 @@ namespace Model_GUI
             {
                 toggleViewMode("control");
                 GUI_view_mode = "control";
+            }
+        }
+
+        public void UpdatePerturbationLabels(DisturbanceModel Disturbance)
+        {
+            labelDebug.Text = "Time left: " + Math.Round(Disturbance.time_left, 1);
+            labelDisturbance.Text = "Disturbances: \n" + Math.Round(Disturbance.value_disturbance, 2);
+        }
+
+        public void ManageNumericalUpdowns()
+        {
+
+            labelAmplitude.Text = "Amplitude [cm/s]";
+            if (rbConstant.Checked == true)
+            {
+                nudAmplitude.Enabled = true;
+                nudTimeConst.Enabled = false;
+                nudFrequency.Enabled = false;
+                nudDuration.Enabled = true;
+            }
+            else if (rbTransientDecrease.Checked == true)
+            {
+                nudAmplitude.Enabled = true;
+                nudTimeConst.Enabled = true;
+                nudFrequency.Enabled = false;
+                nudDuration.Enabled = true;
+            }
+            else if (rbSinusoid.Checked == true)
+            {
+                nudAmplitude.Enabled = true;
+                nudTimeConst.Enabled = false;
+                nudFrequency.Enabled = true;
+                nudDuration.Enabled = true;
+            }
+            else if (rbInstant.Checked == true)
+            {
+                nudAmplitude.Enabled = true;
+                nudTimeConst.Enabled = false;
+                nudFrequency.Enabled = false;
+                nudDuration.Enabled = false;
+                labelAmplitude.Text = "Amplitude [cm]";
             }
         }
     }

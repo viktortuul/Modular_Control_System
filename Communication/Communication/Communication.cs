@@ -9,7 +9,7 @@ namespace Communication
     {
         UdpClient clientSocket = new UdpClient();
 
-        public Client(string IP, int port) // (ip address of the reciever; listenting port on the reciever machine)
+        public Client(string IP, int port) // (ip address of the reciever; listenting port on the receiver machine)
         {
             clientSocket.Connect(IP, port);
         }
@@ -63,7 +63,6 @@ namespace Communication
             return sender_ip;
         }
     }
-
 
     // end-point container
     public struct AddressEndPoint

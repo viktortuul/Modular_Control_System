@@ -19,9 +19,9 @@ namespace HMI
         // connection parameters
         public AddressEndPoint Channel_EP;
         public ConnectionParameters Controller_EP;
-        public bool is_receiving_packets = false; // flag that packets are being received
-        public bool is_sending_packets = false; // flag that packets are being sent
-        public bool is_connected_to_plant = false; // flag that packets from the plant has been received (e.g. yc1 or yo1)
+        public bool is_receiving_packets = false;       // flag that packets are being received
+        public bool is_sending_packets = false;         // flag that packets are being sent
+        public bool is_connected_to_plant = false;      // flag that packets from the plant has been received (e.g. yc1 or yo1)
 
         // time variables
         public DateTime time_last_received_packet;
@@ -35,15 +35,18 @@ namespace HMI
         public Dictionary<string, DataContainer> estimates = new Dictionary<string, DataContainer>();
 
         // define specific keys with pre-defined meanings
-        string[] DEF_plant_states = new string[] { "yo1", "yc1", "yo2", "yc2" }; // observed and controlled states
-        string[] DEF_controlled_states = new string[] { "yc1", "yc2" }; // states that can be controlled
-        string[] DEF_residual_states = new string[] { "yc1" }; // states that will have residuals calculated 
+        string[] DEF_plant_states = new string[] { "yo1", "yc1", "yo2", "yc2" };    // observed and controlled states
+        string[] DEF_controlled_states = new string[] { "yc1", "yc2" };             // states that can be controlled
+        string[] DEF_residual_states = new string[] { "yc1" };                      // states that will have residuals calculated 
 
         // controller parameters
         public PIDparameters ControllerParameters;
 
         // initialize estimator
         public KalmanFilter kalman_filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, 0.3, 0.2, 15.0, 50, 6.5); // x0, a1, a2, A1, A2, k
+
+        // data transmission interval
+        static int T_Controller = 100;                                              // [ms]
 
         public CommunicationManager(FrameGUI Main, string name, PIDparameters ControllerParameters, AddressEndPoint Channel_EP, ConnectionParameters Controller_EP)
         {
@@ -59,7 +62,7 @@ namespace HMI
 
             // specify the endpoint (either channel or directly the controller)
             AddressEndPoint EP = new AddressEndPoint();
-            if (Main.usingChannel == true)
+            if (Main.using_channel == true)
                 EP = new AddressEndPoint(Channel_EP.IP, Channel_EP.Port);
             else
                 EP = new AddressEndPoint(Controller_EP.IP, Controller_EP.Port);
@@ -84,7 +87,7 @@ namespace HMI
             // send messages to a host on this specific IP:port
             while (true)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(T_Controller);
 
                 // construct message to controller
                 string message = ConstructMessage();
@@ -128,7 +131,7 @@ namespace HMI
         {
             // attatch reference values
             string message = "";
-            if (Main.usingChannel == true) message += Convert.ToString("EP_" + Controller_EP.IP + ":" + Controller_EP.Port + "#");
+            if (Main.using_channel == true) message += Convert.ToString("EP_" + Controller_EP.IP + ":" + Controller_EP.Port + "#");
             message += Convert.ToString("time_" + DateTime.UtcNow.ToString(Constants.FMT) + "#");
 
             for (int i = 1; i <= n_controlled_states; i++)

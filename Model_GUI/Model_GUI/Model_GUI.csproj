@@ -70,7 +70,6 @@
     <Compile Include="ModelGUI.Designer.cs">
       <DependentUpon>ModelGUI.cs</DependentUpon>
     </Compile>
-    <Compile Include="Helpers.cs" />
     <Compile Include="DisturbanceModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
