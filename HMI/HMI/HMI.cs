@@ -36,11 +36,12 @@ namespace HMI
         // folder setting for chart image save
         public string file_path = "";
 
-        // channel flag
+        // channel settings
         public bool using_channel = false;
         AddressEndPoint Channel_EP = new AddressEndPoint();
 
         // tank dimensions (for visualization)
+        public string plant_visualization = PlantVisualization.NONE;
         public TankDimensions tankDimensions = new TankDimensions(0,0,0,0);
 
         // debug log
@@ -87,8 +88,9 @@ namespace HMI
             // update time labels
             Helpers.UpdateTimeLabels(this, connection_selected, Constants.FMT);
 
-            // draw simulation
-            Animation.DrawTanks(this, connection_selected);
+            // draw simulation (currently only supporing double watertank)
+            if (plant_visualization == PlantVisualization.DOUBLE_WATERTANK)
+                Animation.DrawTanks(this, connection_selected);
         }
 
         private void UpdateChart(Dictionary<string, DataContainer> dict, string setting)
@@ -262,6 +264,9 @@ namespace HMI
                 n_connections += 1;
                 textBoxName.Text = "Module" + (n_connections + 1);
                 log("Communication to a control module enabled");
+
+                numericUpDown_port_receive.Value += 1;
+                numericUpDown_port_send.Value += 1;
             }
         }
 
@@ -280,7 +285,7 @@ namespace HMI
             Charting.InitializeChartSettings(residualChart, title : "");
             Charting.InitializeChartSettings(securityChart, title : "Magnitude");
 
-            // load tank dimensions
+            // load saved water tank settings
             double A1 = Properties.Settings.Default.BA1;
             double a1 = Properties.Settings.Default.SA1;
             double A2 = Properties.Settings.Default.BA2;
@@ -308,6 +313,10 @@ namespace HMI
                             numUpDownKp.Value = Convert.ToDecimal(arg_sep[1]);
                             numUpDownKi.Value = Convert.ToDecimal(arg_sep[2]);
                             numUpDownKd.Value = Convert.ToDecimal(arg_sep[3]);
+                            break;
+
+                        case "plant_animation":
+                            if (arg_sep[1] == "dwt") plant_visualization = PlantVisualization.DOUBLE_WATERTANK;
                             break;
                         case "ARG_INVALID":
                             break;
@@ -431,7 +440,7 @@ namespace HMI
                 }
                 else
                 {
-                    numUpDownKi.DecimalPlaces = 1;
+                    numUpDownKi.DecimalPlaces = 2;
                     numUpDownKi.Increment = Convert.ToDecimal(0.1);
                 }
             }

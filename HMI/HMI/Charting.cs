@@ -27,7 +27,8 @@ namespace HMI
 
         public static void AddChartSeries(FrameGUI Main, string key, object chart)
         {
-            string[] unchecked_keys = new string[] { "yo1", "yo2" };
+            //string[] unchecked_keys = new string[] { "yo1", "yo2" };
+            string[] unchecked_keys = new string[] { "" };
 
             Chart chart_ = (Chart)chart;
 

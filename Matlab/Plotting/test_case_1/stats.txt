@@ -1,8 +1,0 @@
-pid
-max 13.39
-
-pidplus
-max 14.25
-
-pidsuppress
-max 12.88

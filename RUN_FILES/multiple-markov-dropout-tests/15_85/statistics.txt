@@ -1,0 +1,62 @@
+log_states_standard*
+
+avg_rise =
+
+    0.3060
+
+
+avg_overshoot =
+
+    7.6584
+
+
+avg_settling =
+
+    3.4500
+
+
+no_settling =
+
+     0
+
+log_states_plus*
+
+avg_rise =
+
+    0.3160
+
+
+avg_overshoot =
+
+    7.8119
+
+
+avg_settling =
+
+    2.6240
+
+
+no_settling =
+
+     0
+
+log_states_suppres*
+
+avg_rise =
+
+    0.3700
+
+
+avg_overshoot =
+
+   12.7394
+
+
+avg_settling =
+
+    2.0660
+
+
+no_settling =
+
+     0

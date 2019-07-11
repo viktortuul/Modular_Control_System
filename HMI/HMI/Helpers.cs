@@ -26,7 +26,7 @@ namespace HMI
 
     public static class Helpers
     {
-        public static void ManageReferencesKeys(int n_contr_states, Dictionary<string, DataContainer> references, int n_steps)
+        public static void AddReferencesKey(int n_contr_states, Dictionary<string, DataContainer> references, int n_steps)
         {
             // add reference key
             if (n_contr_states >= 1)
@@ -47,7 +47,7 @@ namespace HMI
             }
         }
 
-        public static void ManageEstimatesKeys(string key, Dictionary<string, DataContainer> estimates, int n_steps)
+        public static void AddEstimatesKey(string key, Dictionary<string, DataContainer> estimates, int n_steps)
         {
             estimates.Add(key + "_hat", new DataContainer(n_steps)); 
         }

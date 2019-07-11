@@ -62,19 +62,19 @@ namespace Controller
             }
 
             // create a thread for sending to the HMI
-            Thread thread_send_HMI = new Thread(() => SenderHMI(EP_Route_HMI.IP, EP_Route_HMI.Port, PIDList));
+            Thread thread_send_HMI = new Thread(() => SenderHMI(EP_Route_HMI.IP, EP_Route_HMI.Port));
             thread_send_HMI.Start();
 
             // create a thread for listening on the HMI
-            Thread thread_listen_HMI = new Thread(() => ListenerHMI(EP_Route_HMI.IP, EP_HMI.PortThis, PIDList));
+            Thread thread_listen_HMI = new Thread(() => ListenerHMI(EP_Route_HMI.IP, EP_HMI.PortThis));
             thread_listen_HMI.Start();
 
             // create a thread for sending to the plant
-            Thread thread_send_plant = new Thread(() => SenderPlant(EP_Route_Plant.IP, EP_Route_Plant.Port, PIDList));
+            Thread thread_send_plant = new Thread(() => SenderPlant(EP_Route_Plant.IP, EP_Route_Plant.Port));
             thread_send_plant.Start();
 
             // create a thread for listening on the plant
-            Thread thread_listen_plant = new Thread(() => ListenerPlant(EP_Route_Plant.IP, EP_Plant.PortThis, PIDList));
+            Thread thread_listen_plant = new Thread(() => ListenerPlant(EP_Route_Plant.IP, EP_Plant.PortThis));
             thread_listen_plant.Start();
 
             // create a thread for running a fixed interval control loop (for the standard PID)
@@ -85,7 +85,7 @@ namespace Controller
             }
         }
 
-        public static void SenderHMI(string IP, int port, List<PID> PIDList)
+        public static void SenderHMI(string IP, int port)
         {
             // initialize a connection to the HMI
             Client Sender = new Client(IP, port);
@@ -96,14 +96,14 @@ namespace Controller
                 if (listening_on_plant == true)
                 {
                     // send time, u, and y
-                    string message = ConstructMessageToHMI(PIDList);
+                    string message = ConstructMessageToHMI();
                     Sender.Send(message);
                     //Console.WriteLine("packet to HMI: " + message);
                 }
             }
         }
 
-        public static void ListenerHMI(string IP, int port, List<PID> PIDList)
+        public static void ListenerHMI(string IP, int port)
         {
             // initialize a connection to the HMI
             Server Listener = new Server(IP, port);
@@ -116,7 +116,7 @@ namespace Controller
                     ParseReceivedMessage(Listener.getMessage());
 
                     // update controller settings (reference set-point and PID parameters)
-                    UpdateControllers(PIDList, flag : "HMI");
+                    UpdateControllers(flag : "HMI");
                 }
                 catch (Exception ex)
                 {
@@ -125,7 +125,7 @@ namespace Controller
             }
         }
 
-        static public void SenderPlant(string IP, int port, List<PID> PIDList)
+        static public void SenderPlant(string IP, int port)
         {
             // initialize a connection to the plant
             Client Sender = new Client(IP, port);
@@ -137,7 +137,7 @@ namespace Controller
                 if (listening_on_plant == true)
                 {
                     // send control signal u to the plant
-                    string message = ConstructMessageToPlant(PIDList);
+                    string message = ConstructMessageToPlant();
                     Sender.Send(message);
 
                     // log sent message (used for package delivery analysis)
@@ -150,7 +150,7 @@ namespace Controller
             }
         }
 
-        public static void ListenerPlant(string IP, int port, List<PID> PIDList)
+        public static void ListenerPlant(string IP, int port)
         {
             // initialize a connection to the plant
             Server Listener = new Server(IP, port);
@@ -164,7 +164,7 @@ namespace Controller
                     //Console.WriteLine("from plant: " + Listener.getMessage());
 
                     // compute the new control signal for each controller
-                    UpdateControllers(PIDList, flag : "plant");
+                    UpdateControllers(flag : "plant");
 
                     // flag that packets from the plant are being received
                     listening_on_plant = true;
@@ -176,7 +176,7 @@ namespace Controller
             }
         }
 
-        public static string ConstructMessageToHMI(List<PID> PIDList)
+        public static string ConstructMessageToHMI()
         {
             string message = "";
 
@@ -206,7 +206,7 @@ namespace Controller
             return message;
         }
 
-        public static string ConstructMessageToPlant(List<PID> PIDList)
+        public static string ConstructMessageToPlant()
         {
             string message = "";
 
@@ -273,11 +273,11 @@ namespace Controller
             while (true)
             {
                 Thread.Sleep(dt_pid_normal);
-                UpdateControllers(PIDList, flag: "loop");
+                UpdateControllers(flag: "loop");
             }
         }
 
-        private static void UpdateControllers(List<PID> PIDList, string flag)
+        private static void UpdateControllers(string flag)
         {
             int index = 0; // PID number
             foreach (PID controller in PIDList)
@@ -288,8 +288,8 @@ namespace Controller
                 if (received_packets.ContainsKey("r" + index) == false) continue;
 
                 // check if the last recieved measurement is up to date (else don't update the control signal) 
-                if (received_packets["yc" + index].isUpToDate())
-                {             
+                //if (received_packets["yc" + index].isUpToDate())
+                //{             
                     if (flag == "HMI") // flag = HMI means that this method is triggered after a packet received from the HMI-interface
                     {
                         // update controller parameters
@@ -330,7 +330,7 @@ namespace Controller
                                 break;
                         }
                     }
-                }
+                //}
             }
         }
 

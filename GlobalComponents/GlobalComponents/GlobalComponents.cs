@@ -56,6 +56,14 @@ namespace GlobalComponents
         public const string LOAD_ALL = "LOAD_ALL";
     }
 
+    public struct PlantVisualization
+    {
+        // plant visualization in the HMI module
+        public const string NONE = "NONE";
+        public const string DOUBLE_WATERTANK = "DOUBLE_WATERTANK";
+        public const string QUAD_WATERTANK = "QUAD_WATERTANK";
+    }
+
     public struct PIDparameters
     {
         public double Kp, Ki, Kd;

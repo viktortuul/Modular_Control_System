@@ -42,11 +42,11 @@ namespace HMI
         // controller parameters
         public PIDparameters ControllerParameters;
 
-        // initialize estimator
-        public KalmanFilter kalman_filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, 0.3, 0.2, 15.0, 50, 6.5); // x0, a1, a2, A1, A2, k
+        // initialize state estimator (parameters can be adjusted in the HMI gui)
+        public KalmanFilter kalman_filter = new KalmanFilter(x : new double[2, 1] { { 0 }, { 0 } }, a1 : 0.3, a2 : 0.2, A1 : 15.0, A2 : 50, k : 6.5); // x0, a1, a2, A1, A2, k
 
         // data transmission interval
-        static int T_Controller = 100;                                              // [ms]
+        static int T_Controller = 100;  // [ms]
 
         public CommunicationManager(FrameGUI Main, string name, PIDparameters ControllerParameters, AddressEndPoint Channel_EP, ConnectionParameters Controller_EP)
         {
@@ -170,21 +170,21 @@ namespace HMI
                 // if the key doesn't exist, add it
                 if (received_packets.ContainsKey(key) == false)
                 {
-                    received_packets.Add(key, new DataContainer(Constants.n_steps));
+                    received_packets.Add(key, new DataContainer(Constants.n_datapoints));
 
                     // add an eventual residual and estimate continer
                     if (DEF_residual_states.Contains(key) == true)
                     {
                         received_packets[key].has_residual = true;
-                        Helpers.ManageEstimatesKeys(key, estimates, Constants.n_steps);
-                        if (key == "yc1") Helpers.ManageEstimatesKeys("yo1", estimates, Constants.n_steps); // also estimate yo1 (hardcoded)
+                        Helpers.AddEstimatesKey(key, estimates, Constants.n_datapoints);
+                        if (key == "yc1") Helpers.AddEstimatesKey("yo1", estimates, Constants.n_datapoints); // also estimate yo1 (hardcoded)
                     }
 
                     // increment the controlled states counter if it's a controlled state
                     if (DEF_controlled_states.Contains(key))
                     {
                         n_controlled_states += 1;
-                        Helpers.ManageReferencesKeys(n_controlled_states, references, Constants.n_steps);
+                        Helpers.AddReferencesKey(n_controlled_states, references, Constants.n_datapoints);
                     }
 
                     // flag that the GUI is receiving packets originating from the process
@@ -195,12 +195,13 @@ namespace HMI
                 received_packets[key].InsertData(time, value);
             }
 
-            // update state estimator and calculate residual
-            KalmanFilter.NextStateEstimate(kalman_filter, time, estimates, received_packets);
-
             // add reference time-stamp
             if (references.ContainsKey("r1")) references["r1"].CopyAndPushArray();
-            if (references.ContainsKey("r2")) references["r2"].CopyAndPushArray();          
+            if (references.ContainsKey("r2")) references["r2"].CopyAndPushArray();
+
+            // update state estimator and calculate residual
+            if (Main.plant_visualization == PlantVisualization.DOUBLE_WATERTANK)
+                KalmanFilter.NextStateEstimate(kalman_filter, time, estimates, received_packets);
         } 
 
         public string GetConnectionStatus()
