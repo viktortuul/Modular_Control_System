@@ -1,3 +1,5 @@
+addpath('helpers')
+
 %% [Control & Measurement] time-series attack
 u = u0*ones(1, N);                          % control signal time series
 atk_start = round((T_atk_start)/dt + 1);    % attack start index

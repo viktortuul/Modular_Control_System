@@ -1,3 +1,5 @@
+addpath('helpers')
+
 %% [Reference & Measurement] time-series attack
 r = r0*ones(1, N);                          % normal operating set-point (vector)
 atk_start = round((T_atk_start)/dt + 1);    % attack start index

@@ -36,17 +36,17 @@ t = dt*(0:N-1);     % time vector
 %% Control signal + Sensor attack
 u0 = 3.3;   % normal operating set-point
 u_atk = 5;  % attack control signal
-run('actuator_sensor_attack.m')
+run('attacks/actuator_sensor_attack.m')
 
 %% Reference + Sensor attack
 r0 = 6;     % normal operating set-point
 r_atk = 10;	% attack set-point
-run('reference_sensor_attack.m')
+run('attacks/reference_sensor_attack.m')
 
 %% Reference + Sensor + Actuator signal attack
 r0 = 6;  	% normal operating set-poin
 r_atk = 10; % attack set-point
-run('reference_sensor_actuator_attack.m')
+run('attacks/reference_sensor_actuator_attack.m')
 
 
 
