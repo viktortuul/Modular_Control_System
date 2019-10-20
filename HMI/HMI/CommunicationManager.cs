@@ -43,7 +43,7 @@ namespace HMI
         public PIDparameters ControllerParameters;
 
         // initialize state estimator (parameters can be adjusted in the HMI gui)
-        public KalmanFilter kalman_filter = new KalmanFilter(x : new double[2, 1] { { 0 }, { 0 } }, a1 : 0.3, a2 : 0.2, A1 : 15.0, A2 : 50, k : 6.5); // x0, a1, a2, A1, A2, k
+        public KalmanFilter kalman_filter = new KalmanFilter(x : new double[2, 1] { { 0 }, { 0 } }, a1 : 0.3, a2 : 0.2, A1 : 5.0, A2 : 5, k : 6.5); // x0, a1, a2, A1, A2, k
 
         // data transmission interval
         static int T_Controller = 100;  // [ms]
@@ -77,6 +77,10 @@ namespace HMI
             // create a new thread for the listener
             Thread thread_listener = new Thread(() => Listener(EP.IP, Controller_EP.PortThis));
             thread_listener.Start();
+
+            // load kalman settings
+            kalman_filter.updateKalmanFilter(Main.config.doubleWatertankModel.A1, Main.config.doubleWatertankModel.a1, Main.config.doubleWatertankModel.A2, Main.config.doubleWatertankModel.a2, Main.config.doubleWatertankModel.k);
+            kalman_filter.setAnomalyDetectorSettings(Main.config.anomalyDetector.delta);
         }
 
         private void Sender(string IP, int port)

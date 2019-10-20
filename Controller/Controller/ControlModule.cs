@@ -346,6 +346,7 @@ namespace Controller
 
         public static void ParseArgs(string[] args)
         {
+            Console.WriteLine("Control Module initialized. Parsing command line arguments...");
             foreach (string arg in args)
             {
                 List<string> arg_sep = Tools.ArgsParser(arg);
@@ -367,16 +368,20 @@ namespace Controller
                         break;       
                     case "channel_hmi":
                         EP_Route_HMI = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
+                        Console.WriteLine("Channel (HMI) endpoint: " + arg_sep[1] + ":" + arg_sep[2]);
                         using_channel = true;
                         break;
                     case "channel_plant":
                         EP_Route_Plant = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
+                        Console.WriteLine("Channel (Plant) endpoint: " + arg_sep[1] + ":" + arg_sep[2]);
                         break;
                     case "hmi_ep":
                         EP_HMI = new ConnectionParameters(arg_sep[1], Convert.ToInt16(arg_sep[2]), Convert.ToInt16(arg_sep[3]));
+                        Console.WriteLine("HMI endpoint: " + arg_sep[1] + ":" + arg_sep[2]);
                         break;
                     case "plant_ep":
                         EP_Plant = new ConnectionParameters(arg_sep[1], Convert.ToInt16(arg_sep[2]), Convert.ToInt16(arg_sep[3]));
+                        Console.WriteLine("Plant endpoint: " + arg_sep[1] + ":" + arg_sep[2]);
                         break;
                     default:
                         Console.WriteLine("Unknown argument not used: " + arg_name);

@@ -3,10 +3,30 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Globalization;
+using Newtonsoft.Json;
 
 namespace GlobalComponents
-
 {
+    public class Configuration
+    {
+        public DoubleWatertankModel doubleWatertankModel { get; set; }
+        public AnomalyDetector anomalyDetector { get; set; }
+    }
+
+    public class DoubleWatertankModel
+    {
+        public double A1 { get; set; }
+        public double a1 { get; set; }
+        public double A2 { get; set; }
+        public double a2 { get; set; }
+        public double k { get; set; }
+    }
+
+    public class AnomalyDetector
+    {
+        public double delta { get; set; }
+    }
+
     public struct Constants
     {
         // time formats

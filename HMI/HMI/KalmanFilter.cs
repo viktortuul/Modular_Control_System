@@ -36,6 +36,11 @@ namespace HMI
             this.k = k;
         }
 
+        public void setAnomalyDetectorSettings(double delta)
+        {
+            this.delta = delta;
+        }
+
         public static void NextStateEstimate(KalmanFilter kalman_filter, string time, Dictionary<string, DataContainer> estimates, Dictionary<string, DataContainer> received_packets)
         {
             // estimate states             
@@ -51,10 +56,15 @@ namespace HMI
             if (received_packets.ContainsKey("yc1")) received_packets["yc1"].InsertResidual(kalman_filter.innovation.ToString());
         }
 
-        public static void UpdateKalmanFilter(KalmanFilter kalman_filter, double A1, double a1, double A2, double a2)
+        public void updateKalmanFilter(double A1, double a1, double A2, double a2, double k)
         {
-            kalman_filter = new KalmanFilter(new double[2, 1] { { 0 }, { 0 } }, a1, a2, A1, A2, 6.5); // x0, a1, a2, A1, A2, k
+            this.a1 = a1;
+            this.a2 = a2;
+            this.A1 = A1;
+            this.A2 = A2;
+            this.k = k;
         }
+
 
         public double[,] Update(double z, double u)
         {

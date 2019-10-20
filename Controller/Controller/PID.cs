@@ -55,7 +55,7 @@ namespace Controller
             this.controller_type = controller_type;
             this.u_min = u_saturation[0];
             this.u_max = u_saturation[1];
-            Console.WriteLine("PID added: " + controller_type);
+            Console.WriteLine("PID controller added: " + controller_type);
             Console.WriteLine("Control signal range: [" + u_min + ", " + u_max + "]");
         }
 
@@ -122,7 +122,7 @@ namespace Controller
             // resulting control signal
             u = Kp * e + Ki * I + Kd * de;
 
-            Console.WriteLine("dt_m: " + Math.Round(dt_m, 3));
+            Console.WriteLine(DateTime.Now.ToString() + " dt: " + Math.Round(dt_m, 3) + " u: " + u);
         }
 
         private void ComputePIDplus(double dt_a, double dt_m, double actuator_position)
@@ -149,9 +149,11 @@ namespace Controller
             //Console.WriteLine(Math.Exp(-dt_a / T_reset).ToString());
             //Console.WriteLine("actuator_position=" + actuator_position + " F_I=" + F_I);
             //Console.WriteLine("dt_m: " + dt_m + " K_suppress:" + K_suppress + " prop:" + Kp * ep_plus + " int: " + Ki * F_I + " deriv: " + Kd * de_plus);
+            /*
             Console.WriteLine("dt_m: " + Math.Round(dt_m, 3) + 
                                 " dt_a: " + Math.Round(dt_a, 3) + 
                                 " last_actuator_position" + Math.Round(actuator_position, 3));
+            */
         }
 
         private void ComputePIDsuppress(double dt_a, double dt_m)
@@ -182,12 +184,15 @@ namespace Controller
             // resulting control signal
             u = Kp * e * K_suppress + Ki * I + Kd * de;
 
+            /*
             Console.WriteLine("dt_m: " + Math.Round(dt_m, 3) +
                                 "\tdt_a: " + Math.Round(dt_a, 3) + 
                                 "\tK_suppress:" + Math.Round(K_suppress, 3) + 
                                 "\tP:" + Math.Round(Kp * e * K_suppress, 3) + 
                                 "\tI: " + Math.Round(Ki * I, 3) + 
                                 "\tD: " + Math.Round(Kd * de, 3));
+
+        */
         }
 
         public void UpdateParameters(double Kp, double Ki, double Kd)

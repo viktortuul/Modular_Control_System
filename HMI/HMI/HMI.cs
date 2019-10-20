@@ -15,6 +15,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 using System.IO;
 using Communication;
 using GlobalComponents;
+using Newtonsoft.Json;
 
 /* TODO
  * Only adjust max/min axis values for time-series that are checked
@@ -42,13 +43,15 @@ namespace HMI
 
         // tank dimensions (for visualization)
         public string plant_visualization = PlantVisualization.NONE;
-        public TankDimensions tankDimensions = new TankDimensions(0,0,0,0);
 
         // debug log
         public string debugLog = "";
 
         // control/observer mode
         public string GUI_view_mode = GUIViewMode.CONTROL;
+
+        // configuration
+        public Configuration config = new Configuration();
 
         public FrameGUI()
         {
@@ -59,12 +62,26 @@ namespace HMI
         {
             string[] args = Environment.GetCommandLineArgs();
             ParseArgs(args);
+     
+            // load config from json
+            config = loadJson();
 
             // folder and chart settings
             InitialSettings();
 
             // toggle view (control as default)
             toggleViewMode(GUIViewMode.CONTROL);
+        }
+
+        private Configuration loadJson()
+        {
+            Configuration config = new Configuration();
+            using (StreamReader r = new StreamReader("config.json"))
+            {
+                string json = r.ReadToEnd();
+                config = JsonConvert.DeserializeObject<Configuration>(json);
+            }
+            return config;
         }
 
         private void timerCharts_Tick(object sender, EventArgs e)
@@ -278,19 +295,12 @@ namespace HMI
 
             // chart settings
             Charting.AddThresholdStripLine(residualChart, offset : 0, color : Color.Red);
-            Charting.AddThresholdStripLine(residualChart, offset : 0.2, color: Color.Red);
-            Charting.AddThresholdStripLine(residualChart, offset : -0.2, color: Color.Red);
+            Charting.AddThresholdStripLine(residualChart, offset : config.anomalyDetector.delta, color: Color.Red);
+            Charting.AddThresholdStripLine(residualChart, offset : -config.anomalyDetector.delta, color: Color.Red);
             
             Charting.InitializeChartSettings(dataChart, title : "");
             Charting.InitializeChartSettings(residualChart, title : "");
             Charting.InitializeChartSettings(securityChart, title : "Magnitude");
-
-            // load saved water tank settings
-            double A1 = Properties.Settings.Default.BA1;
-            double a1 = Properties.Settings.Default.SA1;
-            double A2 = Properties.Settings.Default.BA2;
-            double a2 = Properties.Settings.Default.SA2;
-            tankDimensions = new TankDimensions(A1, a1, A2, a2);
         }
 
         private void ParseArgs(string[] args)

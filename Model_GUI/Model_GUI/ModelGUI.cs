@@ -14,6 +14,7 @@ using System.Text;
 using GlobalComponents;
 using Lego.Ev3.Core;
 using Lego.Ev3.Desktop;
+using Newtonsoft.Json;
 
 namespace Model_GUI
 {
@@ -65,6 +66,9 @@ namespace Model_GUI
         //
         public bool new_relalized_actuator_value = false;
 
+        // configuration
+        public Configuration config = new Configuration();
+
         public ModelGUI()
         {
             InitializeComponent();
@@ -72,6 +76,8 @@ namespace Model_GUI
 
         private void ModelGUI_Load(object sender, EventArgs e)
         {
+            config = loadJson();
+
             string[] args = Environment.GetCommandLineArgs();
             ParseArgs(args);
 
@@ -96,6 +102,17 @@ namespace Model_GUI
 
             // initialize with control view mode
             toggleViewMode("control");
+        }
+
+        private Configuration loadJson()
+        {
+            Configuration config = new Configuration();
+            using (StreamReader r = new StreamReader("config.json"))
+            {
+                string json = r.ReadToEnd();
+                config = JsonConvert.DeserializeObject<Configuration>(json);
+            }
+            return config;
         }
 
         public void Process(Plant Plant, int dt)
