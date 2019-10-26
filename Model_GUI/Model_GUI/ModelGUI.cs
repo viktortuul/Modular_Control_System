@@ -55,7 +55,7 @@ namespace Model_GUI
         double meas_noise_std = 0.1;
 
         // model parameters from command line arguments
-        public double[] model_parameters = new double[0];
+        public double[] plant_parameters = new double[0];
 
         // folder setting for chart image save
         public string folderName = "";
@@ -67,6 +67,7 @@ namespace Model_GUI
         public bool new_relalized_actuator_value = false;
 
         // configuration
+        private string config_file = "";
         public Configuration config = new Configuration();
 
         public ModelGUI()
@@ -76,10 +77,11 @@ namespace Model_GUI
 
         private void ModelGUI_Load(object sender, EventArgs e)
         {
-            config = loadJson();
-
+            // parse arguments and config
             string[] args = Environment.GetCommandLineArgs();
             ParseArgs(args);
+            config = loadJson();
+            loadPlant();
 
             // create a thread for listening on the physical plant
             Thread thread_listener = new Thread(() => Listener(EP_Send_Controller.IP, EP_Controller.PortThis, Plant));
@@ -107,7 +109,7 @@ namespace Model_GUI
         private Configuration loadJson()
         {
             Configuration config = new Configuration();
-            using (StreamReader r = new StreamReader("config.json"))
+            using (StreamReader r = new StreamReader(config_file))
             {
                 string json = r.ReadToEnd();
                 config = JsonConvert.DeserializeObject<Configuration>(json);
@@ -196,7 +198,7 @@ namespace Model_GUI
                 {
                     // apply measurement noise
                     var r = new GaussianRandom();
-                    double noise = r.NextGaussian(0, meas_noise_std);
+                    double noise = r.NextGaussian(0, config.plantConfig.meas_noise_std);
                     message += "yo" + (i + 1) + "_" + (Plant.get_yo()[i] + noise).ToString() + "#";
                 }  
                
@@ -205,7 +207,7 @@ namespace Model_GUI
                 {
                     // apply measurement noise
                     var r = new GaussianRandom();
-                    double noise = r.NextGaussian(0, meas_noise_std);
+                    double noise = r.NextGaussian(0, config.plantConfig.meas_noise_std);
                     message += "yc" + (i + 1) + "_" + (Plant.get_yc()[i] + noise).ToString() + "#";
 
                     // send back the realized actuator value
@@ -353,32 +355,9 @@ namespace Model_GUI
 
                 switch (arg_name)
                 {
-                    case "model":
-                        string arg_model_type = arg_sep[1];
-                        switch (arg_model_type)
-                        {
-                            case "dwt":
-                                model_parameters = new double[] { Convert.ToDouble(arg_sep[2]), Convert.ToDouble(arg_sep[3]), Convert.ToDouble(arg_sep[4]), Convert.ToDouble(arg_sep[5]) };
-                                Plant = new Plant(new DoubleWatertank(model_parameters));
-                                meas_noise_std = Convert.ToDouble(arg_sep[6]);
-                                break;
-                            case "qwt":
-                                model_parameters = new double[] { Convert.ToDouble(arg_sep[2]), Convert.ToDouble(arg_sep[3]), Convert.ToDouble(arg_sep[4]), Convert.ToDouble(arg_sep[5]), Convert.ToDouble(arg_sep[6]), Convert.ToDouble(arg_sep[7]), Convert.ToDouble(arg_sep[8]), Convert.ToDouble(arg_sep[9]) };
-                                Plant = new Plant(new QuadWatertank(model_parameters));
-                                meas_noise_std = Convert.ToDouble(arg_sep[10]);
-                                break;
-                            case "ipsiso":
-                                Plant = new Plant(new InvertedPendulumSISO());
-                                break;
-                            default:
-                                model_parameters = new double[] { Convert.ToDouble(arg_sep[2]), Convert.ToDouble(arg_sep[3]), Convert.ToDouble(arg_sep[4]), Convert.ToDouble(arg_sep[5]) };
-                                Plant = new Plant(new DoubleWatertank(model_parameters));
-                                meas_noise_std = Convert.ToDouble(arg_sep[6]);
-                                MessageBox.Show("Unknown model type: " + arg_model_type + ". Using default: double water tank");
-                                break;
-                        }
+                    case "config_file":
+                        config_file = arg_sep[1];
                         break;
-
                     case "channel_controller":
                         EP_Send_Controller = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
                         using_channel = true;
@@ -404,6 +383,30 @@ namespace Model_GUI
                         MessageBox.Show("Unknown argument: " + arg_name);
                         break;
                 }
+            }
+        }
+    
+        private void loadPlant()
+        {
+            if (config.plantConfig.type == "DOUBLE_WATERTANK")
+            {
+                plant_parameters = new double[] { config.plantConfig.A1, config.plantConfig.a1, config.plantConfig.A2, config.plantConfig.a2 };
+                Plant = new Plant(new DoubleWatertank(plant_parameters));
+            }
+            else if (config.plantConfig.type == "QUAD_WATERTANK")
+            {
+                plant_parameters = new double[] { config.plantConfig.A1, config.plantConfig.a1, config.plantConfig.A2, config.plantConfig.a2 };
+                Plant = new Plant(new DoubleWatertank(plant_parameters));
+            }
+            else if (config.plantConfig.type == "INVERTED_PENDULUM_SISO")
+            {
+                Plant = new Plant(new InvertedPendulumSISO());
+            }
+            else
+            {
+                plant_parameters = new double[] { config.plantConfig.A1, config.plantConfig.a1, config.plantConfig.A2, config.plantConfig.a2 };
+                Plant = new Plant(new DoubleWatertank(plant_parameters));
+                MessageBox.Show("Unknown model type: " + config.plantConfig.type + ". Using default: double water tank");
             }
         }
 

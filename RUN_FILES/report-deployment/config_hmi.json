@@ -1,0 +1,17 @@
+{
+'PidParameters': {
+	'P': 1.6,
+	'I': 0.3,
+	'D': 0.0,
+	},
+'KalmanDoubleWatertankModel':{ 
+	'A1': 5.0,
+	'a1': 0.3,
+	'A2': 5.0,
+	'a2': 0.2,
+	'k': 6.5
+	},
+'AnomalyDetector':{
+	'cusumDelta': 0.4
+	}
+}

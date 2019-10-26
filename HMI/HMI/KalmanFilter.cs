@@ -41,6 +41,13 @@ namespace HMI
             this.delta = delta;
         }
 
+        public double getA1() { return A1; }
+        public double geta1() { return a1; }
+        public double getA2() { return A2; }
+        public double geta2() { return a2; }
+        public double getK() { return k; }
+        public double getDelta() { return delta; }
+
         public static void NextStateEstimate(KalmanFilter kalman_filter, string time, Dictionary<string, DataContainer> estimates, Dictionary<string, DataContainer> received_packets)
         {
             // estimate states             
@@ -53,7 +60,11 @@ namespace HMI
             if (estimates.ContainsKey("yc1_hat")) estimates["yc1_hat"].InsertData(time, x[1, 0].ToString());
 
             // store the residual
-            if (received_packets.ContainsKey("yc1")) received_packets["yc1"].InsertResidual(kalman_filter.innovation.ToString());
+            if (received_packets.ContainsKey("yc1"))
+            {
+                received_packets["yc1"].InsertResidual(kalman_filter.innovation.ToString());
+                received_packets["yc1"].InsertSecurityMetric(kalman_filter.security_metric.ToString());
+            }
         }
 
         public void updateKalmanFilter(double A1, double a1, double A2, double a2, double k)

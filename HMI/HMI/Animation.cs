@@ -45,10 +45,10 @@ namespace HMI
             catch { }
 
             // dimensions
-            double A1 = GUI.config.doubleWatertankModel.A1;
-            double a1 = GUI.config.doubleWatertankModel.a1;
-            double A2 = GUI.config.doubleWatertankModel.A2;
-            double a2 = GUI.config.doubleWatertankModel.a2;
+            double A1 = GUI.config.kalmanDoubleWatertankModel.A1;
+            double a1 = GUI.config.kalmanDoubleWatertankModel.a1;
+            double A2 = GUI.config.kalmanDoubleWatertankModel.A2;
+            double a2 = GUI.config.kalmanDoubleWatertankModel.a2;
 
             // TANK 1 ----------------------------------------------------------------
             Point T1 = new Point(GUI.pictureBox1.Width / 2, Convert.ToInt16(GUI.pictureBox1.Height / 2));

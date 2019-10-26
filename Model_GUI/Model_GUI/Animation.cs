@@ -38,10 +38,10 @@ namespace Model_GUI
             int y2 = Convert.ToInt16(cm2pix * Convert.ToDouble(GUI.states["yc1"].GetLastValue()));
 
             // tank dimensions
-            double A1 = GUI.model_parameters[0]; //Convert.ToDouble(numUpDown_A1.Value);
-            double a1 = GUI.model_parameters[1]; //Convert.ToDouble(numUpDown_a1a.Value);
-            double A2 = GUI.model_parameters[2]; //Convert.ToDouble(numUpDown_A2.Value);
-            double a2 = GUI.model_parameters[3]; //Convert.ToDouble(numUpDown_a2a.Value);
+            double A1 = GUI.plant_parameters[0]; //Convert.ToDouble(numUpDown_A1.Value);
+            double a1 = GUI.plant_parameters[1]; //Convert.ToDouble(numUpDown_a1a.Value);
+            double A2 = GUI.plant_parameters[2]; //Convert.ToDouble(numUpDown_A2.Value);
+            double a2 = GUI.plant_parameters[3]; //Convert.ToDouble(numUpDown_a2a.Value);
 
             // TANK 1 ----------------------------------------------------------------
             Point T1 = new Point(GUI.pictureBox1.Width / 2, Convert.ToInt16(GUI.pictureBox1.Height / 2));

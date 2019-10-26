@@ -42,7 +42,7 @@ namespace HMI
         AddressEndPoint Channel_EP = new AddressEndPoint();
 
         // tank dimensions (for visualization)
-        public string plant_visualization = PlantVisualization.NONE;
+        public string plant_visualization = PlantVisualization.DOUBLE_WATERTANK;
 
         // debug log
         public string debugLog = "";
@@ -51,6 +51,7 @@ namespace HMI
         public string GUI_view_mode = GUIViewMode.CONTROL;
 
         // configuration
+        private string config_file = "";
         public Configuration config = new Configuration();
 
         public FrameGUI()
@@ -76,11 +77,16 @@ namespace HMI
         private Configuration loadJson()
         {
             Configuration config = new Configuration();
-            using (StreamReader r = new StreamReader("config.json"))
+            using (StreamReader r = new StreamReader(config_file))
             {
                 string json = r.ReadToEnd();
                 config = JsonConvert.DeserializeObject<Configuration>(json);
             }
+
+            numUpDownKp.Value = Convert.ToDecimal(config.pidParameters.P);
+            numUpDownKi.Value = Convert.ToDecimal(config.pidParameters.I);
+            numUpDownKd.Value = Convert.ToDecimal(config.pidParameters.D);
+
             return config;
         }
 
@@ -148,7 +154,7 @@ namespace HMI
 
                             // if security metric series does not exist, add it
                             if (securityChart.Series.IndexOf("Sec_" + key) == -1) Charting.AddChartSeries(this, "Sec_" + key, securityChart);
-                            securityChart.Series["Sec_" + key].Points.AddXY(time.ToOADate(), connection_selected.kalman_filter.security_metric);
+                            securityChart.Series["Sec_" + key].Points.AddXY(time.ToOADate(), Convert.ToDouble(dict[key].security_metric[i]));
                         }
                     }
                 }
@@ -182,6 +188,7 @@ namespace HMI
                 // clear charts
                 dataChart.Series.Clear();
                 residualChart.Series.Clear();
+                securityChart.Series.Clear();
 
                 // clear checkbox series
                 clbSeries.Items.Clear();
@@ -194,11 +201,23 @@ namespace HMI
                 // scale y-axis for the charts
                 Charting.ChangeYScale(dataChart, treshold_interval : "one", grid_interval : "one");
                 Charting.ChangeYScale(residualChart, treshold_interval: "one", grid_interval: "one");
+                Charting.ChangeYScale(securityChart, treshold_interval: "one", grid_interval: "one");
+
+                // update treshold strip lines
+                updateThresholdStripLines();
 
                 // select the corresponding item in the treeview
                 treeViewControllers.SelectedNode = treeViewControllers.Nodes[connection_selected.name];
             }
             catch { }
+        }
+
+        public void updateThresholdStripLines()
+        {
+            Charting.ClearThresholdStripLines(residualChart);
+            Charting.AddThresholdStripLine(residualChart, offset: 0, color: Color.Red);
+            Charting.AddThresholdStripLine(residualChart, offset: connection_selected.kalman_filter.getDelta(), color: Color.Red);
+            Charting.AddThresholdStripLine(residualChart, offset: -connection_selected.kalman_filter.getDelta(), color: Color.Red);
         }
 
         private void timerUpdateGUI_Tick(object sender, EventArgs e)
@@ -294,9 +313,10 @@ namespace HMI
             toolStripLabel.Text = "Dir: " + file_path;
 
             // chart settings
+            Charting.ClearThresholdStripLines(residualChart);
             Charting.AddThresholdStripLine(residualChart, offset : 0, color : Color.Red);
-            Charting.AddThresholdStripLine(residualChart, offset : config.anomalyDetector.delta, color: Color.Red);
-            Charting.AddThresholdStripLine(residualChart, offset : -config.anomalyDetector.delta, color: Color.Red);
+            Charting.AddThresholdStripLine(residualChart, offset : config.anomalyDetector.cusumDelta, color: Color.Red);
+            Charting.AddThresholdStripLine(residualChart, offset : -config.anomalyDetector.cusumDelta, color: Color.Red);
             
             Charting.InitializeChartSettings(dataChart, title : "");
             Charting.InitializeChartSettings(residualChart, title : "");
@@ -314,17 +334,14 @@ namespace HMI
 
                     switch (arg_name)
                     {
+                        case "config_file":
+                            config_file = arg_sep[1];
+                            break;
                         case "channel_controller":
                             Channel_EP = new AddressEndPoint(arg_sep[1], Convert.ToInt16(arg_sep[2]));
                             using_channel = true;
                             log("Using channel: <" + arg_sep[1] + ">, <" + arg_sep[2] + ">");
                             break;
-                        case "pid_params":
-                            numUpDownKp.Value = Convert.ToDecimal(arg_sep[1]);
-                            numUpDownKi.Value = Convert.ToDecimal(arg_sep[2]);
-                            numUpDownKd.Value = Convert.ToDecimal(arg_sep[3]);
-                            break;
-
                         case "plant_animation":
                             if (arg_sep[1] == "dwt") plant_visualization = PlantVisualization.DOUBLE_WATERTANK;
                             break;
@@ -539,7 +556,7 @@ namespace HMI
             }
             else
             {
-                toggleViewMode(GUIViewMode.OBSERVE);
+                toggleViewMode(GUIViewMode.CONTROL);
                 GUI_view_mode = GUIViewMode.CONTROL;
             }
         }

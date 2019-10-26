@@ -1,0 +1,15 @@
+{
+'ControlConfig': {
+    'type': 'PID_STANDARD',
+    'range_min': 0,
+    'range_max': 7.5
+	},
+'PlantConfig': {
+    'type': 'DOUBLE_WATERTANK',
+    'A1': 5.0,
+    'a1': 0.3,
+    'A2': 5.0,
+    'a2': 0.2,
+    'meas_noise_std': 0.22
+	}
+}

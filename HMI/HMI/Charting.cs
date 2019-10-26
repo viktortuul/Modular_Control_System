@@ -159,22 +159,36 @@ namespace HMI
             }
         }
 
+        public static void ClearThresholdStripLines(Chart chart)
+        {
+            try
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    StripLine stripLine = chart.ChartAreas[0].AxisY.StripLines.ElementAt(0);
+                    chart.ChartAreas[0].AxisY.StripLines.Remove(stripLine);
+                }
+            }
+            catch { }
+        }
+
         public static void AddThresholdStripLine(Chart chart, double offset, Color color)
         {
-            StripLine stripLine3 = new StripLine();
+            StripLine stripLine = new StripLine();
 
             // Set threshold line so that it is only shown once
-            stripLine3.Interval = 0;
+            stripLine.Interval = 0;
 
             // Set the threshold line to be drawn at the calculated mean of the first series
-            stripLine3.IntervalOffset = offset;
+            stripLine.IntervalOffset = offset;
 
-            stripLine3.BackColor = color;
-            stripLine3.StripWidth = 0.001;
+            stripLine.BackColor = color;
+            stripLine.StripWidth = 0.001;
 
             // Add strip line to the chart
-            chart.ChartAreas[0].AxisY.StripLines.Add(stripLine3);
+            chart.ChartAreas[0].AxisY.StripLines.Add(stripLine);
         }
+
 
         public static void ManageReferenceSeries(FrameGUI Main)
         {

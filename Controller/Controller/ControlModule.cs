@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Text;
 using System.IO;
 using GlobalComponents;
+using Newtonsoft.Json;
 
 namespace Controller
 {
@@ -47,10 +48,18 @@ namespace Controller
         static int T_HMI = 100;                                                 // [ms]
         static int T_Plant = 50;                                                // [ms]
 
+        // configuration
+        private static string config_file = "";
+        public static Configuration config = new Configuration();
+
+
         static void Main(string[] args)
         {
             // parse the command line arguments
             ParseArgs(args);
+
+            // load config from json
+            config = loadJson();
 
             // if no channel is used, don't re-direct the packets anywhere
             if (using_channel == false)
@@ -78,11 +87,22 @@ namespace Controller
             thread_listen_plant.Start();
 
             // create a thread for running a fixed interval control loop (for the standard PID)
-            if (controller_type == ControllerType.PID_STANDARD)
+            if (config.controlConfig.type == ControllerType.PID_STANDARD)
             {
                 Thread thread_control_loop = new Thread(() => ControlLoop());
                 thread_control_loop.Start();
             }
+        }
+
+        private static Configuration loadJson()
+        {
+            Configuration config = new Configuration();
+            using (StreamReader r = new StreamReader(config_file))
+            {
+                string json = r.ReadToEnd();
+                config = JsonConvert.DeserializeObject<Configuration>(json);
+            }
+            return config;
         }
 
         public static void SenderHMI(string IP, int port)
@@ -258,7 +278,7 @@ namespace Controller
                     // add controller if the tag corresponds to a controlled state
                     if (DEF_controlled_states.Contains(key))
                     {
-                        PIDList.Add(new PID(controller_type, u_saturation));
+                        PIDList.Add(new PID(config.controlConfig.type, config.controlConfig.range_min, config.controlConfig.range_max));
                     }
                 }
 
@@ -303,7 +323,7 @@ namespace Controller
                         double last_realized_actuator_value = Convert.ToDouble(received_packets["uc" + index].GetLastValue());
 
                         // update PID-controller
-                        switch (controller_type)
+                        switch (config.controlConfig.type)
                         {
                             case ControllerType.PID_STANDARD:
                                 if (flag != "loop") continue;
@@ -354,13 +374,8 @@ namespace Controller
 
                 switch (arg_name)
                 {
-                    case "controller":
-                        if (arg_sep[1] == "PID_STANDARD") controller_type = ControllerType.PID_STANDARD;
-                        if (arg_sep[1] == "PID_PLUS") controller_type = ControllerType.PID_PLUS;
-                        if (arg_sep[1] == "PID_SUPPRESS") controller_type = ControllerType.PID_SUPPRESS;
-                        break;
-                    case "control_range":
-                        u_saturation = new double[] { Convert.ToDouble(arg_sep[1]), Convert.ToDouble(arg_sep[2]) }; 
+                    case "config_file":
+                        config_file = arg_sep[1];
                         break;
                     case "log":
                         if (arg_sep[1] == "false") FLAG_LOG = false;

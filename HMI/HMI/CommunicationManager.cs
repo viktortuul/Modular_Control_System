@@ -79,8 +79,8 @@ namespace HMI
             thread_listener.Start();
 
             // load kalman settings
-            kalman_filter.updateKalmanFilter(Main.config.doubleWatertankModel.A1, Main.config.doubleWatertankModel.a1, Main.config.doubleWatertankModel.A2, Main.config.doubleWatertankModel.a2, Main.config.doubleWatertankModel.k);
-            kalman_filter.setAnomalyDetectorSettings(Main.config.anomalyDetector.delta);
+            kalman_filter.updateKalmanFilter(Main.config.kalmanDoubleWatertankModel.A1, Main.config.kalmanDoubleWatertankModel.a1, Main.config.kalmanDoubleWatertankModel.A2, Main.config.kalmanDoubleWatertankModel.a2, Main.config.kalmanDoubleWatertankModel.k);
+            kalman_filter.setAnomalyDetectorSettings(Main.config.anomalyDetector.cusumDelta);
         }
 
         private void Sender(string IP, int port)

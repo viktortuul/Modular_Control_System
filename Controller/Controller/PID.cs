@@ -50,11 +50,11 @@ namespace Controller
         private double u_min = 0;
 
         // empty constructor
-        public PID(string controller_type, double[] u_saturation)
+        public PID(string controller_type, double u_saturation_min, double u_saturation_max)
         {
             this.controller_type = controller_type;
-            this.u_min = u_saturation[0];
-            this.u_max = u_saturation[1];
+            this.u_min = u_saturation_min;
+            this.u_max = u_saturation_max;
             Console.WriteLine("PID controller added: " + controller_type);
             Console.WriteLine("Control signal range: [" + u_min + ", " + u_max + "]");
         }
