@@ -69,10 +69,10 @@ namespace HMI
 
         public void updateKalmanFilter(double A1, double a1, double A2, double a2, double k)
         {
-            this.a1 = a1;
-            this.a2 = a2;
             this.A1 = A1;
+            this.a1 = a1;
             this.A2 = A2;
+            this.a2 = a2;
             this.k = k;
         }
 
